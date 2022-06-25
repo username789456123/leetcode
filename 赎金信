@@ -1,0 +1,26 @@
+bool canConstruct(char * ransomNote, char * magazine){
+	int r=strlen(ransomNote);
+	int m=strlen(magazine);
+	if(r>m)
+	return false;
+	int ans[26]={0};
+	int i;
+	for(i=0;i<r;i++){
+		ans[ransomNote[i] - 'a']++;
+        ans[magazine[i] - 'a']--;		//统计每个字母的次数，如果小于0，则ma中次数大于ra，如果大于0则反之 
+	}
+	if(r < m)
+    {
+        for(int i=r; i<m; i++)
+    {
+        ans[magazine[i] - 'a']--;
+    }
+    }
+    for(int i=0; i<26; i++)
+    {
+        if(ans[i] > 0)
+        return false;
+    }
+//如果最后得到的每一个值都是正数，那说明我们的提供方数组是没有剩余的。 false
+    return true;
+}//除了这两个条件之外，其他的全部都是对的。 true
