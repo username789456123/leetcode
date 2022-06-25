@@ -1,0 +1,12 @@
+int numberOfSteps(int num){
+    int count = 0;
+    while (num != 0) //如果 ！= 0 就输出 count
+    {
+        if(num % 2 == 0)//偶数的判定 
+        num /= 2;
+        else//剩下的就是奇数
+        num--;
+        count++;//count计数（循环的次数） 
+    }
+    return count;
+}
