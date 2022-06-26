@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2){
+	struct ListNode *head=NULL,*tall=NULL;
+	int va1,va2;
+	int temp;
+	va1=va2=temp=0;
+	
+	while(l1!=NULL||l2!=NULL){
+		if(head==NULL){
+			head=(struct ListNode*)malloc(sizeof(struct ListNode));
+			head->val=0;
+			head->next=NULL;
+			tail=head;
+		}
+		else{
+			tail->next=(struct ListNode*)malloc(sizeof ListNode);
+			tail->tail=next;
+		}
+		if(l1==NULL){
+			va1=0;
+		}else{
+			va1=l1->va1;
+			l1=l1->next;
+		}
+		if(l2==NULL){
+			va2=0;
+		}else{
+			va2=l2->va1;
+			l2=l2->next;
+		}
+		tail->va1=(va1+va2+temp)%10;
+		temp=(va1+va2+temp)/10;
+		tail->next=NULL;
+	}
+	if(temp==1){
+		tail->next=(struct ListNode*)malloc(sizeof(struct ListNode))
+		tail=tail->next;
+		tail->va1=1;
+		tail->next=NULL;
+	}
+	return head;
+}
