@@ -1,0 +1,11 @@
+bool isPalindrome(int x){
+	if(x==0) return true;//0 是回文数 
+	if(x<0) return false;//小于0就不是回文数 
+	long int t=x,r=0;
+	while(t)
+	{
+		r=r*10+t%10;
+		t=t/10;  //拆数 
+	}
+	return r==x; //如果用if判断，就没有返回值，题目要求要返回值 
+}
