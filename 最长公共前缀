@@ -1,0 +1,15 @@
+char * longestCommonPrefix(char ** strs, int strsSize){//strSize:最长公共前缀
+    int i,j;
+    if(strsSize==0)
+    return "";
+    //纵向扫描,一列一列看直到找到有字符不一样的
+    for(i=0;i<strsSize;i++)
+    {
+        for(j=0;j<strlen(strs[0]);j++){
+            if(strs[i][j]!=strs[0][j])  //第j列不同，已经找到最长公共前缀
+            strs[0][j]='\0';  //保存最长公共前缀
+            //strs[0];
+        }
+    }
+return strs[0];
+}
