@@ -1,0 +1,30 @@
+//首先明确；这是两个升序链表 升序！升序！！  最后自然也是升序
+//思想：一共三个指针，
+    //两个链表各一个指针， 再来个“墙头草”-temp指针，保存到哪跟到哪
+//思路：（企图去）遍历两个链表，但是可能出现：一个遍历完毕，另一个还有剩余的情况，这种情况就把剩余的直接接上去（因为是 升序链表）
+
+struct ListNode* mergeTwoLists(struct ListNode* list1, struct ListNode* list2){
+    struct ListNode *ret, *tmp; //创建一个哨兵结点（类似于射线的端点，只是不存值）和一个临时指针
+    ret = malloc(sizeof (struct ListNode));//给哨兵结点分配空间，但他存的是  NULL
+    tmp = ret;//先给临时指针赋初值（最开始指向哪里）
+    while(list1 && list2){//当连个链表中没有遍历完毕的，就继续循环遍历
+        if (list2->val > list1->val){//谁小谁在前，list1小 list1在前
+            tmp->next = list1;//临时指针指向 list1 
+            tmp = list1;//赋值
+            list1 = list1->next;// list1 向后移1位
+        }
+        else//否则就反过来呗~ list2 小看 list2
+        {
+            tmp->next = list2;
+            tmp = list2;
+            list2 = list2->next;
+        }
+    }
+//下面的if else 语句承接第4行和第10行，剩下的直接拼接在后面就可以了
+//同时，这个也省下了“边界判断”（即：如果两个链表其中有一个是 空 怎么办？）。这里表示：直接接上不就好了
+    if(list1)
+        tmp->next = list1;
+    else
+        tmp->next = list2;
+    return ret->next;//这里，ret是哨兵，里面存的是 NULL，返回咱们自己设的这个哨兵没意义，所以返回 next
+}
