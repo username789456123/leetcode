@@ -1,0 +1,31 @@
+bool isValid(char * s){
+    int flag=1,i=0,k=0,co=0,l=0;
+    l = strlen(s);//求字符串长度
+    char *sta;
+    sta = (char*)malloc(sizeof(char)*l);//初始化字符数组
+    if(l%2==1)//一个符合题意的字符串长度应该为偶数
+        flag = 0;
+    for(i=0;s[i]!='\0'&&flag==1;i++){
+        if(s[i]=='('||s[i]=='['||s[i]=='{'){//左括号就赋值
+            sta[k] = s[i];
+            k++;
+            continue;
+        }
+        else if(k>0){
+            co = s[i]==')'?1:2;//ascII表中的值
+            if(sta[k-1]+co==s[i])
+                k--;
+            else
+                flag = 0;
+        }
+        else{//k=0时右括号无效
+            flag = 0;
+            break;
+        }
+        if(k>l/2){//如果左括号数量的大于总的一半肯定无效
+            flag = 0;
+            break;
+        }
+    }
+    return (flag&&!k);//防止只出现左括号的情况，故k必须等于零
+}
