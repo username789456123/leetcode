@@ -1,0 +1,10 @@
+int removeElement(int* nums, int numsSize, int val) {
+	int left=0,right;
+	for(right=0;right<numsSize;right++){
+		if(nums[right]!=val){
+			nums[left]=nums[right];//left指针在right指针后面，当right指针指向val时，left指针不动 
+			left++;//当right指针没有指向val时，把right指针赋值给left指针 
+		}
+	}
+	return left;//用left指针存放数组，返回left指针的值 
+} 
