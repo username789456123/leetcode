@@ -1,0 +1,22 @@
+int lengthOfLastWord(char * s)
+{
+    int count = 0;
+    int i; 
+    bool find = false;
+
+    //从后到前开始遍历
+    for(i = strlen(s) - 1; i >= 0 ; i--)
+    {
+        if(s[i] == ' ' && find)
+        {
+            //找到空格且有非空格字符存在
+            break;
+        }
+        else if(s[i] != ' ')
+        {
+            find = true;
+            count++;
+        }
+    }
+    return count;
+}
