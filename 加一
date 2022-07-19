@@ -1,0 +1,39 @@
+int* plusOne(int* digits, int digitsSize, int* returnSize)
+{
+    int i = 0;
+    int update = 1;
+    int *temp =  (int *)malloc(sizeof(int) * digitsSize);
+    int* tempbak = NULL;
+    
+    //判断是否需要进位 如9+1=10，在前一位上面加一 
+    for (i = digitsSize - 1; i >= 0; i--)
+    {
+        if ((digits[i] + update) == 10)
+        {
+            temp[i] = 0;
+            update = 1;
+        }
+        else
+        {
+
+            temp[i] = digits[i] + update;
+            update = 0;
+        }
+    }
+
+    //如果位数超过当前数组的最大值 如999+1=1000，超出数组 
+    if (update)
+    {
+        *returnSize = digitsSize + 1;
+        tempbak = (int*)malloc((sizeof(int)) * (digitsSize + 1));
+        tempbak[0] = 1;
+        for (i = 0; i < digitsSize; i++)
+        {
+            tempbak[i + 1] = temp[i];
+        }
+        free(temp);
+        return tempbak;
+    }
+    *returnSize = digitsSize;
+    return temp;
+}
