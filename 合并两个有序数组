@@ -1,0 +1,13 @@
+int cmp(int*a,int*b)
+{
+	return *a-*b;//a-b是小到大，b-a是大到小 
+}
+
+void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n) {
+	for(int i=0;i<n;i++){
+		nums1[m+i]=nums2[i];
+	}
+	qsort(nums1,nums1Size,sizeof(int),cmp);//qsort(要排列的数组，数组大小，每个占的空间，排列方式)
+
+}
+//把两个数组合并到一起再排列 
