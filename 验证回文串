@@ -1,0 +1,38 @@
+bool isPalindrome(char * s){
+    int left = 0;
+    int right = strlen(s)-1;
+    while(left<right){
+        while(!((s[left]>='0' && s[left]<='9') || (s[left]>='a' && s[left]<='z') || (s[left]>='A' && s[left]<='Z'))){
+            left++;
+            if(left > right)
+                return true;
+        } 
+        while(!((s[right]>='0' && s[right]<='9') || (s[right]>='a' && s[right]<='z') || (s[right]>='A' && s[right]<='Z'))){
+            right--;
+            if(left > right)
+                return true;
+        }
+
+        if((s[left]>='0' && s[left]<='9') && !(s[right]>='0' && s[right]<='9')){
+            return false;
+        }
+        if((s[right]>='0' && s[right]<='9') && !(s[left]>='0' && s[left]<='9')){
+            return false;
+        }
+
+        if(s[left] == s[right] || s[left] == (s[right]+32) || s[left] == (s[right]-32)){            
+            if(left == right || left == (right-1)){
+                return true;   
+            }
+            left++;
+            right--;
+            if(left > right)
+                return false;
+            continue;
+        }
+        else{
+            return false;
+        }
+    }
+    return true;
+}
