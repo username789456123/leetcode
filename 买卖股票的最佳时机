@@ -1,0 +1,18 @@
+int maxProfit(int* prices, int pricesSize)
+{
+    //动态规划，dp[i][j]在第i天是否持有股票 j = 1持有  j = 0卖出 
+    int dp[pricesSize][2];
+    int i;
+    dp[0][0] = 0;   
+    dp[0][1] = -prices[0];
+    for(i = 1; i < pricesSize; i++ )
+    {
+        //第i天没有股票，有两种情况 昨天没有买 今天保持  昨天买了今天 卖出了
+        dp[i][0] = fmax(dp[i-1][0],dp[i-1][1] + prices[i]);
+        //第i天持有股票，有两种情况 昨天没有买 今天保持  昨天没买了  今天买
+        dp[i][1] = fmax(dp[i-1][1],-prices[i]);
+    }
+    //for(i = 0; i < pricesSize; i++ )
+    //    printf("i = %d dp[0]:%d  dp[1]:%d\n",i,dp[i][0],dp[i][1]);
+    return dp[pricesSize-1][0];
+}
