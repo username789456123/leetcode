@@ -1,17 +1,9 @@
-int singleNumber(int *nums,int numsSize){
-	int ans,flag=0;
-	for(int p=0;p<numsSize-1;p++){
-		flag=0;
-		for(int q=p+1;q<numsSize;q++){
-			if(nums[p]==nums[q]){
-				flag++;
-				break;
-			}	
-		}
-		if(!flag){
-			ans=nums[p];
-			break;
-		}
-	}
-	return ans;
-} 
+int singleNumber(int* nums, int numsSize)
+{
+    int n = nums[0];
+    int i = 0;
+    for(i = 1;i < numsSize;i ++){
+        n = n ^ nums[i];
+    }
+    return n;
+}
