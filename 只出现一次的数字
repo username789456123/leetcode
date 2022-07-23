@@ -1,0 +1,17 @@
+int singleNumber(int *nums,int numsSize){
+	int ans,flag=0;
+	for(int p=0;p<numsSize-1;p++){
+		flag=0;
+		for(int q=p+1;q<numsSize;q++){
+			if(nums[p]==nums[q]){
+				flag++;
+				break;
+			}	
+		}
+		if(!flag){
+			ans=nums[p];
+			break;
+		}
+	}
+	return ans;
+} 
