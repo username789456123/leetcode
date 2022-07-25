@@ -1,0 +1,25 @@
+typedef struct hashTable{
+	int key;
+    int val;
+    UT_hash_handle hh;
+} hashTable;
+
+bool containsNearbyDuplicate(int* nums, int numsSize, int k){
+	hashTable* map = NULL;
+    for(int i=0; i < numsSize; ++i){							//遍历数组
+        hashTable* temp = NULL;
+        HASH_FIND_INT(map, &nums[i], temp);
+        if(temp == NULL){									//新元素储存索引值
+            temp = (hashTable*)malloc(sizeof(hashTable));
+            temp->key = nums[i];
+            temp->val = i;
+            HASH_ADD_INT(map, key, temp);	
+        }else{												//重复元素检查索引差值的绝对值是否至多为k
+            if(i - temp->val <= k)							//满足则返回true
+            	return true;
+            else											//不满足则更新索引值
+            	temp->val = i;
+        }
+    }
+    return false;											//遍历完数组均不满足
+}
