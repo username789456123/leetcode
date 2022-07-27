@@ -1,0 +1,88 @@
+typedef struct {
+    char key[32];
+    int val;
+    UT_hash_handle hh;
+} HashItem;
+
+int* findSubstring(char * s, char ** words, int wordsSize, int* returnSize){    
+    int m = wordsSize, n = strlen(words[0]), ls = strlen(s);
+    int *res = (int *)malloc(sizeof(int) * ls);
+    int pos = 0;
+    for (int i = 0; i < n; i++) {
+        if (i + m * n > ls) {
+            break;
+        }
+        HashItem *diff = NULL;
+        char word[32] = {0};
+        for (int j = 0; j < m; j++) {
+            snprintf(word, n + 1, "%s", s + i + j * n);
+            HashItem * pEntry = NULL;
+            HASH_FIND_STR(diff, word, pEntry);
+            if (NULL == pEntry) {
+                pEntry = (HashItem *)malloc(sizeof(HashItem));
+                strcpy(pEntry->key, word);
+                pEntry->val = 0;
+                HASH_ADD_STR(diff, key, pEntry);
+            } 
+            pEntry->val++;            
+        }
+        for (int j = 0; j < m; j++) {
+            HashItem * pEntry = NULL;
+            HASH_FIND_STR(diff, words[j], pEntry);
+            if (NULL == pEntry) {
+                pEntry = (HashItem *)malloc(sizeof(HashItem));
+                strcpy(pEntry->key, words[j]);
+                pEntry->val = 0;
+                HASH_ADD_STR(diff, key, pEntry);
+            } 
+            pEntry->val--;
+            if (pEntry->val == 0) {
+                HASH_DEL(diff, pEntry);
+                free(pEntry);
+            }
+        }
+        for (int start = i; start < ls - m * n + 1; start += n) {
+            if (start != i) {
+                char word[32];
+                snprintf(word, n + 1, "%s", s + start + (m - 1) * n);
+                HashItem * pEntry = NULL;
+                HASH_FIND_STR(diff, word, pEntry);
+                if (NULL == pEntry) {
+                    pEntry = (HashItem *)malloc(sizeof(HashItem));
+                    strcpy(pEntry->key, word);
+                    pEntry->val = 0;
+                    HASH_ADD_STR(diff, key, pEntry);
+                } 
+                pEntry->val++;
+                if (pEntry->val == 0) {
+                    HASH_DEL(diff, pEntry);
+                    free(pEntry);
+                }
+                snprintf(word, n + 1, "%s", s + start - n);
+                pEntry = NULL;
+                HASH_FIND_STR(diff, word, pEntry);
+                if (NULL == pEntry) {
+                    pEntry = (HashItem *)malloc(sizeof(HashItem));
+                    strcpy(pEntry->key, word);
+                    pEntry->val = 0;
+                    HASH_ADD_STR(diff, key, pEntry);
+                } 
+                pEntry->val--;
+                if (pEntry->val == 0) {
+                    HASH_DEL(diff, pEntry);
+                    free(pEntry);
+                }
+            }
+            if (HASH_COUNT(diff) == 0) {
+                res[pos++] = start;
+            }
+        }
+        HashItem *curr, *tmp;
+        HASH_ITER(hh, diff, curr, tmp) {
+            HASH_DEL(diff, curr);  
+            free(curr);      
+        }
+    }
+    *returnSize = pos;
+    return res;
+}
