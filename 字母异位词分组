@@ -1,0 +1,52 @@
+#define MAX_SIZE 1005
+int cmp(void *a,void*b)
+{
+    char dataA = *(char*)(a);
+    char dataB =*(char*)(b);
+    return dataA - dataB;
+}
+typedef struct{
+    char* string;
+    int length;
+    char **array;
+    UT_hash_handle hh;
+}HASH;
+HASH *g_user =  NULL;
+char *** groupAnagrams(char ** strs, int strsSize, int* returnSize, int** returnColumnSizes){
+    char***ans = (char***)malloc(10000*sizeof(char**));
+    *returnColumnSizes = (int*)malloc(10000*sizeof(int));
+    for(int i=0;i<strsSize;i++){
+        char*str = strs[i];
+        int len = strlen(str);
+        char*origin = (char*)malloc((len+1)*sizeof(char));
+        strcpy(origin,strs[i]);        
+        qsort(str,len,sizeof(char),cmp);
+        HASH * temp = NULL;
+        HASH_FIND_STR(g_user,str,temp);
+        if(temp == NULL){
+            temp =(HASH*)malloc(sizeof(HASH));
+            temp->array=(char**)malloc(MAX_SIZE*sizeof(char*));
+            temp->string = str;
+            temp->length = 0;
+            temp->array[temp->length++] = origin;
+            HASH_ADD_STR(g_user,string,temp);
+        }else {
+            temp->array[temp->length++] = origin;
+        }
+    }
+    HASH * temp = NULL;
+    HASH * s = NULL;
+    int cnt = 0;
+    HASH_ITER(hh, g_user, s, temp){
+        char**group = (char**)malloc(s->length*sizeof(char*));
+        for(int i =0;i<s->length;i++){
+            group[i] = s->array[i];
+        }
+        (*returnColumnSizes)[cnt] = s->length;
+        ans[cnt] = group;
+        cnt++;
+        HASH_DEL(g_user,s);
+    }
+    *returnSize = cnt;
+    return ans;
+}
