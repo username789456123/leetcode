@@ -1,0 +1,92 @@
+bool isValidSudoku(char** board, int boardSize, int* boardColSize)
+{
+    
+    int cnt[10]= {0};
+    
+    //行遍历
+    memset(cnt, 0,sizeof(int) * 10);
+    int  i = 0;
+    int  j = 0;
+
+    //行检查
+    for(i = 0 ; i < 9 ; i++)
+    {
+        memset(cnt, 0,sizeof(int) * 10);
+        for(j = 0 ; j < 9 ; j++)
+        {
+            
+            //行
+            if(board[i][j] >= '1' && board[i][j] <= '9')
+            {
+                
+                //大于1小于9
+                char value = board[i][j] - '0';
+                if(cnt[value])
+                {
+                    return false;
+                    //出现重复的啦
+                }
+                cnt[value]++;
+            }
+        }
+    }
+
+
+     //列检查
+    for(i = 0 ; i < 9 ; i++)
+    {
+        memset(cnt, 0,sizeof(int) * 10);
+        for(j = 0 ; j < 9 ; j++)
+        {
+            
+            //行
+            if(board[j][i] >= '1' && board[j][i] <= '9')
+            {
+                
+                //大于1小于9
+                char value = board[j][i] - '0';
+                if(cnt[value])
+                {
+                    return false;
+                    //出现重复的啦
+                }
+                cnt[value]++;
+            }
+        }
+    }   
+
+
+     //宫检查
+    int k = 0;
+    //9个宫
+    //  0   1   2
+    //  3   4   5
+    for(k = 0; k < 9 ; k++ )
+    {
+        i = (k % 3)* 3;      //列的计算 取余数
+        j = (k / 3)*3;       //行计算  取整数
+        //行起始
+        int tempi;
+        int tempj;
+        memset(cnt, 0,sizeof(int) * 10);
+        for(tempi = 0 ; tempi < 3 ; tempi++)
+        {
+            for(tempj = 0; tempj < 3 ; tempj++)
+            {
+                if(board[i+tempi][j+tempj] >= '1' && board[i+tempi][j+tempj] <= '9')
+                {
+                    
+                    //大于1小于9
+                    char value = board[i+tempi][j+tempj] - '0';
+                    if(cnt[value])
+                    {
+                        return false;
+                        //出现重复的啦
+                    }
+                    cnt[value]++;
+                }
+            }
+        }
+    }
+    return true;
+}
