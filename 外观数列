@@ -1,0 +1,24 @@
+char * countAndSayYes(char*s,int n){
+	if(n==1){
+		return s;
+	}
+	else{
+		int count;
+		char ret[10000]={0};
+		char*temp=ret;
+		while(*s!='\0'){
+			count=1;
+			while(*s==*(s+1)){
+				count++;
+				s++;
+			}
+			*temp++=(char)(count+'0');
+			*temp++=*s++;
+		}
+		return countAndSayYes(ret,n-1);
+	}
+}
+
+char * countAndSay(int n){
+    return countAndSayYes("1",n);
+}
