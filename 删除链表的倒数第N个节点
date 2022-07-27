@@ -1,0 +1,33 @@
+struct ListNode* removeNthFromEnd(struct ListNode* head, int n){
+    int len = 1;
+    struct ListNode* ptr = head;
+    struct ListNode* ptrAhead = head;
+    //计算链表总长度
+    while(ptr->next != NULL){
+        len++;
+        ptrAhead = ptr;
+        ptr = ptr->next;
+    }
+    //此时ptr一定指向最后一个结点，ptrAhead指向ptr的前一个结点
+    //如果要删除的是最后一个结点
+    if(n == 1){
+        //如果就一个结点，直接返回NULL
+        if(ptr == head)
+            return NULL;
+        else{
+            ptrAhead->next = NULL;
+            return head;
+        }
+    }
+    ptr = head;
+    //如果要删除的是第一个结点
+    if(len == n){
+        return head->next;
+    }
+    //处理正常情况，ptr最终会指向要删除的前一个结点
+    for(int i=0; i<len-n-1; i++){
+        ptr = ptr->next;
+    }
+    ptr->next = ptr->next->next;
+    return head;
+}
