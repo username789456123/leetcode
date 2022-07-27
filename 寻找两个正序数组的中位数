@@ -1,0 +1,49 @@
+double mid(int a, int c, int d, int la, int lb, int* L, int* R)
+{
+	//如果二分的位置大于长度
+	if (a / 2 + c > la+1 && c != la+1)//范围需要合并下
+	{
+		if (L[la] < R[a / 2 + d-1])
+			return mid(a - la-1, c + la+1, d, la, lb, L, R);
+		else
+			return mid(a - a / 2, c, d + a / 2, la, lb, L, R);
+	}
+	if (a / 2 + d > lb+1 && d != lb+1)
+	{
+		if (L[a / 2 + c-1] < R[lb])
+			return mid(a - a / 2, c + a / 2, d, la, lb, L, R);
+		else
+			return mid(a - lb-1, c, d + lb+1, la, lb, L, R);
+	}
+	if (a != 1 && c != la+1 && d != lb+1)
+	{
+		int mmid = a / 2;
+		if (L[mmid + c-1] < R[mmid + d-1])
+			return mid(a - mmid, c + mmid, d, la, lb, L, R);
+		else
+			return mid(a - mmid, c, d + mmid, la, lb, L, R);
+	}
+	if (c == la+1)
+	    return R[a + d-1];
+	if (d == lb+1)
+		return L[a + c-1];
+	if (a == 1)//需要两个数组不为空
+		return L[c ] < R[d ] ? L[c] : R[d];
+	return 0;
+}
+double findMedianSortedArrays(int* L, int La, int* R, int Lb) {
+	int middle;
+	int la = La - 1;
+	int lb = Lb - 1;
+	int left = 0, right = 0;
+	if ((la+1 + lb+1) % 2 == 0)
+	{
+		middle = (la+1 + lb+1) / 2;
+		return ((double)mid(middle, left, right, la, lb, L, R) + (double)mid(middle + 1, left, right, la, lb, L, R)) / 2;
+	}
+	else
+	{
+		middle = (la+1 + lb+1) / 2 + 1;
+		return mid(middle, left, right, la, lb, L, R);
+	}
+}
