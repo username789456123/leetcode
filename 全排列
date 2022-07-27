@@ -1,0 +1,34 @@
+void swap(int *nums,int indexA,int indexB)
+{
+	int temp=nums[indexA];
+	nums[indexA]=nums[indexB];
+	nums[indexB]=temp;
+}
+
+void prem(int *nums,int numsSize,int *returnSize,int** returnColumnSizes,int** returnNums,int offset)
+{
+	if(offset==numsSize)
+	{
+		returnNums[*returnSize]=(int *)malloc(sizeof(int)*numsSize);
+		memcpy(returnNums[*returnSize],nums,sizeof(int)*numsSize);
+		(*returnColumnSizes)[*returnSize] = numsSize;
+        *returnSize = *returnSize + 1;
+	}
+	else{
+		int i;
+		for(i=offset;i<numsSize;i++){
+			swap(nums,i,offset);
+			prem(nums,numsSize,returnColumnSizes,returnNums,offset+1);
+			swap(nums,i,offset);
+		}
+	}
+}
+
+int** permute(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
+{
+	int **returnNums = (int **)malloc(sizeof(int *) * 721);
+    *returnColumnSizes= (int *)malloc(sizeof(int ) * 721);
+    *returnSize = 0;
+    prem(nums,numsSize,returnSize,returnColumnSizes,returnNums,0);
+    return returnNums;
+}
