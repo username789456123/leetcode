@@ -1,0 +1,30 @@
+struct ListNode* mergeTwoLists(struct ListNode *l1, struct ListNode *l2){//两两排序
+    struct ListNode head;
+    struct ListNode* tail = &head;
+    head.next = NULL;
+    while(l1 && l2){
+        if (l1->val <= l2->val){
+            tail->next = l1;
+            l1 = l1->next;
+        }
+        else{
+            tail->next = l2;
+            l2 = l2->next;
+        }
+        tail = tail->next;
+    }
+    tail->next = l1 ? l1 : l2;
+    return head.next;
+}
+struct ListNode* TwoLists(struct ListNode** lists, int l, int r){//递归分治
+    if(l == r)  return lists[l];
+    if(l > r)  return NULL;
+    int mid = l + (r - l)/2;
+    struct ListNode *l1 = TwoLists(lists, l, mid);
+    struct ListNode *l2 = TwoLists(lists, mid+1, r);
+    return mergeTwoLists(l1, l2);
+}
+struct ListNode* mergeKLists(struct ListNode** lists, int listsSize){
+    if(!listsSize)  return NULL;
+    return TwoLists(lists, 0, listsSize-1);
+}
