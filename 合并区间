@@ -1,0 +1,62 @@
+struct vat
+{
+    int start;
+    int end;
+};
+
+int compare(struct vat* a,struct vat  *b)
+{
+    return a->start - b->start;
+}
+
+
+int** merge(int** intervals, int intervalsSize, int* intervalsColSize, int* returnSize, int** returnColumnSizes)
+{
+    struct vat newVat[intervalsSize];
+    for(int i =0; i < intervalsSize; i++)
+    {
+        newVat[i].start = intervals[i][0];
+        newVat[i].end   = intervals[i][1];
+    }
+    qsort(newVat,intervalsSize,sizeof(struct vat),compare);
+    
+
+
+    int **returnInteval = (int **)malloc(sizeof(int *) * intervalsSize);
+    *returnColumnSizes  = (int *)malloc(sizeof(int ) * intervalsSize);
+    *returnSize = 0;
+    for(int i =0; i < intervalsSize; i++)
+    {
+        if(*returnSize)
+        {
+            int preEnd = returnInteval[*returnSize-1][1];
+            if(newVat[i].start <= preEnd)
+            {
+                //合并
+                int  maxEnd = fmax(preEnd,newVat[i].end);
+                returnInteval[*returnSize-1][1] = maxEnd;
+            }
+            else
+            {
+                //没有重合的
+                int newRow = *returnSize;
+                returnInteval[newRow]   = (int *)malloc(sizeof(int ) * 2);
+                returnInteval[newRow][0] =  newVat[i].start;
+                returnInteval[newRow][1] =  newVat[i].end;
+                (*returnColumnSizes)[newRow] = 2;
+                *returnSize = *returnSize + 1;
+            }
+        }
+        else
+        {
+            int newRow = *returnSize;
+            returnInteval[newRow]   = (int *)malloc(sizeof(int ) * 2);
+            returnInteval[newRow][0] =  newVat[i].start;
+            returnInteval[newRow][1] =  newVat[i].end;
+            (*returnColumnSizes)[newRow] = 2;
+            *returnSize = *returnSize + 1;
+            
+        }
+    }
+    return returnInteval;
+}
