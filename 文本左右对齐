@@ -1,0 +1,66 @@
+char ** fullJustify(char ** words, int wordsSize, int maxWidth, int* returnSize){
+    char **ret = malloc(sizeof(char*) * wordsSize);
+    int i, j, sumnum, wordnum, count, index, average, remind;
+    char *space = malloc(sizeof(char) * maxWidth);
+    *returnSize = 0;
+    for(i = 0; i < maxWidth; i++){
+        space[i] = ' ';
+    }
+    for (i = 0; i < wordsSize; ) {
+        count = 1;
+        index = 0;
+        sumnum = wordnum = strlen(words[i++]);
+        while (i < wordsSize && sumnum <= maxWidth) {
+            wordnum += strlen(words[i]);
+            sumnum += strlen(words[i++]) + 1;
+            count++;
+        }
+        if(sumnum > maxWidth){
+            i--;
+            count--;
+            sumnum -= (strlen(words[i]) + 1);
+            wordnum -= strlen(words[i]);
+            if(count == 1){
+                average = (maxWidth - wordnum) / (count);
+                remind = (maxWidth - wordnum) - (count) * average;
+            } else {
+                average = (maxWidth - wordnum) / (count - 1);
+                remind = (maxWidth - wordnum) - (count - 1) * average;
+            }
+            //printf("%d %d\n", average, remind);
+            ret[*returnSize] = calloc(sizeof(char), (maxWidth + 1));
+            for(j = 0; j < count; j++){
+                memcpy(ret[*returnSize] + index, words[i - count + j], 
+                       strlen(words[i - count + j]));
+                index += strlen(words[i - count + j]);
+                if(index == maxWidth){
+                    break;   
+                }
+                if(remind > 0){
+                    memcpy(ret[*returnSize] + index, space, sizeof(char) * (average + 1));
+                    remind--;
+                    index += average + 1;
+                } else {
+                    memcpy(ret[*returnSize] + index, space, sizeof(char) * average);
+                    index += average;
+                }
+            }
+            //printf("%s\n", ret[*returnSize]);
+            (*returnSize)++;
+        } else {
+            ret[*returnSize] = calloc(sizeof(char), (maxWidth + 1));
+            for(j = 0; j < count; j++){
+                memcpy(ret[*returnSize] + index, words[wordsSize - count + j],
+                       strlen(words[wordsSize - count + j]));
+                index += strlen(words[wordsSize - count + j]);
+                if(index < maxWidth)
+                    ret[*returnSize][index++] = ' ';
+            }
+            for(; index < maxWidth; ){
+                ret[*returnSize][index++] = ' ';
+            }
+            (*returnSize)++;
+        }
+    }
+    return ret;
+}
