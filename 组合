@@ -1,0 +1,36 @@
+int *path;
+int pathsize;
+int **ans;
+int anssize;
+
+void com(int n,int k,int cur){
+	if(pathsize+(n-cur+1)<k){
+		return;
+	}
+	if(pathsize==k){
+		int*temp=malloc(sizeof(int)*k);
+		for(int i=0;i<k;i++){
+			temp[i]=path[i];
+		}
+		ans[anssize++]=temp;
+		return;
+	}
+	path[pathsize++]=cur;
+	com(n,k,cur+1);
+	pathsize--;
+	com(n,k,cur+1);
+}
+
+int** combine(int n, int k, int* returnSize, int** returnColumnSizes){
+path=malloc(sizeof(int)*k);
+ans=malloc(sizeof(int*)*10001);
+pathsize=anssize=0;
+com(n,k,1);
+
+*returnSize=anssize;
+*returnColumnSizes=malloc(sizeof(int*)*anssize);
+for(int i=0;i<anssize;i++){
+    (*returnColumnSizes)[i]=k;
+}
+return ans;
+}
