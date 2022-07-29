@@ -1,0 +1,52 @@
+char * minWindow(char * s, char * t){
+    int lent = strlen(t);
+    int lens = strlen(s);
+    int len = lens + 1; //用来判断可能会出现的找不到的情况，因为找到的话那字符串总长不会超过lens
+    int *need = malloc(sizeof(int) * 256);//字符串T中的字母种类和个数，用字母ASCII码做下标，值作为个数
+    memset(need, 0, sizeof(int) * 256);
+    int *window = malloc(sizeof(int) * 256);//滑动窗口中包含的字母种类和个数，规则同need
+    memset(window, 0, sizeof(int) * 256);
+    int left = 0, right = 0;//窗的左右边界，这是一个左闭右开的窗
+    int cnt = 0;
+    int valid = 0; //窗口中满足字符串T中的字母种类，比如字符串T中有字母a共10个，那么窗口中有10个a的时候这个值++
+    int start = 0;
+    for (int i = 0; i < lent; i++) { //记录字符串T
+        need[t[i]]++;
+    }
+    for (int i = 0; i < 256; i++) { //字符串T中字母种类
+        if (need[i] != 0) {
+            cnt++;
+        }
+    }
+    while (right < lens) {   //边界条件
+        char c = s[right]; //将要移入窗口的字符
+        right++;    //扩窗
+        if (need[c] != 0) {  //窗口数据更新
+            window[c]++;
+            if (window[c] == need[c]) {
+                valid++;
+            }
+        }
+        while (valid == cnt) { //判断左侧窗口是否要收缩
+            if (right - left < len) { //更新最小覆盖子串
+                start = left;
+                len = right - left;
+            }
+            char d = s[left]; //将要移出窗口的字符
+            left++;  //缩窗
+            if (need[d] != 0) {
+                if (window[d] == need[d]) {
+                    valid--;
+                }
+                window[d]--;
+            }
+        }
+    }
+    if (len != lens + 1) { //返回最小覆盖子串
+        char *res = malloc(sizeof(char) * (len + 1));
+        *res = '\0';
+        strncat(res, s + start, len);
+        return res;
+    }
+    return "";
+}
