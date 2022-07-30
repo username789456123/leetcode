@@ -1,0 +1,32 @@
+struct TreeNode*min;
+int n,flag;
+void priod(struct TreeNode* root)
+{
+    if(root)
+    {
+        priod(root->right);
+        if(min)
+        {
+            if(min->val<root->val)
+            {
+                int t=min->val;
+                min->val=root->val;
+                root->val=t;
+                flag=1;
+            }
+        }
+        min=root;
+        priod(root->left);
+    }
+}
+void recoverTree(struct TreeNode* root){
+    n=1000;
+    while(n--)
+    {
+        flag=0;
+        min=NULL;
+        priod(root);
+        if(!flag) 
+        break;
+    }
+}
