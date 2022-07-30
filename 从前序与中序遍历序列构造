@@ -1,0 +1,59 @@
+//树的遍历
+void Traversal(struct TreeNode**  root,int* preorder, int preorderSize, int* inorder, int inorderSize)
+{
+    int i;
+    int rootValue = preorder[0];
+    int count = 0;
+    *root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    (*root)->left   = NULL;
+    (*root)->right  = NULL;
+    (*root)->val    = rootValue;
+    //找中序中查找
+    for (i = 0; i < inorderSize; i++)
+    {
+        if (inorder[i] == rootValue)
+        {
+            //找到符合的值
+            break;
+        }
+        count++;//左子树的数量
+    }
+    //左子树
+    if (count > 0)
+    {
+        int leftNum = count;
+        int* newPreorder = (int*)malloc(sizeof(int) * leftNum);
+        memcpy(newPreorder, preorder + 1, sizeof(int) * leftNum);
+
+        int* newInorder = (int*)malloc(sizeof(int) * leftNum);
+        memcpy(newInorder, inorder, sizeof(int) * leftNum);
+        Traversal(&(*root)->left, newPreorder, leftNum, newInorder, leftNum);
+
+        free(newPreorder);
+        free(newInorder);
+    }
+
+
+    //右子树
+    if ((count  + 1) < preorderSize)
+    {
+        int rightNum = preorderSize - count - 1;
+        int* newPreorder = (int*)malloc(sizeof(int) * rightNum);
+        memcpy(newPreorder, preorder + count + 1, sizeof(int) * rightNum);
+
+        int* newInorder = (int*)malloc(sizeof(int) * rightNum);
+        memcpy(newInorder, inorder + count + 1, sizeof(int) * rightNum);
+        Traversal(&(*root)->right, newPreorder, rightNum, newInorder, rightNum);
+        free(newPreorder);
+        free(newInorder);
+    }
+}
+
+struct TreeNode* buildTree(int* preorder, int preorderSize, int* inorder, int inorderSize) 
+{
+    //前序preorder 根左右
+    //中序inorder  左根右
+    struct TreeNode* head = NULL;
+    Traversal(&head, preorder, preorderSize, inorder, inorderSize);
+    return head;
+}
