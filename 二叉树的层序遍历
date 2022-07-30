@@ -1,0 +1,104 @@
+struct Queue
+{
+    struct TreeNode* node;
+    struct Queue*    next;
+};
+
+void enQueue(struct Queue *queueHead, struct  TreeNode* node)
+{
+    //插入到尾部
+    struct Queue* queueIt  = queueHead;
+    while(queueIt->next != NULL)
+    {
+        queueIt = queueIt->next;
+    }
+    struct Queue *queueNew = malloc(sizeof(struct Queue));
+    queueNew->node  = node;
+    queueNew->next  = NULL;
+    queueIt->next  = queueNew;
+}
+
+struct  TreeNode* deQueue(struct Queue *queueHead)
+{
+    //插入到尾部
+    struct Queue* queueIt    = queueHead->next;
+    struct  TreeNode* node;
+    if(queueIt != NULL)
+    {
+        queueHead->next =  queueIt->next;
+        node = queueIt->node;
+        free(queueIt);                      //释放空间
+        return node;
+    }
+    return NULL;
+}
+
+void  freeQueue(struct Queue *queueHead)
+{
+    //清理链表
+    struct Queue*  queueIt    = queueHead->next;
+    struct Queue*  queuePre  = queueHead->next;
+    if(queueIt != NULL)
+    {
+        queuePre = queueIt;
+        queueIt  =  queueIt->next;
+        free(queuePre);                      //释放空间
+    }
+    free(queueHead);
+
+}
+
+
+
+void bfs(int* returnSize,int** returnColumnSizes,int **returnNum,struct Queue* queueHead)
+{
+    struct Queue* queueIt = queueHead->next;
+    if (queueIt->node == NULL)
+    {
+        return;
+    }
+    int count = 0;
+    returnNum[*returnSize] = (int*)malloc(sizeof(int) * 2000);
+    while(1)
+    {
+       struct TreeNode * node = deQueue(queueHead);
+       if(node == NULL)
+       {
+           break;
+       }
+       returnNum[*returnSize][count] = node->val;
+       count++;
+
+       if(node->left != NULL)
+       {
+           enQueue(queueHead,node->left);
+       }
+
+       if(node->right != NULL)
+       {
+           enQueue(queueHead,node->right);
+       }
+    }
+    enQueue(queueHead,NULL);
+    (*returnColumnSizes)[*returnSize ] = count;
+    *returnSize = *returnSize + 1;
+    bfs(returnSize,returnColumnSizes,returnNum,queueHead);
+}
+
+
+int** levelOrder(struct TreeNode* root,int* returnSize,int** returnColumnSizes)
+{
+    *returnSize = 0;
+    if(root == NULL)
+        return NULL;
+    int** returnNum = (int**)malloc(sizeof(int*) * 2000);
+    *returnColumnSizes = (int*)malloc(sizeof(int) * 2000);
+    struct Queue *queueHead = malloc(sizeof(struct Queue));
+    queueHead->next = NULL;
+    queueHead->node = NULL;
+    enQueue(queueHead,root);
+    enQueue(queueHead,NULL);
+    bfs(returnSize,returnColumnSizes,returnNum,queueHead);
+    freeQueue(queueHead);
+    return returnNum;
+}
