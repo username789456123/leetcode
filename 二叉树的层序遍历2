@@ -1,0 +1,36 @@
+int** levelOrderBottom(struct TreeNode* root, int* returnSize, int** returnColumnSizes) {
+    int** levelOrder = malloc(sizeof(int*) * 2001);
+    *returnColumnSizes = malloc(sizeof(int) * 2001);
+    *returnSize = 0;
+    if (!root) {
+        return levelOrder;
+    }
+    struct TreeNode** q = malloc(sizeof(struct TreeNode*) * 2001);
+    int left = 0, right = 0;
+    q[right++] = root;
+    while (left < right) {
+        int len = right - left;
+        int* level = malloc(sizeof(int) * len);
+        (*returnColumnSizes)[*returnSize] = len;
+        for (int i = 0; i < len; ++i) {
+            struct TreeNode* node = q[left++];
+            level[i] = node->val;
+            if (node->left != NULL) {
+                q[right++] = node->left;
+            }
+            if (node->right != NULL) {
+                q[right++] = node->right;
+            }
+        }
+        levelOrder[(*returnSize)++] = level;
+    }
+    for (int i = 0; 2 * i < *returnSize; ++i) {
+        int* tmp1 = levelOrder[i];
+        levelOrder[i] = levelOrder[(*returnSize) - i - 1];
+        levelOrder[(*returnSize) - i - 1] = tmp1;
+        int tmp2 = (*returnColumnSizes)[i];
+        (*returnColumnSizes)[i] = (*returnColumnSizes)[(*returnSize) - i - 1];
+        (*returnColumnSizes)[(*returnSize) - i - 1] = tmp2;
+    }
+    return levelOrder;
+}
