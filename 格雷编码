@@ -1,0 +1,13 @@
+int* grayCode(int n, int* returnSize) {
+	int *ret=(int*)malloc((1<<n)*sizeof(int));
+	ret[0]=0;
+	int ret_size=1;
+	for(int i=1;i<=n;i++){
+		for (int j = ret_size - 1; j >= 0; j--) {
+            ret[2 * ret_size - 1 - j] = ret[j] | (1 << (i - 1));
+        }
+        ret_size <<= 1;
+	}
+	*returnSize = ret_size;
+    return ret;
+}
