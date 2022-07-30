@@ -1,19 +1,43 @@
-struct ListNode* partition(struct ListNode* head, int x) {
-	struct ListNode* small=malloc(sizeof(struct ListNode));
-	struct ListNode* smallHead=small;
-	struct ListNode* large=malloc(sizeof(struct ListNode));
-	struct ListNode* largeHead=large;
-	while(head!=NULL){
-		if(head->val<x){
-			small->next=head;
-			small=small->next;
-		}else {
-            large->next = head;
-            large = large->next;
+bool isScramble(char * s1, char * s2){
+    int n = strlen(s1);
+    int m = strlen(s2);
+    if (n != m) {
+        return false;
+    }
+    int dp[n][n][n + 1];
+    memset(dp, 0, sizeof(dp));
+    // 初始化单个字符的情况
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if(s1[i] == s2[j])
+                dp[i][j][1] = 1;
         }
-        head=head->next;
-	}
-	large->next = NULL;
-    small->next = largeHead->next;
-    return smallHead->next;
+    }
+
+        // 枚举区间长度 2～n
+    for (int len = 2; len <= n; len++) {
+            // 枚举 S 中的起点位置
+        for (int i = 0; i <= n - len; i++) {
+                // 枚举 T 中的起点位置
+            for (int j = 0; j <= n - len; j++) {
+                    // 枚举划分位置
+                for (int k = 1; k <= len - 1; k++) {
+                        // 第一种情况：S1 -> T1, S2 -> T2
+                    if (dp[i][j][k] && dp[i + k][j + k][len - k]) {
+                        dp[i][j][len] = 1;
+                        break;
+                    }
+                        // 第二种情况：S1 -> T2, S2 -> T1
+                        // S1 起点 i，T2 起点 j + 前面那段长度 len-k ，S2 起点 i + 前面长度k
+                    if (dp[i][j + len - k][k] && dp[i + k][j][len - k]) {
+                            dp[i][j][len] = 1;
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    if(dp[0][0][n] == 1)
+        return true;
+    return false;
 }
