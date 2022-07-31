@@ -1,0 +1,91 @@
+struct Trie {
+    int ch[27];
+    int val;
+} trie[50001];
+
+int size, nodeNum;
+
+void insert(char* s, int num) {
+    int sSize = strlen(s), add = 0;
+    for (int i = 0; i < sSize; ++i) {
+        int x = s[i] - '`';
+        if (trie[add].ch[x] == 0) {
+            trie[add].ch[x] = ++size;
+            memset(trie[size].ch, 0, sizeof(trie[size].ch));
+            trie[size].val = -1;
+        }
+        add = trie[add].ch[x];
+    }
+    trie[add].val = num;
+}
+
+int find(char* s) {
+    int sSize = strlen(s), add = 0;
+    for (int i = 0; i < sSize; ++i) {
+        int x = s[i] - '`';
+        if (trie[add].ch[x] == 0) {
+            return -1;
+        }
+        add = trie[add].ch[x];
+    }
+    return trie[add].val;
+}
+
+int addWord(char* word) {
+    if (find(word) == -1) {
+        insert(word, nodeNum++);
+    }
+    return find(word);
+}
+
+int edge[30001][26];
+
+int edgeSize[30001];
+
+void addEdge(char* word) {
+    int wordSize = strlen(word), id1 = addWord(word);
+    for (int i = 0; i < wordSize; ++i) {
+        char tmp = word[i];
+        word[i] = '`';
+        int id2 = addWord(word);
+        edge[id1][edgeSize[id1]++] = id2;
+        edge[id2][edgeSize[id2]++] = id1;
+        word[i] = tmp;
+    }
+}
+
+int ladderLength(char* beginWord, char* endWord, char** wordList, int wordListSize) {
+    size = nodeNum = 0;
+    memset(trie[size].ch, 0, sizeof(trie[size].ch));
+    trie[size].val = -1;
+    memset(edgeSize, 0, sizeof(edgeSize));
+    for (int i = 0; i < wordListSize; ++i) {
+        addEdge(wordList[i]);
+    }
+    addEdge(beginWord);
+    int beginId = find(beginWord), endId = find(endWord);
+    if (endId == -1) {
+        return 0;
+    }
+
+    int dis[nodeNum];
+    memset(dis, -1, sizeof(dis));
+    dis[beginId] = 0;
+
+    int que[nodeNum];
+    int left = 0, right = 0;
+    que[right++] = beginId;
+    while (left < right) {
+        int x = que[left++];
+        for (int i = 0; i < edgeSize[x]; ++i) {
+            if (dis[edge[x][i]] == -1) {
+                dis[edge[x][i]] = dis[x] + 1;
+                if (edge[x][i] == endId) {
+                    return dis[edge[x][i]] / 2 + 1;
+                }
+                que[right++] = edge[x][i];
+            }
+        }
+    }
+    return 0;
+}
