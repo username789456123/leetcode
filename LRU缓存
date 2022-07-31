@@ -1,0 +1,80 @@
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+}HashMap;
+
+typedef struct {
+    HashMap *list;
+    int capacity; // 系统的最大容量
+    int num; // 当前缓存的容量    
+} LRUCache;
+
+LRUCache* lRUCacheCreate(int capacity)
+{
+    LRUCache *obj = (LRUCache *)malloc(sizeof(LRUCache));
+    obj->capacity = capacity;
+    obj->list = NULL;
+    obj->num = 0;
+    return obj;
+}
+
+int lRUCacheGet(LRUCache* obj, int key)
+{
+    int ans = -1;
+    HashMap *s;
+    HASH_FIND_INT(obj->list, &key, s);
+    if (s != NULL) {
+        /* 利用uthash底层实现双链表，先删除后增加，保证新操作的节点都在后面，
+            接近list头部的都是很久没有访问的 */
+        ans = s->val;
+        HASH_DEL(obj->list, s);
+        HASH_ADD_INT(obj->list, key, s);
+    }
+    return ans;
+}
+
+void lRUCachePut(LRUCache* obj, int key, int value)
+{
+    HashMap *s;
+    HASH_FIND_INT(obj->list, &key, s);
+    if (s != NULL) {
+        s->val = value;
+        HASH_DEL(obj->list, s);
+        HASH_ADD_INT(obj->list, key, s);
+        return;
+    }
+    // 没有找到，创建新的hash节点
+    HashMap *new = (HashMap *)malloc(sizeof(HashMap));
+    new->key = key;
+    new->val = value;
+    // 检查capacity的容量
+    if (obj->num < obj->capacity) {
+        HASH_ADD_INT(obj->list, key, new);
+        obj->num++;
+        return;
+    }
+    // capacity已经满了，找到最长时间没有访问的，version最小
+    HashMap *cur;
+    HashMap *tmp;
+    HASH_ITER(hh, obj->list, cur, tmp) {
+        // 删除第一个节点，加入最新的
+        HASH_DEL(obj->list, cur);        
+        free(cur);
+        break;
+    }
+    // printf("%d\n", HASH_COUNT(obj->list));
+    HASH_ADD_INT(obj->list, key, new);
+    obj->num++;
+}
+
+void lRUCacheFree(LRUCache* obj)
+{
+    HashMap *cur;
+    HashMap *s;
+    HASH_ITER(hh, obj->list, cur, s) {
+        HASH_DEL(obj->list, cur);
+        free(cur);
+    }
+    free(obj);
+}
