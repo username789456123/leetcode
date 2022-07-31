@@ -1,0 +1,89 @@
+void dfs(char** board, int boardSize, int ColSize,int row,int column)
+{
+    if(board[row][column] != 'O')
+    {
+        return;
+    }
+    board[row][column] = 'M';
+
+
+    int newRow;
+    int newColumn;
+    //上
+    if(row != 0)    //还能上
+    {
+        newRow = row - 1;
+        dfs(board,boardSize,ColSize,newRow,column);
+    }
+
+    if(row != boardSize - 1)    //还能下
+    {
+        newRow = row + 1;
+        dfs(board,boardSize,ColSize,newRow,column);
+    }
+
+
+    if(column != 0)        //还能左
+    {
+        newColumn = column - 1;
+        dfs(board,boardSize,ColSize,row,newColumn);
+    }
+
+    if(column != ColSize-1)  //还能右
+    {
+        newColumn = column + 1;
+        dfs(board,boardSize,ColSize,row,newColumn);
+    }
+    //到最后
+}
+
+
+void solve(char** board, int boardSize, int* boardColSize)
+{
+    //从4条表开始处理
+    //把与4边相互连接的‘O’改成中间值‘M’
+    int row;
+    int column;
+    //上墙壁
+    row = 0;
+    for(column = 0; column < boardColSize[row]; column++)
+    {
+        dfs(board,boardSize,boardColSize[row],row,column);
+    }
+
+    //下墙壁
+    row = boardSize - 1;
+    for(column = 0; column < boardColSize[row]; column++)
+    {
+        dfs(board,boardSize,boardColSize[row],row,column);
+    }
+
+    //左墙壁
+    column = 0;
+    for(row = 0; row < boardSize - 1; row++)
+    {
+        dfs(board,boardSize,boardColSize[row],row,column);
+    }
+
+    //右墙壁
+    column = boardColSize[0]-1;
+    for(row = 0; row < boardSize - 1; row++)
+    {
+        dfs(board,boardSize,boardColSize[row],row,column);
+    }
+
+    for(row = 0; row < boardSize; row++)
+    {
+         for(column = 0; column < boardColSize[row]; column++)
+         {
+             if(board[row][column] == 'M')
+             {
+                 board[row][column] = 'O';
+             }
+             else if(board[row][column] == 'O')
+             {
+                 board[row][column] = 'X';
+             }
+         }
+    }
+}
