@@ -1,0 +1,48 @@
+typedef struct {
+    int* res;
+    int size;
+    int idx;
+} BSTIterator;
+
+int getTreeSize(struct TreeNode* root) {
+    if (root == NULL) {
+        return 0;
+    }
+    return 1 + getTreeSize(root->left) + getTreeSize(root->right);
+}
+
+void inorder(int* ret, int* retSize, struct TreeNode* root) {
+    if (root == NULL) {
+        return;
+    }
+    inorder(ret, retSize, root->left);
+    ret[(*retSize)++] = root->val;
+    inorder(ret, retSize, root->right);
+}
+
+int* inorderTraversal(int* retSize, struct TreeNode* root) {
+    *retSize = 0;
+    int* ret = malloc(sizeof(int) * getTreeSize(root));
+    inorder(ret, retSize, root);
+    return ret;
+}
+
+BSTIterator* bSTIteratorCreate(struct TreeNode* root) {
+    BSTIterator* ret = malloc(sizeof(BSTIterator));
+    ret->res = inorderTraversal(&(ret->size), root);
+    ret->idx = 0;
+    return ret;
+}
+
+int bSTIteratorNext(BSTIterator* obj) {
+    return obj->res[(obj->idx)++];
+}
+
+bool bSTIteratorHasNext(BSTIterator* obj) {
+    return (obj->idx < obj->size);
+}
+
+void bSTIteratorFree(BSTIterator* obj) {
+    free(obj->res);
+    free(obj);
+}
