@@ -1,3 +1,24 @@
+void dfs(struct TreeNode* root ,int* returnNums ,int* returnSize,int deep)
+{
+    if(root  == NULL)
+    {
+        return;
+    }
+
+    //左 
+    dfs(root->left,returnNums,returnSize,deep+1);
+
+    //根
+    returnNums[deep-1] = root->val;
+    *returnSize = fmax(* returnSize, deep);
+
+    //右 
+    dfs(root->right,returnNums,returnSize,deep+1);
+
+}
+
+
+
 int* rightSideView(struct TreeNode* root, int* returnSize)
 {
     int* returnNums = (int *)malloc(sizeof(int) * 101);
