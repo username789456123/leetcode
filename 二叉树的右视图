@@ -1,0 +1,7 @@
+int* rightSideView(struct TreeNode* root, int* returnSize)
+{
+    int* returnNums = (int *)malloc(sizeof(int) * 101);
+    *returnSize = 0;
+    dfs(root,returnNums,returnSize,1);
+    return returnNums;
+}
