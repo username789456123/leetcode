@@ -1,0 +1,68 @@
+typedef struct MinStack
+{
+    int data;
+    struct MinStack *next;
+} MinStack;
+
+
+
+
+MinStack* minStackCreate() 
+{
+    MinStack * newStack = (MinStack *) malloc(sizeof(MinStack));
+    newStack->data      = 0;
+    newStack->next      = NULL;
+    return newStack;
+}
+
+void minStackPush(MinStack* obj, int val) 
+{
+    MinStack * newStack = (MinStack *) malloc(sizeof(MinStack));
+    newStack->data  = val;
+    newStack->next  = obj->next;
+    obj->next       = newStack;
+}
+
+void minStackPop(MinStack* obj) 
+{
+    if(obj->next != NULL)
+    {   
+        MinStack* freeStrack = obj->next ;
+        obj->next = freeStrack->next;
+        free(freeStrack);
+    }
+}
+
+int minStackTop(MinStack* obj) 
+{
+    return obj->next->data;
+}
+
+int minStackGetMin(MinStack* obj) 
+{
+    MinStack * it = obj->next;
+    int minValue = it->data;
+    while(it != NULL)
+    {
+        if( it->data < minValue )
+        {
+            minValue = it->data;
+        }
+        it = it->next;
+    }
+    return minValue;
+
+}
+
+void minStackFree(MinStack* obj)
+ {
+     MinStack * it = obj->next;
+     MinStack* freeStrack = obj->next ;
+     if(it != NULL)
+     {
+         it = it->next;
+         free(freeStrack);
+         freeStrack = it;
+     }
+     
+}
