@@ -1,0 +1,181 @@
+#define MAXSIZE 769/* 选取一个质数即可 */
+typedef struct Node 
+{
+    char    string[101];
+    int     index;
+    struct Node *next;  //保存链表表头
+} List;
+
+typedef struct 
+{
+    List *hashHead[MAXSIZE];//定义哈希数组的大小
+} MyHashMap;
+
+List * isInHash(List *list,char * stringKey) 
+{
+    List *nodeIt = list;
+    //通过链表下遍历
+    while (nodeIt != NULL) 
+    {
+        if (strcmp(stringKey, nodeIt->string)== 0 ) 
+        {
+            return nodeIt;
+        }
+        nodeIt = nodeIt->next;
+    }
+    return NULL;
+}
+
+MyHashMap* myHashMapCreate() 
+{
+    int i;
+    MyHashMap* newHash= (MyHashMap* )malloc(sizeof(MyHashMap));
+    /* 对链表的头结点赋初值 */
+    for (i = 0; i < MAXSIZE; i++)
+    {
+        newHash->hashHead[i] = NULL;
+    }
+    return newHash;
+}
+
+int myHashID(char * str)
+{
+    long h = 0;
+    for(int i = 0; i < strlen(str); i++)
+    {
+        h = (h * 26 % MAXSIZE + str[i] - 'A') % MAXSIZE; 
+        // 字符串的hashcode, 权为26是因为小写字母，不限制时为128，这样能够让结点尽可能分布均匀，减少地址冲突
+        // 取模是为了防止int型溢出
+    }
+    return h % MAXSIZE;
+}
+
+
+void myHashMapPut(MyHashMap* obj, char* stringKey,int index) 
+{
+    //一定不再这里面
+    List * it= isInHash(obj->hashHead[myHashID(stringKey)],stringKey);
+    if(it != NULL)
+    {
+        //在表里面更新键值
+        it->index = index;
+    }
+    else
+    {
+        //不在表里面
+        List *newNode       = (List*)malloc(sizeof(List));
+        strcpy(newNode->string , stringKey);
+        newNode->next       = NULL;
+        newNode->index      = index;
+        if(obj->hashHead[myHashID(stringKey)] != NULL)
+        {
+            //当前头链表不为空，则需要将后续的链表接上
+            //需要主要这里表头也代表一个数据的值
+            newNode->next = obj->hashHead[myHashID(stringKey)];
+        }
+        //修改头链表
+        obj->hashHead[myHashID(stringKey)] =  newNode;
+    }
+}
+
+int myHashMapGet(MyHashMap* obj, char* stringKey) 
+{
+    List * it= isInHash(obj->hashHead[myHashID(stringKey)],stringKey);
+    if( it!= NULL)
+    {
+        return it->index;
+    }
+    return -1;
+}
+
+void myHashMapFree(MyHashMap* obj) 
+{
+   int i;
+   List *freeIt;
+   List *curIt;
+   for (i = 0; i < MAXSIZE; i++)
+    {
+        if(obj->hashHead[i] != NULL)
+        {
+            freeIt = NULL;
+            curIt  = obj->hashHead[i];
+            
+            while(curIt != NULL)
+            {
+                freeIt = curIt;
+                curIt= curIt->next;
+                free(freeIt);
+            }
+            obj->hashHead[i]= NULL;
+        }
+    }
+    free(obj);
+}
+
+
+char ** findRepeatedDnaSequences(char * s, int* returnSize)
+{
+    char* stringKey = (char * )malloc(sizeof(char ) * 11);
+    int len = strlen(s);
+    if(len < 10)
+    {
+        *returnSize = 0;
+        return NULL;
+    }
+
+    MyHashMap * hsahMap = myHashMapCreate();
+    int maxCount = 0;
+    for(int i = 10; i <= len; i++)
+    {
+        memcpy(stringKey, &s[i-10], 10);
+        stringKey[10] = '\0';
+        int count = myHashMapGet(hsahMap, stringKey);
+        if(count == -1)
+        {
+            count = 1;
+            
+        }
+        else
+        {
+            count++;
+        }
+        myHashMapPut(hsahMap,stringKey,count);
+        maxCount = fmax(maxCount, count);
+    }
+
+    if(maxCount < 2)
+    {
+        *returnSize = 0;
+        return NULL;
+    }
+
+    *returnSize = 0;
+    char ** returnMatStr = (char ** )malloc(sizeof(char *) * len);
+    int i;
+    List *freeIt;
+    List *curIt;
+    for (i = 0; i < MAXSIZE; i++)
+    {
+        if(hsahMap->hashHead[i] != NULL)
+        {
+            freeIt = NULL;
+            curIt  = hsahMap->hashHead[i];
+            
+            while(curIt != NULL)
+            {
+                freeIt = curIt;
+                curIt= curIt->next;
+                if(freeIt->index == maxCount)
+                {
+                    returnMatStr[*returnSize] = (char * )malloc(sizeof(char ) * 11);
+                    strcpy(returnMatStr[*returnSize],  freeIt->string);
+                    *returnSize = *returnSize + 1;
+                }
+                free(freeIt);
+            }
+            hsahMap->hashHead[i]= NULL;
+        }
+    }
+    free(hsahMap);
+    return returnMatStr;
+}
