@@ -1,0 +1,53 @@
+//除了使用深度优先遍历与广度优先遍历之外还可以使用并查集进行求解，对所有的节点进行合并之后，求并查集中集合的个数
+int cnt = 0;
+void init(char** grid, int* arr, int len, int r, int c){
+    for (int i = 0; i < r; i++){
+        for (int j = 0; j < c; j++){
+            if (grid[i][j] == '1'){//先统计出所有的‘1’作为一个单独的集合加入到并查集中
+                cnt++;
+                arr[i * c + j] = i * c + j;
+            }else{
+                arr[i * c + j] = -1;//不是'1'的元素就不加入了，将其设置为-1，因为在代码遍历过程中有进行判断所以不会查找到它
+            }
+        }
+    }
+}
+
+int find(int* arr, int x){
+    if (x != arr[x]){
+        arr[x] = find(arr, arr[x]);
+    }
+    return arr[x];
+}
+
+void unions(int* arr, int l, int r){
+    int pl = find(arr, l);
+    int pr = find(arr, r);
+    if (pl != pr){
+        arr[pl] = pr;
+        --cnt;//每次合并两个集合的时候就将计数进行减1.
+    }
+}
+
+int numIslands(char** grid, int gridSize, int* gridColSize){
+    int r = gridSize;
+    int c = gridColSize[0];
+    cnt = 0;
+    int* findSet = malloc(sizeof(int) * (r * c + 1));
+    init(grid, findSet, r * c + 1, r, c);
+    for (int i = 0; i < gridSize; i++){
+        for (int j = 0; j < gridColSize[i]; j++){
+            if (grid[i][j] == '0'){
+                continue;
+            }
+            //因为是顺序遍历的，所以只需要往右下方向进行合并就可以了
+            if (i < (r - 1) && grid[i + 1][j] == '1'){
+                unions(findSet, i * c + j, (i + 1) * c + j);
+            }
+            if (j < (c - 1) && grid[i][j + 1] == '1'){
+                unions(findSet, i * c + j, i * c + j + 1);
+            }
+        }
+    }
+    return cnt;
+}
