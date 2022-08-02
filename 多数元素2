@@ -1,0 +1,44 @@
+
+struct hashTable {
+    int key;//关键字
+    int value;//出现次数
+    UT_hash_handle hh;
+};
+
+int value_sort(struct hashTable *a, struct hashTable *b) {
+    return (b -> value - a -> value);
+}
+
+int* majorityElement(int* nums, int numsSize, int* returnSize){
+    *returnSize = 0;//初始化为0
+    struct hashTable *hash = NULL;//一定要指向NULL
+    int i;
+    for (i = 0; i < numsSize; i ++) {
+        struct hashTable *s = NULL;
+        HASH_FIND_INT(hash, nums + i, s);
+        if (s) {
+            s -> value ++;
+        } else {
+            s = (struct hashTable*)malloc(sizeof(struct hashTable));
+            s -> key = *(nums + i);
+            s -> value = 1;
+            HASH_ADD_INT(hash, key, s);
+        }
+    }
+    /*其实不排序直接遍历更好*/
+    HASH_SORT(hash, value_sort);
+    i = 0;
+    if (hash -> value > numsSize/3) {
+        nums[i ++] = hash -> key;
+        (*returnSize) ++;
+        for (struct hashTable *p = hash -> hh.next; p != NULL; p = p -> hh.next) {
+            if ( p -> value > numsSize/3) {
+                nums[i ++] = p -> key;
+                (*returnSize) ++;
+            } else {
+                break;
+            }
+        }
+    }
+    return nums;
+}
