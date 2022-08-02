@@ -1,0 +1,88 @@
+#define ADDITION -1
+#define SUBTRACTION -2
+#define MULTIPLICATION -3
+
+struct ListNode * dfs(struct ListNode ***dp, int l, int r, const int *ops) {
+    if (!dp[l][r]) {
+        if (l == r) {
+            struct ListNode *node = (struct ListNode *)malloc(sizeof(struct ListNode));
+            node->val = ops[l];
+            node->next = dp[l][r];
+            dp[l][r] = node;
+        } else {
+            for (int i = l; i < r; i += 2) {
+                for (struct ListNode *left = dfs(dp, l, i, ops); left; left = left->next) {
+                    for (struct ListNode *right = dfs(dp, i + 2, r, ops); right; right = right->next) {
+                        struct ListNode *node = (struct ListNode *)malloc(sizeof(struct ListNode));
+                        if (ops[i + 1] == ADDITION) {
+                            node->val = left->val + right->val;
+                        } else if (ops[i + 1] == SUBTRACTION) {
+                            node->val = left->val - right->val;
+                        } else {
+                            node->val = left->val * right->val;
+                        }
+                        node->next = dp[l][r];
+                        dp[l][r] = node;
+                    }
+                }
+            }
+        }
+    }
+    return dp[l][r];
+}
+
+int* diffWaysToCompute(char * expression, int* returnSize) {
+    int len = strlen(expression);
+    int *ops = (int *)malloc(sizeof(int) * len);
+    int opsSize = 0;
+    for (int i = 0; i < len;) {
+        if (!isdigit(expression[i])) {
+            if (expression[i] == '+') {
+                ops[opsSize++] = ADDITION;
+            } else if (expression[i] == '-') {
+                ops[opsSize++] = SUBTRACTION;
+            } else {
+                ops[opsSize++] = MULTIPLICATION;
+            }
+            i++;
+        } else {
+            int t = 0;
+            while (i < len && isdigit(expression[i])) {
+                t = t * 10 + expression[i] - '0';
+                i++;
+            }
+            ops[opsSize++] = t;
+        }
+    }
+    struct ListNode ***dp = NULL;
+    dp = (struct ListNode ***)malloc(sizeof(struct ListNode **) * opsSize);
+    for (int i = 0; i < opsSize; i++) {
+        dp[i] = (struct ListNode **)malloc(sizeof(struct ListNode *) * opsSize);
+        for (int j = 0; j < opsSize; j++) {
+            dp[i][j] = NULL;
+        }
+    }
+    int *ans = (int *)malloc(sizeof(int) * (1 << opsSize));
+    int pos = 0;
+    struct ListNode *node = dfs(dp, 0, opsSize - 1, ops);
+    while (node) {
+        ans[pos++] = node->val;
+        node = node->next;
+    }
+    *returnSize = pos;
+    for (int i = 0; i < opsSize; i++) {
+        for (int j = 0; j < opsSize; j++) {
+            struct ListNode *curr, *tmp;
+            curr = dp[i][j];
+            while (curr) {
+                tmp = curr;
+                curr = curr->next;
+                free(tmp);
+            }
+        }
+        free(dp[i]);
+    }
+    free(dp);
+    free(ops);
+    return ans;
+}
