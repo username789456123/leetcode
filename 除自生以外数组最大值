@@ -1,0 +1,30 @@
+int* productExceptSelf(int* nums, int numsSize, int* returnSize)
+{
+    //除自身的乘积的的值 等于 左乘积 *  右乘积
+    int leftPro[numsSize];
+    int rightPro[numsSize];
+
+    //左乘积
+    leftPro[0] = 1;
+    for(int i = 1; i < numsSize; i++)
+    {
+        leftPro[i] =  leftPro[i-1] *  nums[i-1];
+    }
+
+
+
+    //右乘积
+    rightPro[numsSize-1] = 1;
+    for(int i = numsSize - 1 - 1; i  >= 0 ; i--)
+    {
+        rightPro[i] =  rightPro[i+1] *  nums[i+1];
+    }
+
+    *returnSize = numsSize;
+    int * returnNums = (int *)malloc(sizeof(int) * numsSize);
+    for(int i =0; i < numsSize; i++)
+    {
+        returnNums[i] = leftPro[i] * rightPro[i];
+    }
+    return returnNums;
+}
