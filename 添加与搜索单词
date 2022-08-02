@@ -1,0 +1,64 @@
+#define MAX_SIZE 26
+
+typedef struct WordDictionary_t{
+    struct WordDictionary_t *next[MAX_SIZE];
+    bool finish;
+} WordDictionary;
+
+
+WordDictionary* wordDictionaryCreate() {
+    WordDictionary * wd = (WordDictionary*)malloc(sizeof(WordDictionary));
+    memset(wd->next,0,sizeof(WordDictionary*)*MAX_SIZE);  //next指针数组的初始化
+    wd->finish = false;
+    return wd;
+}
+
+void wordDictionaryAddWord(WordDictionary* obj, char * word) {
+    int len = strlen(word);
+    if(len == 0){
+        obj->finish = true;
+        return ;
+    }
+    for(int i = 0;i<len;i++){
+        if(obj->next[word[i] -'a'] == NULL){ //next不存在就调创建接口创建一个26叉子树
+            obj->next[word[i] - 'a'] = wordDictionaryCreate();
+        }
+        obj =  obj->next[word[i] - 'a'];
+    }  
+    obj->finish = true; //到结尾，置true
+}
+
+bool wordDictionarySearch(WordDictionary* obj, char * word) {
+    int ret = false;
+    int len = strlen(word);    
+    for(int i = 0;i<len;i++){
+        if(word[i] == '.'){
+            //需要遍历当前节点的所有子树，只要有任何一个子树能匹配完成，就返回true
+            for(int j = 0;j<26;j++){
+                if(obj->next[j] != NULL){
+                    bool ret = wordDictionarySearch(obj->next[j],word+i+1);
+                    if(ret){
+                        return true;
+                    }
+                }
+            }
+            return false;   //没匹配到，返回false.
+        }
+        else{
+            if(obj->next[word[i] - 'a'] == NULL){
+                return false;
+            }
+            obj = obj->next[word[i] - 'a'];
+        }
+    }
+    return obj->finish;  //匹配到最后一个字符，tree还没到叶子节点，直接返回当前节点的finish标志。
+}
+
+void wordDictionaryFree(WordDictionary* obj) {
+    for(int i = 0;i<26;i++){
+        if(obj->next[i] != NULL){
+            wordDictionaryFree(obj->next[i]);
+        }
+    }
+    free(obj);
+}
