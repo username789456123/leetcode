@@ -1,0 +1,102 @@
+struct pair {
+    int first, second;
+};
+
+struct Heap {
+    struct pair* heap;
+    int heapSize;
+    bool (*cmp)(struct pair*, struct pair*);
+};
+
+void init(struct Heap* obj, int n, bool (*cmp)(struct pair*, struct pair*)) {
+    obj->heap = malloc(sizeof(struct pair) * (n + 1));
+    obj->heapSize = 0;
+    obj->cmp = cmp;
+}
+
+bool cmp1(struct pair* a, struct pair* b) {
+    return a->second < b->second;
+}
+
+void swap(struct pair* a, struct pair* b) {
+    struct pair tmp = *a;
+    *a = *b, *b = tmp;
+}
+
+void push(struct Heap* obj, int x, int y) {
+    int p = ++(obj->heapSize), q = p >> 1;
+    obj->heap[p] = (struct pair){x, y};
+    while (q) {
+        if (!obj->cmp(&(obj->heap[q]), &(obj->heap[p]))) {
+            break;
+        }
+        swap(&(obj->heap[q]), &(obj->heap[p]));
+        p = q, q = p >> 1;
+    }
+}
+
+void pop(struct Heap* obj) {
+    swap(&(obj->heap[1]), &(obj->heap[(obj->heapSize)--]));
+    int p = 1, q = p << 1;
+    while (q <= obj->heapSize) {
+        if (q + 1 <= obj->heapSize) {
+            if (obj->cmp(&(obj->heap[q]), &(obj->heap[q + 1]))) {
+                q++;
+            }
+        }
+        if (!obj->cmp(&(obj->heap[p]), &(obj->heap[q]))) {
+            break;
+        }
+        swap(&(obj->heap[q]), &(obj->heap[p]));
+        p = q, q = p << 1;
+    }
+}
+
+struct pair top(struct Heap* obj) {
+    return obj->heap[1];
+}
+
+bool empty(struct Heap* obj) {
+    return obj->heapSize == 0;
+}
+
+int cmp(int* a, int* b) {
+    return *a - *b;
+}
+
+int** getSkyline(int** buildings, int buildingsSize, int* buildingsColSize, int* returnSize, int** returnColumnSizes) {
+    int n = buildingsSize;
+    struct Heap* heap = malloc(sizeof(struct Heap));
+    init(heap, n << 1, cmp1);
+
+    int boundaries[n << 1];
+    for (int i = 0; i < n; i++) {
+        boundaries[i << 1] = buildings[i][0];
+        boundaries[i << 1 | 1] = buildings[i][1];
+    }
+    qsort(boundaries, n << 1, sizeof(int), cmp);
+
+    int** ret = malloc(sizeof(int*) * (n << 1));
+    *returnColumnSizes = malloc(sizeof(int) * (n << 1));
+    *returnSize = 0;
+    int idx = 0;
+    for (int i = 0; i < (n << 1); i++) {
+        int boundary = boundaries[i];
+        while (idx < n && buildings[idx][0] <= boundary) {
+            push(heap, buildings[idx][1], buildings[idx][2]);
+            idx++;
+        }
+        while (!empty(heap) && top(heap).first <= boundary) {
+            pop(heap);
+        }
+
+        int maxn = empty(heap) ? 0 : top(heap).second;
+        if ((*returnSize) == 0 || maxn != ret[(*returnSize) - 1][1]) {
+            int* tmp = malloc(sizeof(int) * 2);
+            tmp[0] = boundary, tmp[1] = maxn;
+            (*returnColumnSizes)[*returnSize] = 2;
+            ret[(*returnSize)++] = tmp;
+        }
+    }
+    return ret;
+}
