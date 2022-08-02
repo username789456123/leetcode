@@ -1,0 +1,29 @@
+struct TreeNode** getPath(struct TreeNode* root, struct TreeNode* target, int* num) {
+    struct TreeNode** path = malloc(sizeof(struct TreeNode*) * 2001);
+    struct TreeNode* node = root;
+    while (node != target) {
+        path[(*num)++] = node;
+        if (target->val < node->val) {
+            node = node->left;
+        } else {
+            node = node->right;
+        }
+    }
+    path[(*num)++] = node;
+    return path;
+}
+
+struct TreeNode* lowestCommonAncestor(struct TreeNode* root, struct TreeNode* p, struct TreeNode* q) {
+    int num_p = 0, num_q = 0;
+    struct TreeNode** path_p = getPath(root, p, &num_p);
+    struct TreeNode** path_q = getPath(root, q, &num_q);
+    struct TreeNode* ancestor;
+    for (int i = 0; i < num_p && i < num_q; ++i) {
+        if (path_p[i] == path_q[i]) {
+            ancestor = path_p[i];
+        } else {
+            break;
+        }
+    }
+    return ancestor;
+}
