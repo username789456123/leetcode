@@ -1,0 +1,19 @@
+struct ListNode* frontPointer;
+
+bool recursivelyCheck(struct ListNode* currentNode) {
+    if (currentNode != NULL) {
+        if (!recursivelyCheck(currentNode->next)) {
+            return false;
+        }
+        if (currentNode->val != frontPointer->val) {
+            return false;
+        }
+        frontPointer = frontPointer->next;
+    }
+    return true;
+}
+
+bool isPalindrome(struct ListNode* head) {
+    frontPointer = head;
+    return recursivelyCheck(head);
+}
