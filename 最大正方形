@@ -1,0 +1,38 @@
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+int maximalSquare(char** matrix, int matrixSize, int* matrixColSize){
+    int i = 0, j = 0;
+    int max = 0;
+    int ** dp = (int **)malloc(sizeof(int*) * matrixSize);//构建dp
+    for(i = 0; i < matrixSize; i++)//遍历行
+    {
+        dp[i] = malloc(sizeof(int) * matrixColSize[0]);
+        for(j = 0; j < matrixColSize[0]; j++)//遍历列
+        {
+            if(i == 0 || j == 0)//边界处理
+            {
+                if(matrix[i][j] == '1')
+                {
+                    dp[i][j] = 1;
+                }
+                else
+                {
+                    dp[i][j] = 0;
+                }    
+                max = MAX(max , dp[i][j]);
+                continue;
+            }
+            if(matrix[i][j] == '1')//当前位置满足构建正方形的基本要求
+            {
+                dp[i][j] = MIN(dp[i-1][j-1] , (MIN(dp[i][j-1] , dp[i-1][j]))) + 1;
+            }
+            else//当前位置为0，基本要求都不满足
+            {
+                dp[i][j] = 0;
+            }
+            max = MAX(max , dp[i][j]);
+        }
+    }
+    free(dp);
+    return max*max;
+}
