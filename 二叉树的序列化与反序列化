@@ -1,0 +1,42 @@
+void preOrder(struct TreeNode* root, char* res){		
+	if(root == NULL){
+        strcat(res, "#");					
+        strcat(res, ",");							
+        return ;
+    }
+    char temp[10] = "";							
+	sprintf(temp, "%d", root->val);					
+    strcat(res, temp);						
+    strcat(res, ",");
+    preOrder(root->left, res);					
+    preOrder(root->right, res);							
+}
+
+char* serialize(struct TreeNode* root) {
+    char* res = (char* )malloc(sizeof(char) * 50000);
+    memset(res, '\0', sizeof(char) * 50000);			
+    preOrder(root, res);
+    return res;
+}
+
+
+struct TreeNode* buildTree(char* data, int* index){	
+	if(data[*index] == '#'){							
+        (*index) += 2;								
+    	return NULL;
+    }
+    struct TreeNode* root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    char temp[10] = "";								
+    for(int i=0; data[*index] != ','; ++i, ++(*index))	
+    	temp[i] = data[*index];
+    ++(*index);
+    root->val = atoi(temp);								
+    root->left = buildTree(data, index);					
+    root->right = buildTree(data, index);				
+    return root;
+}
+
+struct TreeNode* deserialize(char* data) {
+    int index = 0;
+    return buildTree(data, &index);
+}
