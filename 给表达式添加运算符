@@ -1,0 +1,81 @@
+#define MAX_SIZE 20000
+
+static bool cal(char *num, int len, char *op, int target) {
+    int i, count = 0;
+    long arr[len];
+    char newop[len];
+    arr[count] = (num[0] - '0');
+    for (i = 1; i < len; i++) {
+        if (op[i-1] == ' ') {
+            if (arr[count] == 0)
+                return false;
+            arr[count] *= 10;
+            arr[count] += (num[i] - '0');
+        } else {
+            newop[count] = op[i-1];
+            count++;
+            arr[count] = (num[i] - '0');
+        }
+    }
+    long sum = arr[0];
+    long last = arr[0];
+    for (i = 1; i <= count; i++) {
+        if (newop[i-1] == '+') {
+            sum += arr[i];
+            last = arr[i];
+        }
+        if (newop[i-1] == '-') {
+            sum -= arr[i];
+            last = -arr[i];
+        }
+        if (newop[i-1] == '*') {
+            sum -= last;
+            sum += (last * arr[i]);
+            last = (last * arr[i]);
+        }
+    }
+    if (sum == target)
+        return true;
+    else
+        return false;
+}
+
+static void dfs(char *num, int len, int target, int pos, char *op, char **ans, int *count) {
+    if (pos == (len - 1)) {
+        if (cal(num, len, op, target)) {
+            ans[*count] = malloc(sizeof(char) * (len * 2));
+            int index = 0;
+            for (int i = 0; i< len; i++) {
+                ans[*count][index++] = num[i];
+                if (op[i] != ' ')
+                    ans[*count][index++] = op[i];
+            }
+            (*count)++;
+        }
+    } else {
+        op[pos] = '+';
+        dfs(num, len, target, pos+1, op, ans, count);
+        op[pos] = '-';
+        dfs(num, len, target, pos+1, op, ans, count);
+        op[pos] = '*';
+        dfs(num, len, target, pos+1, op, ans, count);
+        op[pos] = ' '; 
+        dfs(num, len, target, pos+1, op, ans, count);
+    }
+}
+
+char ** addOperators(char * num, int target, int* returnSize) {
+    int i, len = strlen(num);
+
+    if (len == 0) {
+        *returnSize = 0;
+        return NULL;
+    }
+    char **ans = malloc(sizeof(char *) * MAX_SIZE);
+    int count = 0;
+    char *op = malloc(sizeof(char) * len);
+    op[len-1] = '\0';
+    dfs(num, len, target, 0, op, ans, &count);
+    *returnSize = count;
+    return ans;
+}
