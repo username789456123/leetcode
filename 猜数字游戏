@@ -1,0 +1,22 @@
+char * getHint(char * secret, char * guess){
+    char *ans=malloc(sizeof(char)*10);
+    int bulls=0,cows=0;
+    int nums[10]={0};
+    for(int i=0;i<strlen(secret);i++){
+        if(secret[i]==guess[i]){
+            bulls++;
+            secret[i]=guess[i]='a';
+        }
+        else{
+            nums[secret[i]-'0']++;
+        }
+    }
+    for(int i=0;i<strlen(guess);i++){
+        if(guess[i]!='a'&&nums[guess[i]-'0']>0){
+            nums[guess[i]-'0']--;
+            cows++;
+        }
+    }
+    sprintf(ans, "%dA%dB", bulls,cows);
+    return ans;
+}
