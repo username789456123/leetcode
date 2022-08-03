@@ -1,0 +1,99 @@
+#define DIR_NUM 8
+
+int px[DIR_NUM] = {-1, 1, 0, 0, -1, 1, -1, 1};
+int py[DIR_NUM] = {0, 0, -1, 1, -1, 1, 1, -1};
+
+int **backupData(int **board, int row, int col)
+{
+    int **res = (int **)malloc(sizeof(int *) * row);
+    if (res == NULL) {
+        return NULL;
+    }
+
+    int i;
+    for (i = 0; i < row; i++) {
+        res[i] = (int *)malloc(sizeof(int) * col);
+        if (res[i] == NULL) {
+            return NULL;
+        }
+    }
+
+    int j;
+    for (i = 0; i < row; i++) {
+        for (j = 0; j < col; j++) {
+            res[i][j] = board[i][j];
+        }
+    }
+
+    return res;
+}
+
+void freeBuff(int **buffer, int row, int col)
+{
+    int i;
+    for (i = 0; i < row; i++) {
+        free(buffer[i]);
+        buffer[i] = NULL;
+    }
+
+    free(buffer);
+    buffer = NULL;
+}
+
+
+int countAliveNum(int **res, int x, int y, int row, int col)
+{
+    int count = 0;
+
+    int k;
+    for (k = 0; k < DIR_NUM; k++) {    
+        int newX = x + px[k];
+        int newY = y + py[k];
+        if (!(newX >= 0 && newX < row && newY >= 0 && newY < col)) { 
+            continue;
+        }
+        if (res[newX][newY] == 1) {
+            count++;
+        }
+    } 
+
+    return count;
+}
+
+void updateStatue(int **res, int **board, int x, int y, int count)
+{
+    if (res[x][y] == 1) {           
+        if (count < 2) {           
+            board[x][y] = 0;
+        } else if (count <= 3) {     
+            board[x][y] = 1;
+        } else {
+            board[x][y] = 0;
+        }
+    } else if (res[x][y] == 0) {    
+        if (count == 3) {        
+            board[x][y] = 1;
+        }
+    }
+}
+
+void gameOfLife(int **board, int boardSize, int *boardColSize)
+{
+    int row = boardSize;
+    int col = (*boardColSize);
+
+    int **res = backupData(board, row, col);
+    if (res == NULL) {
+        return;
+    }
+
+    int cnt_alive; 
+    int i, j;
+    for (i = 0; i < row; i++) {
+        for (j = 0; j < col; j++) {
+            cnt_alive = countAliveNum(res, i, j, row, col);   
+            updateStatue(res, board, i, j, cnt_alive);    
+        }
+    }
+    freeBuff(res, row, col);
+}
