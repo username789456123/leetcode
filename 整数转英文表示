@@ -1,0 +1,60 @@
+char* singles[] = {"", "One ","Two ","Three ","Four ","Five ","Six ","Seven ","Eight ","Nine "};
+char* teens[] = {"Ten ","Eleven ","Twelve ","Thirteen ","Fourteen ","Fifteen ","Sixteen ","Seventeen ","Eighteen ","Nineteen "};
+char* tys[] = {"","Ten ","Twenty ","Thirty ","Forty ","Fifty ","Sixty ","Seventy ","Eighty ","Ninety "};
+
+char * toEnglish(char* res, int num){				//转英文函数
+    int curNum = num;
+
+    int hundred = curNum / 100;    					//百位以上
+    if(hundred != 0){								//是否大于百位
+        strcat(res, singles[hundred]);
+        strcat(res, "Hundred ");
+    }
+    curNum %= 100;									//百位以下
+    int ty = curNum / 10;							//十位~百位
+    if(ty >= 2){									//是否大于20
+        strcat(res, tys[ty]);
+        curNum %= 10;
+    }
+    if(curNum >= 10){								//10~20
+        strcat(res, teens[curNum-10]);
+    }else if(curNum > 0 && curNum < 10){			//个位
+        strcat(res, singles[curNum]);
+    }
+
+    return res;
+}
+
+char * numberToWords(int num){
+    if(num == 0)
+        return "Zero";
+    
+    char* res = (char*)malloc(sizeof(char) * 200);	//储存结果
+    res[0] = '\0';
+    int curNum = num;
+
+    int billion = curNum / 1000000000;				//十亿以上
+    if(billion != 0){								//是否大于十亿
+        toEnglish(res, billion);					
+        strcat(res, "Billion ");
+    }
+    curNum %= 1000000000;							//十亿以下
+    int million = curNum / 1000000;					//百万~十亿
+    if(million != 0){								//是否大于百万
+        toEnglish(res, million);
+        strcat(res, "Million ");
+    }
+    curNum %= 1000000;								//百万以下
+    int thousand = curNum / 1000;					//千~百万
+    if(thousand != 0){								//是否大于千位
+        toEnglish(res, thousand);
+        strcat(res, "Thousand ");
+    }
+    curNum %= 1000;									//千位以下
+    toEnglish(res, curNum);
+    
+    int len = strlen(res);
+    res[len-1] = '\0';								//字符串结束
+
+    return res;
+}
