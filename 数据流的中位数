@@ -1,0 +1,122 @@
+typedef struct {
+    int *data;
+    int size;  // 当前堆的大小
+    int cap;  // 堆底层数组的容量
+    int (*comp)(int, int);  // 比较函数
+} Heap;
+
+void swap(int *data, int i, int j) {
+    int t = data[i];
+    data[i] = data[j];
+    data[j] = t;
+}
+
+void upAdjust(Heap *h, int index) {
+    while (index > 0 && h->comp(h->data[index], h->data[(index - 1) >> 1]) < 0) {
+        swap(h->data, index, (index - 1) >> 1);
+        index = (index - 1) >> 1;
+    }
+}
+
+void downAdjust(Heap *h, int index) {
+    int left = index << 1 | 1;
+    while (left < h->size) {
+        int smaller = (left + 1 < h->size && h->comp(h->data[left + 1], h->data[left]) < 0) ? (left + 1) : left;
+        if (h->comp(h->data[index], h->data[smaller]) < 0) {
+            break;
+        }
+        swap(h->data, index, smaller);
+        index = smaller;
+        left = index << 1 | 1;
+    }
+}
+
+Heap *createHeap(int (*comp)(int, int)) {
+    Heap *heap = (Heap *) malloc(sizeof(Heap));
+    heap->data = (int *) malloc(10 * sizeof(int));
+    heap->size = 0;
+    heap->cap = 10;
+    heap->comp = comp;
+    return heap;
+}
+
+void add(Heap *h, int val) {
+    if (h->size == h->cap) {  // 底层数组扩容
+        h->cap <<= 1;
+        h->data = (int *) realloc(h->data, h->cap * sizeof(int));
+    }
+    h->data[h->size++] = val;
+    upAdjust(h, h->size - 1);
+}
+
+int poll(Heap *h) {
+    int val = h->data[0];
+    h->data[0] = h->data[--h->size];
+    downAdjust(h, 0);
+    return val;
+}
+
+int peek(Heap *h) {
+    return h->data[0];
+}
+
+int size(Heap *h) {
+    return h->size;
+}
+
+bool isEmpty(Heap *h) {
+    return h->size == 0;
+}
+
+void destroyHeap(Heap *h) {
+    free(h->data);
+    free(h);
+}
+
+int lesser(int a, int b) {
+    return a - b;
+}
+
+int greater(int a, int b) {
+    return b - a;
+}
+
+typedef struct {
+    Heap *maxHeap;
+    Heap *minHeap;
+} MedianFinder;
+
+
+MedianFinder* medianFinderCreate() {
+    MedianFinder *mf = (MedianFinder *) malloc(sizeof(MedianFinder));
+    mf->maxHeap = createHeap(greater);
+    mf->minHeap = createHeap(lesser);
+    return mf;
+}
+
+void medianFinderAddNum(MedianFinder* mf, int num) {
+    if (isEmpty(mf->maxHeap) || num <= peek(mf->maxHeap)) {
+        add(mf->maxHeap, num);
+    } else {
+        add(mf->minHeap, num);
+    }
+    if (size(mf->maxHeap) - size(mf->minHeap) == 2) {
+        add(mf->minHeap, poll(mf->maxHeap));
+    }
+    if (size(mf->minHeap) - size(mf->maxHeap) == 2) {
+        add(mf->maxHeap, poll(mf->minHeap));
+    }
+}
+
+double medianFinderFindMedian(MedianFinder* mf) {
+    if (size(mf->maxHeap) == size(mf->minHeap)) {
+        return (peek(mf->maxHeap) + peek(mf->minHeap)) / 2.0;
+    }
+    return size(mf->maxHeap) > size(mf->minHeap) ? (double) peek(mf->maxHeap) : (double) peek(mf->minHeap);
+}
+
+void medianFinderFree(MedianFinder* mf) {
+    destroyHeap(mf->maxHeap);
+    destroyHeap(mf->minHeap);
+    free(mf);
+}
