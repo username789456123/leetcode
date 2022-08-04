@@ -1,0 +1,9 @@
+int n = strlen(s);
+int remove_l = 0, remove_r = 0;
+for (int i=0; i!=n; ++i) {
+    if (s[i] == '(') remove_l++;
+    else if (s[i]==')') {
+        if (remove_l) remove_l--;
+        else remove_r++;
+    }
+}
