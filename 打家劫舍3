@@ -1,0 +1,44 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+/* 记录节点选择与否 */
+struct subTreeStatus {
+    int selected;
+    int notSelected;
+};
+
+int my_max(int a, int b)
+{
+    return a > b ? a : b;
+}
+
+struct subTreeStatus dfs(struct TreeNode *root)
+{
+    if (root == NULL) {
+        return (struct subTreeStatus) {0, 0};
+    }
+
+    struct subTreeStatus left = dfs(root->left);
+    struct subTreeStatus right = dfs(root->right);
+    int selected = root->val + left.notSelected + right.notSelected;  // 选择父节点，左右子节点都不选择
+    int notSelected = my_max(left.selected, left.notSelected) + my_max(right.selected, right.notSelected);  // 父节点不选择，左右子节点选择和不选择的较大值相加
+
+    return (struct subTreeStatus) {selected, notSelected};  
+}
+
+int rob(struct TreeNode *root)
+{
+    if (root == NULL) {
+        return 0;
+    }
+
+    struct subTreeStatus rootStatus = dfs(root);
+
+    return my_max(rootStatus.selected, rootStatus.notSelected);
+}
