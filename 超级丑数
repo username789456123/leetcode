@@ -1,0 +1,25 @@
+int nthSuperUglyNumber(int n, int* primes, int primesSize) {
+    long dp[n + 1];
+    int pointers[primesSize];
+    for (int i = 0; i < primesSize; i++) {
+        pointers[i] = 0;
+    }
+    long nums[primesSize];
+    for (int i = 0; i < primesSize; i++) {
+        nums[i] = 1;
+    }
+    for (int i = 1; i <= n; i++) {
+        long minNum = INT_MAX;
+        for (int j = 0; j < primesSize; j++) {
+            minNum = fmin(minNum, nums[j]);
+        }
+        dp[i] = minNum;
+        for (int j = 0; j < primesSize; j++) {
+            if (nums[j] == minNum) {
+                pointers[j]++;
+                nums[j] = dp[pointers[j]] * primes[j];
+            }
+        }
+    }
+    return dp[n];
+}
