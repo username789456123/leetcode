@@ -1,0 +1,15 @@
+int minPatches(int* nums, int numsSize, int n) {
+	int patches=0;
+	long long x=1;
+	int index=0;
+	while(x<=n){
+		if(index<numsSize&&nums[index]<=x){
+			x+=nums[index];
+			index++;
+		}else{
+			x<<=1;
+			patches++;
+		}
+	}
+	return patches;
+}
