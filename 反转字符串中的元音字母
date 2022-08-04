@@ -1,0 +1,30 @@
+char vowel[] = "aeiouAEIOU";
+
+bool isVowel(char ch) {
+    for (int i = 0; vowel[i]; i++) {
+        if (vowel[i] == ch) {
+            return true;
+        }
+    }
+    return false;
+};
+
+char* reverseVowels(char* s) {
+    int n = strlen(s);
+    int i = 0, j = n - 1;
+    while (i < j) {
+        while (i < n && !isVowel(s[i])) {
+            ++i;
+        }
+        while (j > 0 && !isVowel(s[j])) {
+            --j;
+        }
+        if (i < j) {
+            char* tmp = s[i];
+            s[i] = s[j], s[j] = tmp;
+            ++i;
+            --j;
+        }
+    }
+    return s;
+}
