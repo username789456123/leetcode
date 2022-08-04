@@ -1,0 +1,10 @@
+int bulbSwitch(int n){
+	int ans=0,pod=0;
+	while(n>0){
+		n--;
+		ans++;
+		pod+=2;
+		n-=pod;
+	}
+	return ans;
+}
