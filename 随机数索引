@@ -1,0 +1,57 @@
+typedef struct {
+    int key;
+    int *array;
+    int capacity;
+    int size;
+    UT_hash_handle hh;
+} HashItem;
+
+typedef struct {
+    HashItem *pos;
+} Solution;
+
+void hashInsert(HashItem **obj, int key, int idx) {
+    HashItem * pEntry = NULL;
+    HASH_FIND_INT(*obj, &key, pEntry);
+    if (!pEntry) {
+        pEntry = malloc(sizeof(HashItem));
+        pEntry->key = key;
+        pEntry->capacity = 64;
+        pEntry->size = 0;
+        pEntry->array = calloc(pEntry->capacity, sizeof(int));
+        HASH_ADD_INT(*obj, key, pEntry);
+    }
+    if (pEntry->size == pEntry->capacity) {
+        pEntry->capacity *= 2; 
+        pEntry->array = realloc(pEntry->array, pEntry->capacity * sizeof(int));
+    }
+    pEntry->array[(pEntry->size)++] = idx;
+}
+
+Solution* solutionCreate(int* nums, int numsSize) {
+    Solution *obj = malloc(sizeof(Solution));
+    obj->pos = NULL;
+    for (int i = 0; i < numsSize; ++i) {
+        hashInsert(&obj->pos, nums[i], i);
+    }
+    return obj;
+}
+
+int solutionPick(Solution* obj, int target) {
+    HashItem *pEntry = NULL;
+    HASH_FIND_INT(obj->pos, &target, pEntry);
+    if (!pEntry) {
+        return -1;
+    }
+    return pEntry->array[rand() % pEntry->size];
+}
+
+void solutionFree(Solution* obj) {
+    HashItem *curr, *tmp;
+    HASH_ITER(hh, obj->pos, curr, tmp) {
+        HASH_DEL(obj->pos, curr);
+        free(curr->array);
+        free(curr);
+    }
+    free(obj);
+}
