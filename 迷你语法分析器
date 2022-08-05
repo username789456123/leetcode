@@ -1,0 +1,36 @@
+struct NestedInteger* helper(const char * s, int * index){
+    if (s[*index] == '[') {
+        (*index)++;
+        struct NestedInteger * ni = NestedIntegerInit();
+        while (s[*index] != ']') {
+            NestedIntegerAdd(ni, helper(s, index));
+            if (s[*index] == ',') {
+                (*index)++;
+            }
+        }
+        (*index)++;
+        return ni;
+    } else {
+        bool negative = false;
+        if (s[*index] == '-') {
+            negative = true;
+            (*index)++;
+        }
+        int num = 0;
+        while (s[*index] && isdigit(s[*index])) {
+            num = num * 10 + s[*index] - '0';
+            (*index)++;
+        }
+        if (negative) {
+            num *= -1;
+        }
+        struct NestedInteger * ni = NestedIntegerInit();
+        NestedIntegerSetInteger(ni, num);
+        return ni;
+    }
+}
+
+struct NestedInteger* deserialize(char * s){
+    int index = 0;
+    return helper(s, &index);
+}
