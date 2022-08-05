@@ -1,0 +1,14 @@
+int findNthDigit(int n) {
+    int digit = 1;
+    long long int count = 9;
+    while (n > digit * count) {
+        n -= digit * count;
+        digit++;
+        count *= 10;
+    }
+    int index = n - 1;
+    int start = count / 9;
+    int number = start + index / digit;
+    int digitIndex = index % digit + 1;
+    return number / (int)pow(10, digit - digitIndex) % 10;
+}
