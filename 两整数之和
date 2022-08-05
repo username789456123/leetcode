@@ -1,0 +1,9 @@
+int getSum(int a, int b){
+    int c;
+    while(b){
+        c=(unsigned int)(a&b)<<1;
+        a=a^b;
+        b=c;
+    }
+    return a;
+}
