@@ -1,0 +1,54 @@
+char * decodeString(char * s){
+    char * str1 = malloc(sizeof(char) * 9000);//数字栈
+    char * str2 = malloc(sizeof(char) * 9000);//字符栈
+    int len = strlen(s);
+    int i_1 = 0, i_2 = 0; 
+    for(int i = 0; i < len; i++)//遍历整个字符串
+    {
+        if(s[i] == '[')//1、当遇见'['时，入两个栈
+        {
+            str1[i_1++] = '[';
+            str2[i_2++] = '[';
+        }
+        else if(s[i] == ']')//4、当遇见']'时
+        {
+            //计算一下数字栈的int类型值
+            int sum = 0;
+            int x = 10;
+            sum += (str1[i_1-2]-'0');
+            i_1 = i_1-2;
+            while(i_1 > 0 && str1[i_1-1] != '[')
+            {
+                sum += (str1[i_1-1]-'0') * x;
+                i_1--;
+                x *= 10;
+            }
+            //申请一个额外的空间临时保存一下弹出后的字符串
+            char buf[3000];
+            int mm = 3000;
+            i_2--;
+            while(str2[i_2] != '[')//先弹出
+            {
+                buf[--mm] = str2[i_2--];
+            }
+            while(sum--)//循环保存，扩展字符串
+            {
+                for(int m = mm; m < 3000; m++)
+                {
+                    str2[i_2++] = buf[m];
+                }
+            }
+
+        }
+        else if(isalpha(s[i]) == 0)//2、当遇见数字时，入数字栈,isalpha检查输入字符是不是字母，返回值为0不是字符，不为0是字符
+        {
+            str1[i_1++] = s[i];
+        }
+        else//3、当遇见字母时，入字母栈
+        {
+            str2[i_2++] = s[i];
+        }
+    }
+    str2[i_2] = '\0';
+    return str2;
+}
