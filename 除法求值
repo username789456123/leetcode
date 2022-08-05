@@ -1,0 +1,89 @@
+typedef struct {
+    char *x;
+    char *y;
+    double z;
+    UT_hash_handle hh;
+} Hash;
+
+Hash *hash;
+
+Hash* derive(Hash *p, double *t) {
+    *t = 1;
+    while (strcmp(p->x, p->y)) {
+        *t *= p->z;
+        char *s = p->y;
+        HASH_FIND(hh, hash, s, strlen(s), p);
+    }
+    return p;
+}
+
+void _add(char *x, char *y, double z) {
+    Hash *p1, *p2;
+    HASH_FIND(hh, hash, x, strlen(x), p1);
+    HASH_FIND(hh, hash, y, strlen(y), p2);
+    if (p1 && p2) {
+        //x、y已经出现过，若它们无联系，那么将他们合并关系
+        double tx, ty;
+        p1 = derive(p1, &tx);
+        p2 = derive(p2, &ty);
+        if (strcmp(p1->x, p2->x)) {
+            p1->y = p2->x;
+            p1->z = ty*z/tx;
+        }
+    } else if (p1) {
+        double tx;
+        p1 = derive(p1, &tx);
+        Hash *p = malloc(sizeof(Hash));
+        p->x = y; 
+        p->y = p1->x;
+        p->z = tx/z;
+        HASH_ADD_STR(hash, x, p);
+    } else if (p2) {
+        double ty;
+        p2 = derive(p2, &ty);
+        Hash *p = malloc(sizeof(Hash));
+        p->x = x;
+        p->y = p2->x;
+        p->z = z/ty;
+        HASH_ADD_STR(hash, x, p);
+    } else {
+        p1 = malloc(sizeof(Hash));
+        p2 = malloc(sizeof(Hash));
+        p1->x = x;
+        p1->y = y;
+        p1->z = z;
+        HASH_ADD_STR(hash, x, p1);
+        p2->x = y;
+        p2->y = y;
+        p2->z = 1;
+        HASH_ADD_STR(hash, x, p2);
+    }
+}
+
+double _div(char *x, char *y) {
+    Hash *p1, *p2;
+    HASH_FIND(hh, hash, x, strlen(x), p1);
+    HASH_FIND(hh, hash, y, strlen(y), p2);
+    if (p1 && p2) {
+        double tx, ty;
+        p1 = derive(p1, &tx);
+        p2 = derive(p2, &ty);
+        if (strcmp(p1->x, p2->x) == 0) {
+            return tx/ty;
+        }
+    } 
+    return -1.0;
+}
+
+double* calcEquation(char *** equations, int equationsSize, int* equationsColSize, double* values, int valuesSize, char *** queries, int queriesSize, int* queriesColSize, int* returnSize){
+    hash = NULL;
+    for (int i=0; i<equationsSize; ++i) {
+        _add(equations[i][0], equations[i][1], values[i]);
+    }
+    double *res = malloc(sizeof(double) * queriesSize);
+    for (int i=0; i<queriesSize; ++i) {
+        res[i] = _div(queries[i][0], queries[i][1]);
+    }
+    *returnSize = queriesSize;
+    return res;
+}
