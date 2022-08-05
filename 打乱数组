@@ -1,0 +1,61 @@
+typedef struct {
+    int* num;
+    int* src;
+    int numsize;
+} Solution;
+
+Solution *obj = NULL;
+
+Solution* solutionCreate(int* nums, int numsSize) {
+    if (obj != NULL) {
+        return obj;
+    }
+    Solution *obj = (Solution*)malloc(sizeof(Solution));
+    obj->numsize = numsSize;
+    //obj->num = (int*)malloc(sizeof(int) * numsSize);
+    obj->num = nums;
+    obj->src = (int*)malloc(sizeof(int) * numsSize);
+    for (int i = 0; i < obj->numsize; i++) 
+    {
+        // obj->num[i] = nums[i];
+        obj->src[i] = nums[i];
+    }
+    return obj;
+} 
+
+int* solutionReset(Solution* obj, int* retSize) {
+
+    *retSize = obj->numsize;
+    return obj->num;
+    /*
+    int *ans = (int*) malloc(sizeof(int) * obj->numsize);
+    for (int i = 0; i < obj->numsize; i++) {
+        ans[i] = obj->num[i];
+    }
+    return ans;
+    */
+}
+
+int* solutionShuffle(Solution* obj, int* retSize) {
+    *retSize = obj->numsize;
+    /*
+    int *ans = (int*) malloc(sizeof(int) * obj->numsize);
+    for (int i = 0; i < obj->numsize; i++) {
+        ans[i] = obj->num[i];
+    }
+    */
+    for (int i = 0; i < obj->numsize; i++) {
+        int k = (rand() % obj->numsize);
+        int temp = obj->src[k];
+        obj->src[k] = obj->src[i];
+        obj->src[i] = temp;
+    }
+    return obj->src;
+}
+
+void solutionFree(Solution* obj) {
+    free(obj->num);
+    free(obj->src);
+    free(obj);
+    obj = NULL;
+}
