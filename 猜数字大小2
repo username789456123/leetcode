@@ -1,0 +1,17 @@
+#define min(a,b) (a<b?a:b)
+#define max(a,b) (a>b?a:b)
+int getMoneyAmount(int n){
+    int dp[n+1][n+1];
+    memset(dp, 0, sizeof(dp));
+    for(int len=2; len<n+1; len++){
+        for(int i=1; i<n+2-len; i++){
+            int val = INT_MAX;
+            for(int k=i; k<i+len-1; k++){
+                int tmp = k+max(dp[i][k-1], dp[k+1][i+len-1]);
+                val = min(val, tmp);
+            }
+            dp[i][i+len-1] = val;
+        }
+    }
+    return dp[1][n];
+}
