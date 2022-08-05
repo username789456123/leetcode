@@ -1,0 +1,22 @@
+int maxSumSubmatrix(int** matrix, int matrixSize, int* matrixColSize, int k){
+    int i,j,K,p,m=matrixSize,n=matrixColSize[0],res=INT_MIN;
+    int map[m+1][n+1]; for(i=0;i<=m;i++)map[i][0]=0;  for(i=0;i<=n;i++)map[0][i]=0; 
+
+    for(i=0;i<m;i++){
+        for(j=0;j<n;j++){
+            map[i+1][j+1]=map[i+1][j]+map[i][j+1]-map[i][j]+matrix[i][j];
+        }
+    }
+    for(i=0;i<=m;i++){
+        for(j=0;j<=n;j++){
+            for(K=i+1;K<=m;K++){
+                for(p=j+1;p<=n;p++){
+                    int value=map[K][p]-map[K][j]-map[i][p]+map[i][j];
+                    if(value<=k&&value>res)res=value;
+                }
+            }
+        }
+    }
+    return res;
+    
+}
