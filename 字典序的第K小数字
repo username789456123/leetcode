@@ -1,0 +1,66 @@
+#include<math.h>
+
+int hOfTree(int n){
+    return log10(n) + 1;
+}
+
+int compare(int n, long num){
+    int numLog10n = hOfTree(n) - 1;
+    int numLog10num = hOfTree(num) - 1;
+
+    if(n == num)
+        return 0;
+
+    while(1){
+        if(0 == numLog10n == numLog10num)
+            return 0;   //位置一样
+        else if(0 == numLog10num)
+            return 1;   //n位置大
+        else if(0 == numLog10n)
+            return -1;  //n位置小
+        
+        if(n / pow(10, numLog10n) > num / pow(10, numLog10num))
+            return 1;
+        else if(n / pow(10, numLog10n) < num / pow(10, numLog10num))
+            return -1;
+        numLog10n--;
+        numLog10num--;        
+    }
+}
+
+int numlist(int n){
+    return (pow(10, n) - 1) / 9;
+}
+
+int findFullKthNumber(int n, int k){
+    int numH = hOfTree(n);
+    int diff = n - numlist(numH) * 9;
+    long num = (--k) /numlist(numH) + 1;
+    k %= numlist(numH);
+    k--;
+
+    for(int i = numH - 1; i >= 1; i--){        
+        if(k < 0)
+            break;
+        num = num * 10 + k /numlist(i);           
+        k %= numlist(i);
+        k--;
+    }
+    return num;
+}
+
+
+int findKthNumber(int n, int k){
+    long num = 0;
+    int numH = hOfTree(n);
+    int numFullTreeOfk = findFullKthNumber(numlist(numH) * 9, k);
+    long diff = n - numlist(numH - 1) * 9;
+
+    if(compare(n, numFullTreeOfk) == -1){
+        num = findFullKthNumber(numlist(numH - 1) * 9, k - diff);
+    }
+    else{
+        num = findFullKthNumber(numlist(numH) * 9, k);
+    }
+    return num;
+}
