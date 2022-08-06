@@ -1,0 +1,61 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+/*
+*int strCmpn：比较滑动窗口和字符串的相同值
+char * s：字符串s，滑动窗口的位置
+char * p：字符串p，比较字符串
+int n：滑动窗口的起始位置
+int p_len:字符串p的长度
+返回值：相同返回0，不相同返回不相同元素个数
+*/
+int strCmpn(char * s, char * p , int n , int p_len)
+{
+    int * a = malloc(sizeof(int) * 26);//滑动窗口哈希表初始化为0
+    int * b = malloc(sizeof(int) * 26);//p哈希表初始化为0
+    memset(a, 0, sizeof(a));
+    memset(b, 0, sizeof(b));
+    int i = n;
+    int j = 0;
+    for(i,j; j < p_len; i++, j++)//对滑动窗口，p进行遍历赋值
+    {
+        int t_a = s[i] - 'a';
+        int t_b = p[j] - 'a';
+        a[t_a]++;
+        b[t_b]++;
+    }
+    int sum = 0;
+    for(j = 0; j < 26; j++)//相同返回sum为0，不相同返回不相同元素
+    {
+        sum += abs(a[j] - b[j]);
+    }
+    free(a);
+    free(b);
+    return sum; 
+}
+/*
+*int* findAnagrams：寻找p在s中元素相同的子字符串
+char * s：比较字符串
+char * p：目标字符串
+int* returnSize：返回值长度
+返回值：相同元素的初始下标
+*/
+int* findAnagrams(char * s, char * p, int* returnSize){
+    int i;
+    int p_len = strlen(p);
+    int s_len = strlen(s);
+    *returnSize=0;
+    if(s_len < p_len)
+    {
+        return NULL;
+    }
+    int * ans = malloc(sizeof(int) * 30000);
+    for(i = 0; i < s_len-p_len+1; i++)//移动滑动窗口
+    {
+        if(strCmpn(s, p, i, p_len) == 0)
+        {
+            ans[(*returnSize)++] = i;
+        }
+    }
+    return ans;
+}
