@@ -1,0 +1,61 @@
+int compare_sort(const void* a, const void* b)
+{
+    return (*(int*)b) > (*(int*)a);
+}
+
+
+int thirdMax(int* nums, int numsSize){
+
+    int firstMax = 0;
+    int sencendMax = 0;
+    int thirdMax = 0;
+
+    qsort(nums, numsSize, sizeof(nums[0]), compare_sort);
+
+    if(numsSize <= 2)    //假如不存在第三个数
+    {
+        return nums[0];  //返回最大值
+    }
+
+    firstMax = nums[0];
+    sencendMax = nums[1];
+    thirdMax = nums[2];
+
+    if(firstMax != sencendMax && sencendMax != thirdMax) //假如三个数都不相等
+    {
+        return thirdMax;    //返回第三大值
+    }
+
+    for(int i = 1; i < numsSize; i++)
+    {
+        if(sencendMax == firstMax)  //假如前两个最大值相等
+        {
+            //与当前值不同，则赋给第二大和第三大，因为数组是降序，按顺序下来，跟第一大不一样，那不就是第二大了嘛       
+            if(nums[i] != sencendMax) 
+            {
+                if(sencendMax == thirdMax)  //判断如果第二大和第三大相同，则一起更新为相同值，为下面进行铺垫
+                {
+                    sencendMax = nums[i];
+                    thirdMax = nums[i];
+                    continue;
+                }
+                sencendMax = nums[i];
+            }
+        }
+        else if(sencendMax == thirdMax)//假如第二第三大相同
+        {
+             if(nums[i] != thirdMax)
+            {
+                thirdMax = nums[i];//则把第三大往后挪
+            }
+        }
+    }
+
+    if(firstMax == sencendMax || sencendMax == thirdMax) //假如三个数都不相等
+    {
+        return firstMax;    //返回第三大值
+    }
+
+    return thirdMax;
+
+}
