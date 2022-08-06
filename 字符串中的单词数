@@ -1,0 +1,10 @@
+int countSegments(char * s){
+    int count = 0;                                      //count用来记录单词个数
+
+    for(int i=0; i < strlen(s); ++i){                   //遍历字符串  
+        if((i == 0 || s[i-1] == ' ') && s[i] != ' ')    //一个单词的开始
+            ++count;                                    //记录
+    }
+
+    return count;
+}
