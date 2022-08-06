@@ -1,0 +1,20 @@
+int countBattleships(char** board, int boardSize, int* boardColSize){
+    int row = boardSize;
+    int col = boardColSize[0];
+    int ans = 0;
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            if (board[i][j] == 'X') {
+                board[i][j] = '.';
+                for (int k = j + 1; k < col && board[i][k] == 'X'; ++k) {
+                    board[i][k] = '.';
+                }                    
+                for (int k = i + 1; k < row && board[k][j] == 'X'; ++k) {
+                    board[k][j] = '.';
+                }
+                ans++;
+            }
+        }
+    }
+    return ans;
+}
