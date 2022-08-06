@@ -1,0 +1,87 @@
+typedef struct {
+    char key[15];
+    int count;
+    UT_hash_handle hh;
+}word;
+typedef struct {
+    word *hash;
+    int sorted;
+    char maxkey[15];
+    char minkey[15];
+} AllOne;
+AllOne* allOneCreate() {
+    AllOne *obj = (AllOne*)calloc(1, sizeof(AllOne));
+    return obj;
+}
+void allOneInc(AllOne* obj, char * key) {
+    word *cur;
+    HASH_FIND_STR(obj->hash, key, cur);
+    if (cur) {
+        cur->count++;
+    } else {
+        cur = (word*)calloc(1, sizeof(word));
+        strcpy(cur->key, key);
+        cur->count = 1;
+        HASH_ADD_STR(obj->hash, key, cur);
+    }
+    obj->sorted = 0;
+}
+void allOneDec(AllOne* obj, char * key) {
+    word *cur;
+    HASH_FIND_STR(obj->hash, key, cur); 
+    cur->count--;
+    if (!cur->count) {
+        HASH_DEL(obj->hash, cur);
+    }
+    obj->sorted = 0;
+}
+int cmp(word *a, word *b) { return a->count > b->count; }
+char * allOneGetMaxKey(AllOne* obj) {
+    if (!HASH_COUNT(obj->hash)) {
+        return "";
+    }
+    if (!obj->sorted) {
+        obj->sorted = 1;
+        HASH_SORT(obj->hash, cmp);
+        strcpy(obj->minkey, obj->hash->key);
+        int n = HASH_COUNT(obj->hash) - 1;
+        word *cur = obj->hash;
+        while (n) {
+            cur = cur->hh.next;
+            n--;
+        }
+        strcpy(obj->maxkey, cur->key);
+    }
+    return obj->maxkey;
+}
+char * allOneGetMinKey(AllOne* obj) {
+    if (!HASH_COUNT(obj->hash)) {
+        return "";
+    }
+    if (!obj->sorted) {
+        obj->sorted = 1;
+        HASH_SORT(obj->hash, cmp);
+        strcpy(obj->minkey, obj->hash->key);
+        int n = HASH_COUNT(obj->hash) - 1;
+        word *cur = obj->hash;
+        while (n) {
+            cur = cur->hh.next;
+            n--;
+        }
+        strcpy(obj->maxkey, cur->key);
+    } 
+    return obj->minkey;
+}
+
+void allOneFree(AllOne* obj) {
+    if (obj->hash) {
+        word *tmp2;
+        for(word *tmp = obj->hash; tmp; ) {
+            HASH_DEL(obj->hash, tmp);
+            tmp2 = tmp;
+            tmp = tmp->hh.next;
+            free(tmp2);
+        }
+    }
+    free(obj);
+}
