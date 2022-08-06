@@ -1,0 +1,36 @@
+typedef struct {
+    int start;
+    int index;
+} Node;
+
+int cmp(const void *pa, const void *pb) {
+    return ((Node *)pa)->start - ((Node *)pb)->start;
+}
+
+int* findRightInterval(int** intervals, int intervalsSize, int* intervalsColSize, int* returnSize) {
+    Node * startIntervals = (Node *)malloc(sizeof(Node) * intervalsSize);
+    for (int i = 0; i < intervalsSize; i++) {
+        startIntervals[i].start = intervals[i][0];
+        startIntervals[i].index = i;
+    }
+    qsort(startIntervals, intervalsSize, sizeof(Node), cmp);
+
+    int * ans = (int *)malloc(sizeof(int) * intervalsSize);
+    for (int i = 0; i < intervalsSize; i++) {
+        int left = 0;
+        int right = intervalsSize - 1;
+        int target = -1;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (startIntervals[mid].start >= intervals[i][1]) {
+                target = startIntervals[mid].index;
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        }
+        ans[i] = target;
+    }
+    *returnSize = intervalsSize;
+    return ans;
+}
