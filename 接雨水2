@@ -1,0 +1,132 @@
+typedef struct{
+    int row;
+    int column;
+    int height;
+} Element;
+
+struct Pri_Queue;
+typedef struct Pri_Queue *P_Pri_Queue;
+typedef Element Datatype;
+
+struct Pri_Queue{
+    int n;
+    Datatype *pri_qu;
+};
+
+/*优先队列插入*/
+P_Pri_Queue add_pri_queue(P_Pri_Queue pq, Datatype x){
+
+
+    int i;
+
+    if(pq->n == 0){
+        pq->pri_qu[0] = x; pq->n ++; return(pq);
+    }
+    else{
+        for(i = pq->n; (i > 0) && (x.height < pq->pri_qu[(i - 1) / 2].height); i = (i - 1) / 2){
+            pq->pri_qu[i] = pq->pri_qu[(i - 1) / 2];
+        }
+    }
+
+    pq->pri_qu[i] = x;
+    pq->n ++;
+    return(pq);
+}
+
+/*优先队列删除*/
+P_Pri_Queue del_pri_queue(P_Pri_Queue pq){
+    int i = 0;
+
+    if(pq->n > 1){
+        while(i <= (pq->n - 2) / 2){
+            if((pq->pri_qu[pq->n - 1].height > pq->pri_qu[2 * i + 1].height) || \
+                ((2 * i + 2 <= pq->n - 1) && (pq->pri_qu[pq->n - 1].height > pq->pri_qu[2 * i + 2].height))){
+
+                if(2 * i + 2 <= pq->n - 1){
+                    if(pq->pri_qu[2 * i + 1].height > pq->pri_qu[2 * i + 2].height){
+                        pq->pri_qu[i] = pq->pri_qu[2 * i + 2];
+                        i = 2 * i + 2;
+                    }
+                    else{
+                        pq->pri_qu[i] = pq->pri_qu[2 * i + 1];
+                        i = 2 * i + 1;
+                    }
+                }
+                else{
+                    pq->pri_qu[i] = pq->pri_qu[2 * i + 1];
+                    i = 2 * i + 1;
+                }
+            }
+            else{
+                pq->pri_qu[i] = pq->pri_qu[pq->n - 1];
+                pq->n --;
+                return(pq);
+            }
+        }
+    }
+
+    pq->pri_qu[i] = pq->pri_qu[pq->n - 1];
+    pq->n --;
+    return(pq);
+}
+
+int trapRainWater(int** heightMap, int heightMapSize, int* heightMapColSize){
+    if((heightMapSize < 3) || (*heightMapColSize < 3)) return(0);
+
+    int Used_heightMap[112][112] = {0}, i, j, ans = 0;
+    int direct[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    Datatype x;
+
+
+    P_Pri_Queue pq;
+    pq = (P_Pri_Queue)malloc(sizeof(struct Pri_Queue));
+    pq->n = 0; pq->pri_qu = (Datatype*)malloc(sizeof(Datatype) * heightMapSize * (*heightMapColSize));
+
+    for(i = 0; i < heightMapSize + 2; i ++) Used_heightMap[i][0] = 1;
+    for(i = 0; i < heightMapSize + 2; i ++) Used_heightMap[i][1] = 1;
+    for(i = 0; i < heightMapSize + 2; i ++) Used_heightMap[i][*heightMapColSize] = 1;
+    for(i = 0; i < heightMapSize + 2; i ++) Used_heightMap[i][*heightMapColSize + 1] = 1;
+    for(j = 0; j < *heightMapColSize + 2; j ++) Used_heightMap[0][j] = 1;
+    for(j = 0; j < *heightMapColSize + 2; j ++) Used_heightMap[1][j] = 1;
+    for(j = 0; j < *heightMapColSize + 2; j ++) Used_heightMap[heightMapSize][j] = 1;
+    for(j = 0; j < *heightMapColSize + 2; j ++) Used_heightMap[heightMapSize + 1][j] = 1;
+
+    for(i = 1; i < heightMapSize - 1; i ++){
+        x.row = i; x.column = 0; x.height = heightMap[i][0];
+        add_pri_queue(pq, x);
+    }
+    for(i = 1; i < heightMapSize - 1; i ++){
+        x.row = i; x.column = *heightMapColSize - 1; x.height = heightMap[i][*heightMapColSize - 1];
+        add_pri_queue(pq, x);
+    }
+    for(j = 1; j < *heightMapColSize - 1; j ++){
+        x.row = 0; x.column = j; x.height = heightMap[0][j];
+        add_pri_queue(pq, x);
+    }
+    for(j = 1; j < *heightMapColSize - 1; j ++){
+        x.row = heightMapSize - 1; x.column = j; x.height = heightMap[heightMapSize - 1][j];
+        add_pri_queue(pq, x);
+    }
+
+    while(pq->n > 0){
+        for(i = 0; i < 4; i ++){
+            if(Used_heightMap[pq->pri_qu[0].row + 1 + direct[i][0]][pq->pri_qu[0].column + 1 + direct[i][1]] == 0){
+                if(heightMap[pq->pri_qu[0].row + direct[i][0]][pq->pri_qu[0].column + direct[i][1]] < pq->pri_qu[0].height){
+                    ans += pq->pri_qu[0].height - heightMap[pq->pri_qu[0].row + direct[i][0]][pq->pri_qu[0].column + direct[i][1]];
+                    x.height = pq->pri_qu[0].height;
+                }
+                else{x.height = heightMap[pq->pri_qu[0].row + direct[i][0]][pq->pri_qu[0].column + direct[i][1]];}
+
+                x.row = pq->pri_qu[0].row + direct[i][0]; x.column = pq->pri_qu[0].column + direct[i][1];
+                add_pri_queue(pq, x);
+                Used_heightMap[pq->pri_qu[0].row + 1 + direct[i][0]][pq->pri_qu[0].column + 1 + direct[i][1]] = 1;
+            }
+        }
+
+        //printf("row = %d, column =  %d, height = %d, n = %d\n", pq->pri_qu[0].row, pq->pri_qu[0].column, pq->pri_qu[0].height, pq->n);
+        del_pri_queue(pq);
+        //printf("row = %d, column =  %d, height = %d, n = %d\n", pq->pri_qu[0].row, pq->pri_qu[0].column, pq->pri_qu[0].height, pq->n);
+    }
+
+    return(ans);
+}
