@@ -1,0 +1,41 @@
+char* toHex(int num)
+{
+    //32位数，那么就申请最大32的空间来存储
+    char* str = (char*)malloc(sizeof(char) * 32);
+    int count = 0;
+    unsigned int newNum = (unsigned int)num;
+    if(newNum == 0)
+    {
+        str[0] = '0';
+        str[1] = '\0';
+        return str;
+    }
+
+    while (newNum != 0)
+    {
+        int temp = newNum & 0xF;
+        if (temp < 10)
+        {
+            str[count++] = temp + '0';
+        }
+        else
+        {
+            str[count++] = temp - 10 + 'a';
+        }
+        newNum >>= 4;
+    }
+
+    int indexLeft = 0;
+    int indexRight = count - 1;
+    while (indexLeft < indexRight)
+    {
+        char temp = str[indexLeft];
+        str[indexLeft] = str[indexRight];
+        str[indexRight] = temp;
+        indexLeft++;
+        indexRight--;
+    }
+    str[count] = '\0';
+    return str;
+
+}
