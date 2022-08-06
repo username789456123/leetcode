@@ -1,0 +1,68 @@
+struct HashTable {
+    int key, val;
+    UT_hash_handle hh;
+};
+
+struct HashTable** rec;
+
+bool count(struct HashTable** hashTable, int ikey) {
+    struct HashTable* tmp;
+    HASH_FIND_INT(*hashTable, &ikey, tmp);
+    return tmp != NULL;
+}
+
+int modify(struct HashTable** hashTable, int ikey, int ival) {
+    struct HashTable* tmp;
+    HASH_FIND_INT(*hashTable, &ikey, tmp);
+    if (tmp == NULL) {
+        tmp = malloc(sizeof(struct HashTable));
+        tmp->key = ikey, tmp->val = ival;
+        HASH_ADD_INT(*hashTable, key, tmp);
+    } else {
+        tmp->val = ival;
+    }
+    return ival;
+}
+
+int query(struct HashTable** hashTable, int ikey) {
+    struct HashTable* tmp;
+    HASH_FIND_INT(*hashTable, &ikey, tmp);
+    return tmp->val;
+}
+
+int lower_bound(int* stones, int stonesSize, int target) {
+    int left = 0, right = stonesSize;
+    while (left < right) {
+        int mid = (left + right) >> 1;
+        if (stones[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid;
+        }
+    }
+    return left;
+}
+
+bool dfs(int* stones, int stonesSize, int i, int lastDis) {
+    if (i == stonesSize - 1) {
+        return true;
+    }
+    if (count(&rec[i], lastDis)) {
+        return query(&rec[i], lastDis);
+    }
+    for (int curDis = lastDis - 1; curDis <= lastDis + 1; curDis++) {
+        if (curDis > 0) {
+            int j = lower_bound(stones, stonesSize, curDis + stones[i]);
+            if (j != stonesSize && stones[j] == curDis + stones[i] && dfs(stones, stonesSize, j, curDis)) {
+                return modify(&rec[i], lastDis, true);
+            }
+        }
+    }
+    return modify(&rec[i], lastDis, false);
+}
+
+bool canCross(int* stones, int stonesSize) {
+    rec = malloc(sizeof(struct HashTable*) * stonesSize);
+    memset(rec, 0, sizeof(struct HashTable*) * stonesSize);
+    return dfs(stones, stonesSize, 0, 0);
+}
