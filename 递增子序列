@@ -1,0 +1,63 @@
+void backTrack(int* nums, int numsSize, int* returnSize, int** returnColumnSizes, int** returnNums,int *stack,int top, int index)
+{
+    if (index > numsSize)
+    {
+        return;
+    }
+    
+    if (top >= 2)
+    {
+        returnNums[*returnSize] = (int*)malloc(sizeof(int) * top);
+        memcpy(returnNums[*returnSize], stack,sizeof(int) * top);
+        (*returnColumnSizes)[*returnSize] = top;
+        *returnSize = *returnSize + 1;
+    }
+
+
+    int i = index + 1;
+    bool  hashSet[201] = { 0 };    //去重
+    for (; i < numsSize; i++)
+    {
+        if (nums[i] >= nums[index] )
+        {
+            if (hashSet[nums[i] + 100] == 0)
+            {
+                hashSet[nums[i] + 100] = 1;
+                stack[top] = nums[i];
+                backTrack(nums, numsSize, returnSize, returnColumnSizes, returnNums, stack, top + 1, i);
+            }
+        }
+    }
+    
+
+}
+
+
+
+int** findSubsequences(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) 
+{
+    *returnSize = 0;
+    *returnColumnSizes = (int*)     malloc(sizeof(int)*  32768);    //2^15
+    int ** returnNums  = (int**)    malloc(sizeof(int*)* 32768);
+    (*returnColumnSizes)[0] = 0;
+    returnNums[0]           = NULL;
+    if (numsSize == 1)
+    {   
+        return returnNums;
+    }
+
+    //用到栈
+    int* stack = (int*)malloc(sizeof(int) * numsSize);
+    int i = 0;
+    int  hashSet[201] = { 0 };    //去重
+    for (i = 0; i < numsSize; i++)
+    {
+        if(hashSet[nums[i] + 100] == 0)
+        {
+            hashSet[nums[i] + 100] = 1;
+            stack[0] = nums[i];
+            backTrack(nums, numsSize, returnSize, returnColumnSizes, returnNums, stack, 1, i);
+        }
+    }
+    return returnNums;
+}
