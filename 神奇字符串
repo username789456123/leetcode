@@ -1,0 +1,22 @@
+int magicalString(int n){
+        char s[n + 10];
+        memset(s, 0, sizeof(s));
+        strcpy(s, "122");
+
+        char ch = '1';
+        int curr = 2, end = strlen(s);
+        while (end < n) {
+                for (int i = 0; i < s[curr] - '0'; i++) {
+                        s[end++] = ch;
+                }
+                curr++;
+                ch = '1' + '2' - ch;
+        }
+
+        int ret = 0;
+        for (int i = 0; i < n; i++) {
+                if (s[i] == '1')
+                        ret++;
+        }
+        return ret;
+}
