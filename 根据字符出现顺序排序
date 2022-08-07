@@ -1,0 +1,44 @@
+#define HASH_FIND_CHAR(head, findint, out) HASH_FIND(hh, head, findint, sizeof(char), out)
+#define HASH_ADD_CHAR(head, intfield, add) HASH_ADD(hh, head, intfield, sizeof(char), add)
+
+struct HashTable {
+    char key;
+    int val;
+    UT_hash_handle hh;
+};
+
+int cmp(struct HashTable* a, struct HashTable* b) {
+    return b->val - a->val;
+}
+
+char* frequencySort(char* s) {
+    struct HashTable* hashTable = NULL;
+    int length = strlen(s);
+    for (int i = 0; i < length; i++) {
+        struct HashTable* tmp;
+        HASH_FIND_CHAR(hashTable, &s[i], tmp);
+        if (tmp == NULL) {
+            tmp = malloc(sizeof(struct HashTable));
+            tmp->key = s[i], tmp->val = 1;
+            HASH_ADD_CHAR(hashTable, key, tmp);
+        } else {
+            tmp->val++;
+        }
+    }
+    int n = HASH_COUNT(hashTable);
+    HASH_SORT(hashTable, cmp);
+    int retSize = 0;
+    struct HashTable *tmp, *iter;
+    HASH_ITER(hh, hashTable, iter, tmp) {
+        retSize += iter->val;
+    }
+    char* ret = malloc(sizeof(char) * (retSize + 1));
+    retSize = 0;
+    HASH_ITER(hh, hashTable, iter, tmp) {
+        for (int i = 0; i < iter->val; i++) {
+            ret[retSize++] = iter->key;
+        }
+    }
+    ret[retSize] = '\0';
+    return ret;
+}
