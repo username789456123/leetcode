@@ -1,0 +1,33 @@
+typedef struct {
+    double radius;
+    double x_center;
+    double y_center;
+} Solution;
+
+Solution* solutionCreate(double radius, double x_center, double y_center) {
+    srand((unsigned)time(NULL));
+    Solution *obj = (Solution *)malloc(sizeof(Solution));
+    obj->radius = radius;
+    obj->x_center = x_center;
+    obj->y_center = y_center;
+    return obj;
+}
+
+double* solutionRandPoint(Solution* obj, int* retSize) {
+    double r = obj->radius;
+    double *res = (double *)malloc(sizeof(double) * 2);
+    while (true) {
+        double x = (double)rand() / RAND_MAX * (2 * r) - r;
+        double y = (double)rand() / RAND_MAX * (2 * r) - r;
+        if (x * x + y * y <= r * r) {
+            res[0] = x + obj->x_center;
+            res[1] = y + obj->y_center;
+            *retSize = 2;
+            return res;
+        }
+    }
+}
+
+void solutionFree(Solution* obj) {
+    free(obj);
+}
