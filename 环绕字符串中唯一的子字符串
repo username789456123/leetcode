@@ -1,0 +1,31 @@
+int getMaxRepetitions(char * s1, int n1, char * s2, int n2){
+    int cnt = 0;
+    int s1i, s2i;
+    int l1 = strlen(s1), l2 = strlen(s2);
+    int sign = -1;
+    int n;
+    s2i = 0;
+    for(int i = 0; i < n1; ++i) {
+        s1i = 0;
+        while(s1i < l1) {
+            if(s1[s1i] == s2[s2i]) {
+                if(s2i == 0 && sign == -1) {
+                    sign = s1i;
+                }
+                else if(s2i == 0 && s1i == sign) {
+                    n = (n1- 1) / i;
+                    cnt *= n;
+                    i *= n;
+                    sign = -1;
+                }
+                ++s2i;
+            }
+            if(s2i == l2) {
+                ++cnt;
+                s2i = 0;
+            }
+            ++s1i;
+        }
+    }
+    return cnt / n2;
+}
