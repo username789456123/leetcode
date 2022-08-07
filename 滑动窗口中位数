@@ -1,0 +1,161 @@
+struct Heap {
+    int* heap;
+    int heapSize;
+    int realSize;
+    bool (*cmp)(int, int);
+};
+
+void init(struct Heap* obj, int n, bool (*cmp)(int, int)) {
+    obj->heap = malloc(sizeof(int) * (n + 1));
+    obj->heapSize = 0;
+    obj->cmp = cmp;
+}
+
+bool cmp1(int a, int b) {
+    return a < b;
+}
+
+bool cmp2(int a, int b) {
+    return a > b;
+}
+
+void swap(int* a, int* b) {
+    int tmp = *a;
+    *a = *b, *b = tmp;
+}
+
+void push(struct Heap* obj, int x) {
+    int p = ++(obj->heapSize), q = p >> 1;
+    obj->heap[p] = x;
+    while (q) {
+        if (!obj->cmp(obj->heap[q], obj->heap[p])) {
+            break;
+        }
+        swap(&(obj->heap[q]), &(obj->heap[p]));
+        p = q, q = p >> 1;
+    }
+}
+
+void pop(struct Heap* obj) {
+    swap(&(obj->heap[1]), &(obj->heap[(obj->heapSize)--]));
+    int p = 1, q = p << 1;
+    while (q <= obj->heapSize) {
+        if (q + 1 <= obj->heapSize) {
+            if (obj->cmp(obj->heap[q], obj->heap[q + 1])) {
+                q++;
+            }
+        }
+        if (!obj->cmp(obj->heap[p], obj->heap[q])) {
+            break;
+        }
+        swap(&(obj->heap[q]), &(obj->heap[p]));
+        p = q, q = p << 1;
+    }
+}
+
+int top(struct Heap* obj) {
+    return obj->heap[1];
+}
+
+bool empty(struct Heap* obj) {
+    return obj->heapSize == 0;
+}
+
+struct HashTable {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} * hashtable;
+
+void prune(struct Heap* obj) {
+    while (!empty(obj)) {
+        int num = top(obj);
+        struct HashTable* tmp;
+        HASH_FIND_INT(hashtable, &num, tmp);
+        if (tmp == NULL) {
+            break;
+        }
+        tmp->val--;
+        if (!(tmp->val)) {
+            HASH_DEL(hashtable, tmp);
+            free(tmp);
+        }
+        pop(obj);
+    }
+}
+
+void makeBalance(struct Heap* small, struct Heap* large) {
+    if (small->realSize > large->realSize + 1) {
+        push(large, top(small));
+        pop(small);
+        --(small->realSize);
+        ++(large->realSize);
+        prune(small);
+    } else if (small->realSize < large->realSize) {
+        push(small, top(large));
+        pop(large);
+        ++(small->realSize);
+        --(large->realSize);
+        prune(large);
+    }
+}
+
+void insert(struct Heap* small, struct Heap* large, int num) {
+    if (empty(small) || num <= top(small)) {
+        push(small, num);
+        ++(small->realSize);
+    } else {
+        push(large, num);
+        ++(large->realSize);
+    }
+    makeBalance(small, large);
+}
+
+void erase(struct Heap* small, struct Heap* large, int num) {
+    struct HashTable* tmp;
+    HASH_FIND_INT(hashtable, &num, tmp);
+    if (tmp == NULL) {
+        tmp = malloc(sizeof(struct HashTable));
+        tmp->key = num;
+        tmp->val = 1;
+        HASH_ADD_INT(hashtable, key, tmp);
+    } else {
+        tmp->val++;
+    }
+    if (num <= top(small)) {
+        --(small->realSize);
+        if (num == top(small)) {
+            prune(small);
+        }
+    } else {
+        --(large->realSize);
+        if (num == top(large)) {
+            prune(large);
+        }
+    }
+    makeBalance(small, large);
+}
+
+double getMedian(struct Heap* small, struct Heap* large, int k) {
+    return (k & 1) ? top(small) : (((double)top(small) + top(large)) / 2);
+}
+
+double* medianSlidingWindow(int* nums, int numsSize, int k, int* returnSize) {
+    hashtable = NULL;
+    struct Heap* small = malloc(sizeof(struct Heap));
+    init(small, numsSize, cmp1);
+    struct Heap* large = malloc(sizeof(struct Heap));
+    init(large, numsSize, cmp2);
+    for (int i = 0; i < k; ++i) {
+        insert(small, large, nums[i]);
+    }
+    double* ans = malloc(sizeof(double) * (numsSize - k + 1));
+    *returnSize = 0;
+    ans[(*returnSize)++] = getMedian(small, large, k);
+    for (int i = k; i < numsSize; ++i) {
+        insert(small, large, nums[i]);
+        erase(small, large, nums[i - k]);
+        ans[(*returnSize)++] = getMedian(small, large, k);
+    }
+    return ans;
+}
