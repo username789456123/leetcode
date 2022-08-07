@@ -1,0 +1,19 @@
+char* smallestGoodBase(char* n) {
+    long nVal = atol(n);
+    int mMax = floor(log(nVal) / log(2));
+    char* ret = malloc(sizeof(char) * (mMax + 1));
+    for (int m = mMax; m > 1; m--) {
+        int k = pow(nVal, 1.0 / m);
+        long mul = 1, sum = 1;
+        for (int i = 0; i < m; i++) {
+            mul *= k;
+            sum += mul;
+        }
+        if (sum == nVal) {
+            sprintf(ret, "%lld", k);
+            return ret;
+        }
+    }
+    sprintf(ret, "%lld", nVal - 1);
+    return ret;
+}
