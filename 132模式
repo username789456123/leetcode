@@ -1,0 +1,25 @@
+bool find132pattern(int* nums, int numsSize){
+    if (numsSize < 3) {
+        return false;
+    }
+    int min[numsSize];
+    int i, j;
+    
+    /* 维护[0,j-1]区间的最小值, 即题目要求的1 */
+    min[0] = nums[0];
+    for (i = 1; i < numsSize; i++) {
+        min[i] = fmin(nums[i], min[i - 1]);
+    }
+    
+    /* 对于每个a[j]>a[i], 在区间[j+1,n-1]找到3, 1 < 3 < 2 */
+    for (i = 1; i < numsSize - 1; i++) {
+        if (nums[i] > min[i]) {
+            for (j = i + 1; j < numsSize; j++) {
+                if (nums[i] > nums[j] && nums[j] > min[i]) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
