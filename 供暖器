@@ -1,0 +1,38 @@
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+int binarySearch(const int* nums, int numsSize, int target) {
+    int left = 0, right = numsSize - 1;
+    if (nums[left] > target) {
+        return -1;
+    }
+    while (left < right) {
+        int mid = (right - left + 1) / 2 + left;
+        if (nums[mid] > target) {
+            right = mid - 1;
+        } else {
+            left = mid;
+        }
+    }
+    return left;
+}
+
+int cmp(const void* a, const void* b) {
+    int* pa = (int*)a;
+    int* pb = (int*)b;
+    return *pa - *pb;
+}
+
+int findRadius(int* houses, int housesSize, int* heaters, int heatersSize){
+    int ans = 0;
+    qsort(heaters, heatersSize, sizeof(int), cmp);
+    for (int k = 0; k < housesSize; ++k) {
+        int i = binarySearch(heaters, heatersSize, houses[k]);
+        int j = i + 1;
+        int leftDistance = i < 0 ? INT_MAX : houses[k] - heaters[i];
+        int rightDistance = j >= heatersSize ? INT_MAX : heaters[j] - houses[k];
+        int curDistance = MIN(leftDistance, rightDistance);
+        ans = MAX(ans, curDistance);
+    }
+    return ans;
+}
