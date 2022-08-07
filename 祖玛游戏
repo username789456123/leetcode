@@ -1,0 +1,31 @@
+struct Queue
+{
+    char *val;
+    int colorsOnHand[5];
+    struct Queue *next;
+};
+
+struct Queue *nodePool;
+int poolSize;
+int poolAllocated;
+
+struct Queue *getNode(char *val, struct Queue *next, int *colorsOnHand)
+{
+    int i = 0;
+    struct Queue *ret;
+    if (!nodePool || poolAllocated >= poolSize)
+    {
+        if (poolAllocated)
+            poolSize <<= 1;
+        else
+            poolSize = 1000;
+        poolAllocated = 0;
+        nodePool = (struct Queue *)malloc(sizeof(struct Queue) * poolSize);
+    }
+    ret = nodePool + (poolAllocated++);
+    ret->val = val;
+    ret->next = next;
+    for (i = 0; i < 5; i++)
+        ret->colorsOnHand[i] = colorsOnHand[i];
+    return ret;
+}
