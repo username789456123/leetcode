@@ -1,0 +1,27 @@
+int* constructRectangle(int area, int* returnSize){
+    int *result = (int *)malloc(sizeof(int) * 2);
+    int mid = sqrt(area);
+    if (mid * mid == area) {
+        result[0] = mid;
+        result[1] = mid;
+        *returnSize = 2;
+        return result;
+    }
+    int W = mid;
+    int L = mid;
+    int tmpArea = W * L;
+    while (tmpArea != area && W > 0) {
+        if (tmpArea < area) { // 小了，则增加长
+            L++;
+        }
+        if (tmpArea > area) { // 大了，则缩小宽
+            W--;
+        }
+
+        tmpArea = W * L;
+    }
+    result[0] = L;
+    result[1] = W;
+    *returnSize = 2;
+    return result;
+}
