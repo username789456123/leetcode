@@ -1,0 +1,97 @@
+typedef struct Trie {
+    struct Trie * children[26];
+    bool isEnd;
+}Trie;
+
+#define TRIE_INITIAL(node) do { \
+    for (int i = 0; i < 26; ++i) { \
+        (node)->children[i] = NULL; \
+    } \
+    (node)->isEnd = false; \
+}while(0);
+
+static void freeTrie(Trie * node) {
+    if (NULL == node) {
+        return;
+    }
+    for (int i = 0; i < 26; ++i) {
+        if (node->children[i] != NULL) {
+            freeTrie(node->children[i]);
+        }
+    }
+    free(node);
+}
+
+static int cmp(const void * pa, const void * pb){
+    int la = strlen(*(char **)pa);
+    int lb = strlen(*(char **)pb);
+    return la - lb;
+}
+
+bool dfs(Trie * trie, const char * word, int wordSize, int start, int* visited) {
+    if (wordSize == start) {
+        return true;
+    }
+    if (visited[start]) {
+        return false;
+    }
+    visited[start] = 1;
+    Trie * node = trie;
+    for (int i = start; i < wordSize; i++) {
+        char ch = word[i];
+        int index = ch - 'a';
+        node = node->children[index];
+        if (node == NULL) {
+            return false;
+        }
+        if (node->isEnd) {
+            if (dfs(trie, word, wordSize, i + 1, visited)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void insert(Trie * trie, const char * word, int wordSize) {
+    Trie * node = trie;
+    for (int i = 0; i < wordSize; i++) {
+        char ch = word[i];
+        int index = ch - 'a';
+        if (node->children[index] == NULL) {
+            node->children[index] = (Trie *)malloc(sizeof(Trie));
+            TRIE_INITIAL(node->children[index]);
+        }
+        node = node->children[index];
+    }
+    node->isEnd = true;
+}
+
+char ** findAllConcatenatedWordsInADict(char ** words, int wordsSize, int* returnSize){    
+    int pos = 0;
+    char ** ans = (char **)malloc(sizeof(char *) * wordsSize);
+    Trie * trie = (Trie *)malloc(sizeof(Trie));
+
+    TRIE_INITIAL(trie);
+    qsort(words, wordsSize, sizeof(char *), cmp);
+    for (int i = 0; i < wordsSize; i++) {
+        int len = strlen(words[i]);
+        if (len == 0) {
+            continue;
+        }
+        int * visited = (int *)malloc(sizeof(int) * len);
+        memset(visited, 0, sizeof(int) * len);
+        if (dfs(trie, words[i], len, 0, visited)) {
+            ans[pos] = (char *)malloc(sizeof(char) * (len + 1));
+            strncpy(ans[pos], words[i], len);
+            ans[pos][len] = '\0';
+            pos++;
+        } else {
+            insert(trie, words[i], len);
+        }
+        free(visited);
+    }
+    freeTrie(trie);
+    *returnSize = pos;
+    return ans;
+}
