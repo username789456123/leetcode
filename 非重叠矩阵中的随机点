@@ -1,0 +1,50 @@
+typedef struct {
+    int *arr;
+    int **rects;
+    int rectsSize;
+} Solution;
+
+Solution* solutionCreate(int** rects, int rectsSize, int* rectsColSize) {
+    srand(time(NULL));
+    Solution *obj = (Solution *)malloc(sizeof(Solution));
+    obj->rects = rects;
+    obj->rectsSize = rectsSize;
+    obj->arr = (int *)malloc(sizeof(int) * (rectsSize + 1));
+    memset(obj->arr, 0, sizeof(int) * (rectsSize + 1));
+    for (int i = 0; i < rectsSize; i++) {
+        obj->arr[i + 1] = obj->arr[i] + (rects[i][2] - rects[i][0] + 1) * \
+                                        (rects[i][3] - rects[i][1] + 1);
+    }
+    return obj;
+}
+
+int* solutionPick(Solution* obj, int* retSize) {
+    int k = rand() % obj->arr[obj->rectsSize];
+    int left = 0, right = obj->rectsSize;
+    int rectIndex = 0;
+    while (left <= right) {
+        int mid = (left + right) >> 1;
+        if (obj->arr[mid] > k) {
+            rectIndex = mid - 1;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    k = k - obj->arr[rectIndex];
+    int a = obj->rects[rectIndex][0], b = obj->rects[rectIndex][1];
+    int y = obj->rects[rectIndex][3];
+    int col = y - b + 1;
+    int da = k / col;
+    int db = k - col * da;
+    int *res = (int *)malloc(sizeof(int) * 2);
+    res[0] = a + da;
+    res[1] = b + db;
+    *retSize = 2;
+    return res;
+}
+
+void solutionFree(Solution* obj) {
+    free(obj->arr);
+    free(obj);
+}
