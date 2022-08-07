@@ -1,0 +1,45 @@
+void reverse(char* s, int length){
+    int left = 0, right = length - 1;
+    while (left < right){
+        char ch = s[left];
+        s[left] = s[right];
+        s[right] = ch;
+        left += 1;
+        right -= 1;
+    }
+}
+char * licenseKeyFormatting(char * s, int k){
+	int len = 0, pos = 0;
+	while (s[len] != 0){
+		if (s[len] != '-'){
+            if (s[len] >= 'a' && s[len] <= 'z')
+                s[pos++] = s[len] - 'a' + 'A';
+            else
+			    s[pos++] = s[len]; 
+		}
+		len += 1;
+	}
+	s[pos] = 0;
+	reverse(s, pos);
+	len = pos / k + pos + 1;
+	char* ret = (char*)calloc(len, sizeof(char));
+	len = 0;
+	for (int i = 0; i < pos; ){
+		if ((len % (k+1)) == k){
+			if (i < pos)
+				ret[len++] = '-';
+			else
+				ret[len] = 0;
+		}else {
+			ret[len++] = s[i++];
+			
+		}
+		
+
+	}
+    
+	reverse(ret, len);
+    ret[len] = 0;
+	return ret;
+
+}
