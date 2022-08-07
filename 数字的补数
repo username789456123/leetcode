@@ -1,0 +1,21 @@
+int findComplement(int num){
+    int i = 0;
+    int result = 0;
+    int tem_1;   //tem_1作为临时存储变量，
+    long tem_2 = 1;         //tem_2作用为将二进制还原为十进制的计算，每一次循环结束时乘2
+    while(num > 0){         //约束条件
+        tem_1 = num % 2;    //取余数
+        num = num / 2;      
+        if(tem_1 == 0){     //取反
+            tem_1 = 1;
+        }
+        else{
+            tem_1 = 0;
+        }
+        tem_1 = tem_1 * tem_2;  //二进制还原十进制
+        result = result + tem_1;    //加入结果
+        tem_2 = tem_2 * 2;
+        i ++;
+    }
+    return result;
+}
