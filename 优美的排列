@@ -1,0 +1,38 @@
+int **match;
+int *matchColSize;
+int *vis;
+int num;
+
+void backtrack(int index, int n) {
+    if (index == n + 1) {
+        num++;
+        return;
+    }
+    for (int i = 0; i < matchColSize[index]; i++) {
+        int x = match[index][i];
+        if (!vis[x]) {
+            vis[x] = true;
+            backtrack(index + 1, n);
+            vis[x] = false;
+        }
+    }
+}
+
+int countArrangement(int n) {
+    vis = malloc(sizeof(int) * (n + 1));
+    match = malloc(sizeof(int *) * (n + 1));
+    matchColSize = malloc(sizeof(int) * (n + 1));
+    memset(matchColSize, 0, sizeof(int) * (n + 1));
+    memset(vis, 0, sizeof(int) * (n + 1));
+    num = 0;
+    for (int i = 1; i <= n; i++) {
+        match[i] = malloc(sizeof(int) * (n));
+        for (int j = 1; j <= n; j++) {
+            if (i % j == 0 || j % i == 0) {
+                match[i][matchColSize[i]++] = j;
+            }
+        }
+    }
+    backtrack(1, n);
+    return num;
+}
