@@ -1,0 +1,30 @@
+struct HashTable {
+    int key, val;
+    UT_hash_handle hh;
+};
+
+int leastBricks(int** wall, int wallSize, int* wallColSize) {
+    struct HashTable* cnt = NULL;
+    for (int i = 0; i < wallSize; i++) {
+        int n = wallColSize[i];
+        int sum = 0;
+        for (int j = 0; j < n - 1; j++) {
+            sum += wall[i][j];
+            struct HashTable* tmp;
+            HASH_FIND_INT(cnt, &sum, tmp);
+            if (tmp == NULL) {
+                tmp = malloc(sizeof(struct HashTable));
+                tmp->key = sum, tmp->val = 1;
+                HASH_ADD_INT(cnt, key, tmp);
+            } else {
+                tmp->val++;
+            }
+        }
+    }
+    int maxCnt = 0;
+    struct HashTable *iter, *tmp;
+    HASH_ITER(hh, cnt, iter, tmp) {
+        maxCnt = fmax(maxCnt, iter->val);
+    }
+    return wallSize - maxCnt;
+}
