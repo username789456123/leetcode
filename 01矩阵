@@ -1,0 +1,41 @@
+ #define MIN(a,b)(a<b?a:b)
+ 
+int** updateMatrix(int** mat, int matSize, int* matColSize, int* returnSize, int** returnColumnSizes){
+*returnSize=matSize;
+int** ans=(int**)malloc(matSize*sizeof(int*));
+(*returnColumnSizes)=(int*)malloc(sizeof(int*)*matSize);
+//给returnC0lmunSizes分配空间，因为matrixSize代表行数，而ColumnSizes数组个数就是行数
+memcpy(*returnColumnSizes,matColSize,matSize*sizeof(int));
+
+//定义ans(返回数组)
+for(int i=0;i<matSize;i++){
+    ans[i]=(int*)calloc(matColSize[0],sizeof(int));
+//i代表行，每行分配matrixColSize[i]这么多空间并初始化0，dp已经建立完毕
+    for(int j=0;j<matColSize[i];j++){
+        if(mat[i][j]!=0)
+        ans[i][j]=9999;
+//9999是最大的数，在测试用例中体现，需要返回9999
+    }
+    
+}
+//比较自己左边的上面的邻接元素，如果是0，就会因为自身和（0+1）比较而直接返回1不然则会根据对方带的数（代表了对方距离最近的0多远）和自身比较
+for(int x=0;x<matSize;x++){
+    for(int y=0;y<matColSize[0];y++){
+        if(x-1>=0)
+        ans[x][y]=MIN(ans[x][y],ans[x-1][y]+1);
+        if(y-1>=0)
+        ans[x][y]=MIN(ans[x][y],ans[x][y-1]+1);
+    }
+}
+//第二次遍历比较自己下面和右边的邻接元素，同理，就可以得出自己上下左右最接近0的方位并确定那个数。
+for(int x=matSize-1;x>=0;x--){
+    for(int y=matColSize[x]-1;y>=0;y--){
+        if(x+1<matSize)
+        ans[x][y]=MIN(ans[x][y],ans[x+1][y]+1);
+        if(y+1<matColSize[x])
+        ans[x][y]=MIN(ans[x][y],ans[x][y+1]+1);
+    }
+}
+
+return ans;
+}
