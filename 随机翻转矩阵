@@ -1,0 +1,60 @@
+
+typedef struct {
+    unsigned long long val;
+    UT_hash_handle hh;
+} Hash;
+
+typedef struct {
+    Hash *hash;
+    int n_rows;
+    int n_cols;
+} Solution, SL;
+
+
+Solution* solutionCreate(int n_rows, int n_cols) {
+    SL *obj = malloc(sizeof(SL));
+    obj->hash = NULL;
+    obj->n_rows = n_rows;
+    obj->n_cols = n_cols;
+    return obj;
+}
+
+int* solutionFlip(Solution* obj, int* retSize) {
+    *retSize = 2;
+    int *res = malloc(2 * sizeof(int));
+    while (true) {
+        int x = rand() % obj->n_rows;
+        int y = rand() % obj->n_cols;
+        unsigned long long t = x;
+        t <<= 32;
+        t |= y;
+        // printf("%ld\n", t);
+        Hash *p;
+        HASH_FIND(hh, obj->hash, &t, sizeof(unsigned long long), p);
+        if (!p) {
+            res[0] = x;
+            res[1] = y;
+            p = malloc(sizeof(Hash));
+            p->val = t;
+            HASH_ADD(hh, obj->hash, val, sizeof(unsigned long long), p);
+            break;
+        }
+    }
+    return res;
+}
+
+void solutionReset(Solution* obj) {
+    Hash *cur, *tmp;
+    HASH_ITER(hh, obj->hash, cur, tmp) {
+        HASH_DEL(obj->hash, cur);
+    }
+}
+
+void solutionFree(Solution* obj) {
+    Hash *cur, *tmp;
+    HASH_ITER(hh, obj->hash, cur, tmp) {
+        HASH_DEL(obj->hash, cur);
+        free(cur);
+    }
+    free(obj);
+}
