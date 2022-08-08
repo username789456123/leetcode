@@ -1,0 +1,44 @@
+typedef struct {
+    int* pre;
+    int preSize;
+    int total;
+} Solution;
+
+Solution* solutionCreate(int* w, int wSize) {
+    Solution* obj = malloc(sizeof(Solution));
+    obj->pre = malloc(sizeof(int) * wSize);
+    obj->preSize = wSize;
+    obj->total = 0;
+    for (int i = 0; i < wSize; i++) {
+        obj->total += w[i];
+        if (i > 0) {
+            obj->pre[i] = obj->pre[i - 1] + w[i];
+        } else {
+            obj->pre[i] = w[i];
+        }
+    }
+    return obj;
+}
+
+int binarySearch(Solution* obj, int x) {
+    int low = 0, high = obj->preSize - 1;
+    while (low < high) {
+        int mid = (high - low) / 2 + low;
+        if (obj->pre[mid] < x) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    return low;
+}
+
+int solutionPickIndex(Solution* obj) {
+    int x = rand() % obj->total + 1;
+    return binarySearch(obj, x);
+}
+
+void solutionFree(Solution* obj) {
+    free(obj->pre);
+    free(obj);
+}
