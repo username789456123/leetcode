@@ -1,0 +1,30 @@
+int nextGreaterElement(int n){
+    char nums[32];
+    sprintf(nums, "%d", n);
+    int i = (int) strlen(nums) - 2;
+    while (i >= 0 && nums[i] >= nums[i + 1]) {
+        i--;
+    }
+    if (i < 0) {
+        return -1;
+    }
+
+    int j = strlen(nums) - 1;
+    while (j >= 0 && nums[i] >= nums[j]) {
+        j--;
+    }
+    int num = nums[i];
+    nums[i] = nums[j];
+    nums[j] = num;
+    int left = i + 1;
+    int right = strlen(nums) - 1;
+    while (left < right) {
+        int num = nums[left];
+        nums[left] = nums[right];
+        nums[right] = num;
+        left++;
+        right--;
+    }
+    long ans = atol(nums);
+    return ans > INT_MAX ? -1 : ans;
+}
