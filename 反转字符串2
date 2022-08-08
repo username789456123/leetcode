@@ -1,0 +1,22 @@
+void swap(char* a, char* b) {
+    char tmp = *a;
+    *a = *b, *b = tmp;
+}
+
+void reverse(char* l, char* r) {
+    while (l < r) {
+        swap(l++, --r);
+    }
+}
+
+int min(int a, int b) {
+    return a < b ? a : b;
+}
+
+char* reverseStr(char* s, int k) {
+    int n = strlen(s);
+    for (int i = 0; i < n; i += 2 * k) {
+        reverse(&s[i], &s[min(i + k, n)]);
+    }
+    return s;
+}
