@@ -1,0 +1,30 @@
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+bool is_subseq(const char *s, const char *t) {
+    int pt_s = 0, pt_t = 0;
+    int len_s = strlen(s), len_t = strlen(t);
+    while (pt_s < len_s && pt_t < len_t) {
+        if (s[pt_s] == t[pt_t]) {
+            ++pt_s;
+        }
+        ++pt_t;
+    }
+    return pt_s == len_s;
+}
+
+int findLUSlength(char ** strs, int strsSize){
+    int ans = -1;
+    for (int i = 0; i < strsSize; ++i) {
+        bool check = true;
+        for (int j = 0; j < strsSize; ++j) {
+            if (i != j && is_subseq(strs[i], strs[j])) {
+                check = false;
+                break;
+            }
+        }
+        if (check) {
+            ans = MAX(ans, (int)strlen(strs[i]));
+        }
+    }
+    return ans;
+}
