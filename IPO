@@ -1,0 +1,254 @@
+struct project
+{
+    int profit;//利润
+    int capital;//启动资金
+};
+
+typedef struct Heap
+{
+    int* array;   //存放堆的数组
+    int  capacity;//数组的容量
+    int  len;     //已存数组的大小
+}Heap;
+                                                        /*大小根堆切换开关*/
+int  HeapLen(Heap* hp);                                 //heap获取当前的堆大小
+void HeapSwap(int* pLeft, int* pRight);                 //heap交换父子结点的数值
+bool HeapEmpty(Heap* hp);                               //heap判空
+bool HeapFull(Heap* hp);                                //heap判满
+int  HeapGetTop(Heap* hp);                              //heap获取堆顶
+void HeapInsert(Heap* hp, int  dat,bool isMax);         //heap向堆的尾部插入1个元素
+void HeapDelete(Heap* hp,bool isMax);                    //heap删除堆顶
+void HeapAdjustDown(Heap* hp, int parent,bool isMax);   //heap向下调整
+void HeapAdjustUp(Heap* hp, int child,bool isMax);      //heap向上调整
+Heap* CreateHeap(int size);                             //heap创建
+void heapFree(Heap* hp);                                //heap释放空间
+
+int HeapLen(Heap* hp)
+{
+    return hp->len;
+}
+
+bool HeapEmpty(Heap* hp)          //判空
+{
+    if (HeapLen(hp) == 1)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool HeapFull(Heap* hp)          //判满
+{
+    if (hp->capacity == hp->len)
+    {
+        return true;
+    }
+    return false;
+}
+
+
+void HeapSwap(int* pLeft, int* pRight)//交换数值
+{
+    //交换堆中的父子结点
+    int  temp;
+    temp    = *pLeft;
+    *pLeft  = *pRight;
+    *pRight = temp;
+}
+
+int HeapGetTop(Heap* hp)
+{
+    return hp->array[1];
+}
+
+
+
+Heap* CreateHeap(int size)
+{
+    Heap* heap = (Heap*)malloc(sizeof(Heap));
+    int   heapLen = size + 1;//长度比size的长度大1才行
+    //给堆申请空间,初始化
+    heap->array = (int*)malloc(sizeof(int) * heapLen);
+    heap->capacity  = heapLen;     //容量
+    heap->len       = 1;           //当前大小
+    return heap;
+}
+
+void HeapAdjustDown(Heap* hp, int parent ,bool isMax)//向下调整
+{
+    //标记左右孩子中最小孩子
+    int child = 2 * parent;            //左孩子为2*parent  右孩子为 2*parent +1
+    int len  = hp->len;
+    while (child < len)
+    {
+        if(isMax)
+        {
+            //大根堆 选最大的
+            //有右子树时 ，找左右孩子中最大的孩子 
+            if ((child + 1 < len) && hp->array[child] < hp->array[child + 1])
+                child = child + 1;
+
+            //最大孩子大于双亲时 ，孩子与双亲数值交换，否则说明已经调好，不用继续
+            if (hp->array[child] > hp->array[parent])
+            {
+                HeapSwap(&hp->array[child], &hp->array[parent]);
+                parent = child;
+                child = parent << 1;
+            }
+            else
+                return;
+        }
+        else
+        {
+            //小根堆  选最小的
+            //有右子树时 ，找左右孩子中最小的孩子 
+            if ((child + 1 < len) && hp->array[child] > hp->array[child + 1])
+                child = child + 1;
+
+            //最小孩子小于双亲时 ，孩子与双亲数值交换，否则说明已经调好，不用继续
+            if (hp->array[child] < hp->array[parent])
+            {
+                HeapSwap(&hp->array[child], &hp->array[parent]);
+                parent = child;
+                child = parent << 1;
+            }
+            else
+                return;
+        }
+    }
+}
+
+
+
+
+void HeapAdjustUp(Heap* hp, int child,bool isMax)//向上调整
+{
+    //得到父母结点的位置
+    int parent = child / 2;
+    while (child > 1)
+    {
+        if(isMax)
+        {
+            //大根堆选择大的
+            //循环迭代从child当前位置一直迭代到0位置即对顶
+            if (hp->array[child] > hp->array[parent])
+            {
+                HeapSwap(&hp->array[child], &hp->array[parent]);
+                child = parent;
+                parent = child/2;
+            }
+            else
+                return;
+        }
+        else
+        {
+            //小根堆选择小的
+            //循环迭代从child当前位置一直迭代到0位置即对顶
+            if (hp->array[child] < hp->array[parent])
+            {
+                HeapSwap(&hp->array[child], &hp->array[parent]);
+                child = parent;
+                parent = child/2;
+            }
+            else
+                return;
+        }
+    }
+}
+
+void HeapDelete(Heap* hp,bool isMax)//删除堆顶
+{
+    if (HeapEmpty(hp))
+        return;
+
+    //用最后一个元素覆盖堆顶，相当于删除堆顶
+    hp->array[1] = hp->array[hp->len - 1];
+    hp->len--;//删除最后一个元素 heap长度变短
+    HeapAdjustDown(hp, 1,isMax);//对第一个元素进行调整
+}
+
+
+
+void HeapInsert(Heap* hp, int  dat,bool isMax)
+{
+    if (HeapFull(hp))
+    {
+        //扩容
+        hp->capacity <<= 1; 
+        hp->array = (int *) realloc(hp->array, hp->capacity * sizeof(int));
+    }
+    int child = 0;
+    int parent = 0;
+    //插入到最后一个元素的下一个位置
+    hp->array[hp->len++] = dat;
+    //调整刚插入元素，
+    //因为插入的是堆的尾部，需要堆向上调整
+    HeapAdjustUp(hp, hp->len - 1,isMax);
+}
+
+
+void heapFree(Heap* hp)
+{
+    free(hp->array);
+    free(hp);
+}
+
+
+// 由小到大排序
+int compare(const struct project *a, const struct project *b) 
+{
+	return a->capital - b->capital;
+}
+
+int findMaximizedCapital(int k, int w, int* profits, int profitsSize, int* capital, int capitalSize)
+{
+    
+    //按启动资金从小到排列
+    struct project newProject[profitsSize];
+    for(int i =0; i <profitsSize; i++ )
+    {
+        newProject[i].profit  = profits[i];
+        newProject[i].capital = capital[i];
+    }
+    qsort(newProject,profitsSize,sizeof(struct project), compare);
+
+    //最大堆
+    //启动资金
+    Heap * newHeap = CreateHeap(profitsSize);
+    int startUpCapital =  w;
+    int index = 0;
+    while(index <profitsSize  && k)
+    {
+        if(startUpCapital >= newProject[index].capital)
+        {
+            //按照利润最大堆
+            HeapInsert(newHeap, newProject[index].profit, true);
+            index++;
+        }
+        else if(HeapEmpty(newHeap) == false)
+        {
+            //当前的项目 启动资金不够
+            //去堆里 取最大的
+
+            startUpCapital += HeapGetTop(newHeap);
+            HeapDelete(newHeap, true);
+            k--;
+        }
+        else
+        {
+            //启动不了 堆为空  
+            break;
+        }
+    }
+
+    while(k && HeapEmpty(newHeap) == false)
+    {
+        startUpCapital += HeapGetTop(newHeap);
+        HeapDelete(newHeap, true);
+        k--;
+    }
+
+
+
+    return startUpCapital;
+}
