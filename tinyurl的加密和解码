@@ -1,0 +1,38 @@
+typedef struct {
+    int key;
+    char *val;
+    UT_hash_handle hh;
+} HashItem;
+
+HashItem *dataBase = NULL;
+int id = 0;
+
+char* encode(char* longUrl) {
+    id++;
+    HashItem * pEntry = NULL;
+    HASH_FIND_INT(dataBase, &id, pEntry);
+    if (NULL == pEntry) {
+        pEntry = (HashItem *)malloc(sizeof(HashItem));
+        pEntry->key = id;
+        pEntry->val = longUrl;
+        HASH_ADD_INT(dataBase, key, pEntry);
+    }
+    char *res = (char *)malloc(sizeof(char) * 64);
+    sprintf(res, "%s%d", "http://tinyurl.com/", id); 
+    return res;
+}
+
+char* decode(char* shortUrl) {
+    char *p = shortUrl;
+    char *last = shortUrl;
+    while (last = strchr(p, '/')) {
+        p = last + 1;
+    }
+    int key = atoi(p);
+    HashItem * pEntry = NULL;
+    HASH_FIND_INT(dataBase, &key, pEntry);
+    if (NULL != pEntry) {
+        return pEntry->val;
+    }
+    return NULL;
+}
