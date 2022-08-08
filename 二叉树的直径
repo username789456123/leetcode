@@ -1,0 +1,30 @@
+#define MAX(a , b) ((a) > (b) ? (a) : (b)) 
+int dfs(struct TreeNode * root, int * sum)
+{
+    if(root == NULL)
+    {
+        return 0;
+    }
+    int left = 0;
+    left = dfs(root->left,sum);//求左节点高度
+    int right = 0;
+    right = dfs(root->right,sum);//求右子树高度
+    int max = MAX(left, right);//当前节点树高度
+    (*sum) = MAX((*sum) , (left + right ));//保存最大高度和
+    return max + 1;
+}
+/*
+*int diameterOfBinaryTree(struct TreeNode* root)
+int diameterOfBinaryTree：求二叉树最大高度和
+struct TreeNode* root：树头结点
+返回值：最大高度和
+*/
+int diameterOfBinaryTree(struct TreeNode* root){
+    if(root == NULL)
+    {
+        return 0;
+    }
+    int sum = 0;
+    dfs(root, &sum);
+    return sum;
+}
