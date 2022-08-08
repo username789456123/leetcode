@@ -1,0 +1,45 @@
+typedef struct {
+    int key;
+    UT_hash_handle hh;
+} HashItem;
+
+int findPairs(int* nums, int numsSize, int k){
+    HashItem *visited = NULL, *res = NULL;
+    int target = 0;
+    for (int i = 0; i < numsSize; i++) {
+        HashItem *pEntry = NULL;
+        target = nums[i] - k;
+        HASH_FIND_INT(visited, &target, pEntry);
+        if (pEntry) {
+            pEntry = NULL;
+            HASH_FIND_INT(res, &target, pEntry); 
+            if (NULL == pEntry) {
+                pEntry = (HashItem *)malloc(sizeof(HashItem));
+                pEntry->key = nums[i] - k;
+                HASH_ADD_INT(res, key, pEntry);
+            }
+        }
+        pEntry = NULL;
+        target = nums[i] + k;
+        HASH_FIND_INT(visited, &target, pEntry);
+        if (pEntry) {
+            pEntry = NULL;
+            target = nums[i];
+            HASH_FIND_INT(res, &target, pEntry); 
+            if (NULL == pEntry) {
+                pEntry = (HashItem *)malloc(sizeof(HashItem));
+                pEntry->key = nums[i];
+                HASH_ADD_INT(res, key, pEntry);
+            }
+        }
+        pEntry = NULL;
+        target = nums[i];
+        HASH_FIND_INT(visited, &target, pEntry);
+        if (NULL == pEntry) {
+            pEntry = (HashItem *)malloc(sizeof(HashItem));
+            pEntry->key = nums[i];
+            HASH_ADD_INT(visited, key, pEntry);
+        }
+    }
+    return HASH_COUNT(res);
+}
