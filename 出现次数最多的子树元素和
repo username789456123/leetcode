@@ -1,0 +1,47 @@
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashItem;
+
+int dfs(struct TreeNode *node, HashItem **cnt, int *maxCnt) {
+    if (node == NULL) {
+        return 0;
+    }
+    int sum = node->val + dfs(node->left, cnt, maxCnt) + dfs(node->right, cnt, maxCnt);
+    HashItem *pEntry = NULL;
+    HASH_FIND_INT(*cnt, &sum, pEntry);
+    if (NULL == pEntry) {
+        pEntry = (HashItem *)malloc(sizeof(HashItem));
+        pEntry->key = sum;
+        pEntry->val = 1;
+        HASH_ADD_INT(*cnt, key, pEntry);
+    } else {
+        pEntry->val++;
+    }
+    *maxCnt = MAX(*maxCnt, pEntry->val);
+    return sum;
+}
+
+int* findFrequentTreeSum(struct TreeNode* root, int* returnSize) {
+    HashItem * cnt = NULL;
+    int maxCnt = 0;
+    dfs(root, &cnt, &maxCnt);
+    unsigned int n = HASH_COUNT(cnt);
+    int *ans = (int *)malloc(sizeof(int) * n);
+    int pos = 0;
+    for (HashItem *pEntry = cnt; pEntry; pEntry = pEntry->hh.next) {
+        if (pEntry->val == maxCnt) {
+            ans[pos++] = pEntry->key;
+        }
+    }
+    HashItem *curr, *tmp;
+    HASH_ITER(hh, cnt, curr, tmp) {
+        HASH_DEL(cnt, curr);  
+        free(curr);
+    }
+    *returnSize = pos;
+    return ans;
+}
