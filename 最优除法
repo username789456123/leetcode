@@ -1,0 +1,52 @@
+#define MAX_STR_LEN 64
+
+typedef struct {
+    double maxVal, minVal;
+    char minStr[MAX_STR_LEN], maxStr[MAX_STR_LEN];
+} Node;
+
+char * optimalDivision(int* nums, int numsSize){
+    Node ** dp = (Node **)malloc(sizeof(Node *) * numsSize);
+    for (int i = 0; i < numsSize; i++) {
+        dp[i] = (Node *)malloc(sizeof(Node) * numsSize);
+    }
+    for (int i = 0; i < numsSize; i++) {
+        for (int j = 0; j < numsSize; j++) {
+            dp[i][j].minVal = 10000.0;
+            dp[i][j].maxVal = 0.0;
+        }
+        dp[i][i].minVal = nums[i];
+        dp[i][i].maxVal = nums[i];
+        snprintf(dp[i][i].minStr, MAX_STR_LEN, "%d", nums[i]);
+        snprintf(dp[i][i].maxStr, MAX_STR_LEN, "%d", nums[i]);
+    }
+    for (int i = 1; i < numsSize; i++) {
+        for (int j = 0; j + i < numsSize; j++) {
+            for (int k = j ; k < j + i; k++) {
+                if (dp[j][j + i].maxVal < dp[j][k].maxVal / dp[k + 1][j + i].minVal) {
+                    dp[j][j + i].maxVal = dp[j][k].maxVal / dp[k + 1][j + i].minVal;
+                    if (k + 1 == j + i) {
+                        snprintf(dp[j][j + i].maxStr, MAX_STR_LEN, "%s/%s", dp[j][k].maxStr, dp[k + 1][j + i].minStr);
+                    } else {
+                        snprintf(dp[j][j + i].maxStr, MAX_STR_LEN, "%s/(%s)", dp[j][k].maxStr, dp[k + 1][j + i].minStr);
+                    }
+                }
+                if (dp[j][j + i].minVal > dp[j][k].minVal / dp[k + 1][j + i].maxVal) {
+                    dp[j][j + i].minVal = dp[j][k].minVal / dp[k + 1][j + i].maxVal;
+                    if (k + 1 == j + i) {
+                        snprintf(dp[j][j + i].minStr, MAX_STR_LEN, "%s/%s", dp[j][k].minStr, dp[k + 1][j + i].maxStr);
+                    } else {
+                        snprintf(dp[j][j + i].minStr, MAX_STR_LEN, "%s/(%s)", dp[j][k].minStr, dp[k + 1][j + i].maxStr);
+                    }
+                }
+            }
+        }
+    };
+    char * ans = (char *)malloc(sizeof(char) * (strlen(dp[0][numsSize-1].maxStr) + 1));
+    strcpy(ans, dp[0][numsSize-1].maxStr);
+    for (int i = 0; i < numsSize; i++) {
+        free(dp[i]);
+    }
+    free(dp);
+    return ans;
+}
