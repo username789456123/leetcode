@@ -1,0 +1,49 @@
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+typedef struct {
+  char *key;
+  int val;
+  UT_hash_handle hh;
+} HashItem;
+
+void freeHash(HashItem ** obj) {
+    HashItem * curr = NULL, * next = NULL;
+    HASH_ITER(hh, *obj, curr, next) {
+      HASH_DEL(*obj, curr);
+      free(curr);
+    } 
+}
+
+char ** findRestaurant(char ** list1, int list1Size, char ** list2, int list2Size, int* returnSize){
+    HashItem * index = NULL;
+    HashItem * pEntry = NULL;
+    for (int i = 0; i < list1Size; i++) {
+        HASH_FIND_STR(index, list1[i], pEntry);
+        if (NULL == pEntry) {
+            pEntry = (HashItem *)malloc(sizeof(HashItem));
+            pEntry->key = list1[i];
+            pEntry->val = i;
+            HASH_ADD_STR(index, key, pEntry);
+        }
+    }
+
+    char ** ret = (char **)malloc(sizeof(char *) * MIN(list1Size, list2Size));
+    int pos = 0;
+    int indexSum = INT_MAX;
+    for (int i = 0; i < list2Size; i++) {
+        HASH_FIND_STR(index, list2[i], pEntry);
+        if (NULL != pEntry) {
+            int j = pEntry->val;
+            if (i + j < indexSum) {
+                pos = 0;
+                ret[pos++] = list2[i];
+                indexSum = i + j;
+            } else if (i + j == indexSum) {
+                ret[pos++] = list2[i];
+            }
+        }
+    }
+    freeHash(&index);
+    *returnSize = pos;
+    return ret;
+}
