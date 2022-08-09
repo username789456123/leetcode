@@ -1,0 +1,21 @@
+bool compare(struct TreeNode* root, struct TreeNode* subRoot){
+    if(root==NULL && subRoot==NULL){
+        return true;
+    }
+    if(root==NULL||subRoot==NULL){
+        return false;
+    }
+    if(root->val!=subRoot->val){
+        return false;
+    }
+        return compare(root->left,subRoot->left)&& compare(root->right,subRoot->right); // 这里左右结点要同时满足 所以是 &&
+}
+
+bool isSubtree(struct TreeNode* root, struct TreeNode* subRoot){
+    if(root==NULL){
+        return false;
+    }
+    return compare(root,subRoot)||isSubtree(root->left,subRoot)||isSubtree(root->right,subRoot);
+    // 前面的compare 让两个当前结点先进入递归 后面的两个分明递归调用当前结点的左右子结点
+    // 这里用|| 是因为 只需要满足某一方向的结点全部相同即可 
+}
