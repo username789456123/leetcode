@@ -1,0 +1,15 @@
+int dfs(struct TreeNode *root,int *sum){
+    if(root == NULL){
+        return 0;
+    }
+    int left = dfs(root->left,sum);
+    int right = dfs(root->right,sum);
+    *sum += abs(left - right);
+    return left + right +root->val;
+}
+
+int findTilt(struct TreeNode* root){
+    int sum = 0;
+    dfs(root,&sum);
+    return sum;
+}
