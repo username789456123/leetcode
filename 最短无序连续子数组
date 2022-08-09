@@ -1,0 +1,30 @@
+bool is_sorted(int* arr, int arrSize) {
+    for (int i = 1; i < arrSize; i++) {
+        if (arr[i - 1] > arr[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+int cmp(int* a, int* b) {
+    return *a - *b;
+}
+
+int findUnsortedSubarray(int* nums, int numsSize) {
+    if (is_sorted(nums, numsSize)) {
+        return 0;
+    }
+    int numsSorted[numsSize];
+    memcpy(numsSorted, nums, sizeof(int) * numsSize);
+    qsort(numsSorted, numsSize, sizeof(int), cmp);
+    int left = 0;
+    while (nums[left] == numsSorted[left]) {
+        left++;
+    }
+    int right = numsSize - 1;
+    while (nums[right] == numsSorted[right]) {
+        right--;
+    }
+    return right - left + 1;
+}
