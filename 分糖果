@@ -1,0 +1,16 @@
+int cmp(const void *a, const void *b) {
+    return *(int *)a - *(int *)b;
+}
+
+
+int distributeCandies(int* candies, int candiesSize){
+    int cnt = 1;
+    qsort(candies, candiesSize, sizeof(int), cmp);
+    for (int i = 1; i < candiesSize; i++) {
+        if (candies[i] > candies[i - 1]) {
+            cnt++;
+        }       
+    }
+
+    return cnt < candiesSize / 2 ? cnt : candiesSize / 2;
+}
