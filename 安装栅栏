@@ -1,0 +1,68 @@
+int cross(const int * p, const int * q, const int * r) {
+    return (q[0] - p[0]) * (r[1] - q[1]) - (q[1] - p[1]) * (r[0] - q[0]);
+}
+
+int** outerTrees(int** trees, int treesSize, int* treesColSize, int* returnSize, int** returnColumnSizes) {
+    int **res = (int **)malloc(sizeof(int *) * treesSize);
+    int pos = 0;
+    if (treesSize < 4) {
+        *returnColumnSizes = (int *)malloc(sizeof(int) * treesSize);
+        for (int i = 0; i < treesSize; i++) {
+            res[i] = (int *)malloc(sizeof(int) * 2);
+            res[i][0] = trees[i][0];
+            res[i][1] = trees[i][1];
+            (*returnColumnSizes)[i] = 2;
+        }
+        *returnSize = treesSize;
+        return res;
+    }
+    int leftMost = 0;
+    for (int i = 0; i < treesSize; i++) {
+        if (trees[i][0] < trees[leftMost][0] || \
+            (trees[i][0] == trees[leftMost][0] && \
+            trees[i][1] < trees[leftMost][1])) {
+            leftMost = i;
+        }
+    }
+
+    bool *visit = (bool *)malloc(sizeof(bool) * treesSize);
+    memset(visit, 0, sizeof(bool) * treesSize);
+    int p = leftMost;
+    do {
+        int q = (p + 1) % treesSize;
+        for (int r = 0; r < treesSize; r++) {
+            /* 如果 r 在 pq 的右侧，则 q = r */ 
+            if (cross(trees[p], trees[q], trees[r]) < 0) {
+                q = r;
+            }
+        }
+        /* 是否存在点 i, 使得 p 、q 、i 在同一条直线上 */
+        for (int i = 0; i < treesSize; i++) {
+            if (visit[i] || i == p || i == q) {
+                continue;
+            }
+            if (cross(trees[p], trees[q], trees[i]) == 0) {
+                res[pos] = (int *)malloc(sizeof(int) * 2);
+                res[pos][0] = trees[i][0];
+                res[pos][1] = trees[i][1];
+                pos++;
+                visit[i] = true;
+            }
+        }
+        if (!visit[q]) {
+            visit[q] = true;
+            res[pos] = (int *)malloc(sizeof(int) * 2);
+            res[pos][0] = trees[q][0];
+            res[pos][1] = trees[q][1];
+            pos++;
+        }
+        p = q;
+    } while (p != leftMost);
+    *returnSize = pos;
+    *returnColumnSizes = (int *)malloc(sizeof(int) * pos);
+    for (int i = 0; i < pos; i++) {
+        (*returnColumnSizes)[i] = 2;
+    }
+    free(visit);
+    return res;
+}
