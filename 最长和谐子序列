@@ -1,0 +1,19 @@
+int Cmp(const void *a, const void *b)
+{
+    return *(int*)a - *(int*)b;
+}
+
+int findLHS(int* nums, int numsSize){       // 枚举 + 双指针
+    qsort(nums, numsSize, sizeof(nums[0]), Cmp);
+    int ret = 0;
+    int begin = 0;
+    for (int end = 0; end < numsSize; end++) {
+        if (nums[end] - nums[begin] > 1) {  // 若差值大于1，则左指针向右移，缩小二者差值
+            begin++;
+        }
+        if (nums[end] - nums[begin] == 1) { // 差值为1，计算长度并取最值
+            ret = fmax(ret, end - begin + 1);
+        }
+    }
+    return ret;
+}
