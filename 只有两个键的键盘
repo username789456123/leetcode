@@ -1,0 +1,20 @@
+int minSteps(int n){
+    // 动态规划，dp[i]代表i个字符A需要的最少操作次数
+    int dp[n + 1];
+    dp[1] = 0;
+
+    int min = 0;
+    int step = 0;
+    for (int i = 2; i <= n; i++) {
+        min = i;
+        // 至少i是j的两倍，因此j <= i/2
+        for (int j = 2; j <= i / 2; j++) {
+            if (i % j == 0) {
+                step = dp[j] + i / j;
+                min = step < min ? step : min;
+            }
+        }
+        dp[i] = min;
+    }
+    return dp[n];
+}
