@@ -1,0 +1,29 @@
+struct TreeNode* addOneRow(struct TreeNode* root, int val, int depth) {
+    if (root == NULL) {
+            return NULL;
+        }
+        struct TreeNode *node = (struct TreeNode *)malloc(sizeof(struct TreeNode));
+        if (depth == 1) {
+            node = (struct TreeNode *)malloc(sizeof(struct TreeNode));
+            node->val = val;
+            node->left = root;
+            node->right = NULL;
+            return node;
+        }
+        if (depth == 2) {
+            node = (struct TreeNode *)malloc(sizeof(struct TreeNode));
+            node->val = val;
+            node->left = root->left;
+            node->right = NULL;
+            root->left = node;
+            node = (struct TreeNode *)malloc(sizeof(struct TreeNode));
+            node->val = val;
+            node->left = NULL;
+            node->right = root->right;
+            root->right = node;
+        } else {
+            root->left = addOneRow(root->left, val, depth - 1);
+            root->right = addOneRow(root->right, val, depth - 1);
+        }
+        return root;
+}
