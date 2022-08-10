@@ -1,0 +1,23 @@
+int cmp(int* a, int* b) {
+    return *a - *b;
+}
+
+int* findErrorNums(int* nums, int numsSize, int* returnSize) {
+    int* errorNums = malloc(sizeof(int) * 2);
+    *returnSize = 2;
+    qsort(nums, numsSize, sizeof(int), cmp);
+    int prev = 0;
+    for (int i = 0; i < numsSize; i++) {
+        int curr = nums[i];
+        if (curr == prev) {
+            errorNums[0] = prev;
+        } else if (curr - prev > 1) {
+            errorNums[1] = prev + 1;
+        }
+        prev = curr;
+    }
+    if (nums[numsSize - 1] != numsSize) {
+        errorNums[1] = numsSize;
+    }
+    return errorNums;
+}
