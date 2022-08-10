@@ -1,0 +1,49 @@
+char ***ans;
+int maxDepth;
+//计算二叉树的深度
+int GetDepth(struct TreeNode* root)
+{
+    int depth, leftDepth, rightDepth;
+
+    if (root == NULL) {
+        return 0;
+    }
+    leftDepth = GetDepth(root->left);
+    rightDepth = GetDepth(root->right);
+    depth = (leftDepth > rightDepth ? leftDepth : rightDepth) + 1;
+    return depth;
+}
+//填充矩阵
+void fillAns(struct TreeNode* root, int left, int right, int depth)
+{
+    int mid = (left + right) / 2;
+
+    if (root == NULL || depth >= maxDepth) {
+        return;
+    }
+    ans[depth][mid] = (char *)malloc(sizeof(char) * 6);
+    sprintf(ans[depth][mid], "%d", root->val);
+    fillAns(root->left, left, mid, depth + 1);
+    fillAns(root->right, mid + 1, right, depth + 1);
+    
+}
+char *** printTree(struct TreeNode* root, int* returnSize, int** returnColumnSizes){
+    int i, j;
+    int maxWidth = 0;
+
+    maxDepth = GetDepth(root);
+    maxWidth = pow(2, maxDepth) - 1;
+    ans = (char ***)malloc(sizeof(char **) * maxDepth);
+    *returnColumnSizes = (int *)malloc(sizeof(int) * maxWidth);
+    //初始化矩阵中的元素为""
+    for (i = 0; i < maxDepth; i++) {
+        ans[i] = (char **)malloc(sizeof(char *) * maxWidth);
+        for (j = 0; j < maxWidth; j++) {
+            ans[i][j] = "";
+        }
+        (*returnColumnSizes)[i] = maxWidth;
+    }
+    fillAns(root, 0, maxWidth - 1, 0);
+    *returnSize = maxDepth;
+    return ans;
+}
