@@ -1,0 +1,30 @@
+int countsSize;
+int sumsSize;
+
+void dfs(struct TreeNode* root, int level, int* counts, double* sums) {
+    if (root == NULL) {
+        return;
+    }
+    if (level < sumsSize) {
+        sums[level] += root->val;
+        counts[level] += 1;
+    } else {
+        sums[sumsSize++] = (double)root->val;
+        counts[countsSize++] = 1;
+    }
+    dfs(root->left, level + 1, counts, sums);
+    dfs(root->right, level + 1, counts, sums);
+}
+
+double* averageOfLevels(struct TreeNode* root, int* returnSize) {
+    countsSize = sumsSize = 0;
+    int* counts = malloc(sizeof(int) * 1001);
+    double* sums = malloc(sizeof(double) * 1001);
+    dfs(root, 0, counts, sums);
+    double* averages = malloc(sizeof(double) * 1001);
+    *returnSize = sumsSize;
+    for (int i = 0; i < sumsSize; i++) {
+        averages[i] = sums[i] / counts[i];
+    }
+    return averages;
+}
