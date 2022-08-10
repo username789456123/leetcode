@@ -1,0 +1,14 @@
+int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize)
+{
+	assert(arr);
+	int left = 0, right = arrSize - 1;
+	while (right - left >= k)
+	{
+		if (abs(arr[left] - x) <= abs(arr[right] - x))
+			right--;
+		else
+			left++;
+	}
+	*returnSize = k;
+	return &arr[left];
+}
