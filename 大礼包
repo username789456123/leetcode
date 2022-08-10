@@ -1,0 +1,56 @@
+typedef struct {
+    char key[20];
+    int cost;
+    UT_hash_handle hh;
+}combi; 
+int dfs(int *price, int n, int **sp, int spSize, int* needs, combi** hash) {
+    char target[20] = {0};
+    char single[5];
+    for (int i = 0; i < n; i++) {
+        sprintf(single, "%d,", needs[i]);
+        strcat(target, single);
+    }
+    combi *tmp = NULL;
+    HASH_FIND_STR(*hash, target, tmp);
+    if (tmp) { // repeated combi.
+        return tmp->cost; 
+    }  
+    tmp = (combi*)calloc(1, sizeof(combi));
+    strcpy(tmp->key, target);
+    // invalid combi 
+    for (int i = 0; i < n; i++) {
+        if (needs[i] < 0) { 
+            tmp->cost = -1;
+            HASH_ADD_STR(*hash, key, tmp);
+            return -1; 
+        }
+    }
+    // basic item holds a valid max. 
+    int ret = 0;
+    for (int i = 0; i < n; i++) {
+        ret += price[i] * needs[i];
+    }
+    // specical package
+    for (int i = 0; i < spSize; i++) {
+        int cost = sp[i][n];
+        for (int j = 0; j < n; j++) {
+            needs[j] -= sp[i][j];
+        }
+        int next = dfs(price, n, sp, spSize, needs, hash);
+        if (next >= 0) {
+            cost += next; 
+            ret = fmin(ret, cost);
+        }
+        for (int j = 0; j < n; j++) {
+            needs[j] += sp[i][j];
+        }
+    }
+    tmp->cost = ret; 
+    HASH_ADD_STR(*hash, key, tmp);
+    return ret; 
+}
+int shoppingOffers(int* price, int priceSize, int** special, int specialSize, int* specialColSize, int* needs, int needsSize){
+    combi *hash = NULL;
+    int ret = dfs(price, priceSize, special, specialSize, needs, &hash);
+    return ret;     
+}
