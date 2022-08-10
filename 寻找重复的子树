@@ -1,0 +1,108 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+#define MAX_LEN 1500
+#define MAX_SIZE 4000
+struct Hash {
+    int times;
+    int treeLen;
+    int tree[MAX_LEN];
+};
+int count = 0;
+void printIndent(int n) {
+    for (int i = 0; i < n; i++) {
+        printf("   ");
+    }
+}
+int g_rSize;
+int g_hashLen;
+
+// 后序遍历序列化 + HASH保存已有路径
+int *traverse(struct TreeNode* root, struct TreeNode** ret, struct Hash *knowTree, int* returnLen){
+    int *left = NULL;
+    int *right = NULL;
+    int *now = NULL;
+    int leftLen, rightLen, nowLen;
+    int i, j;
+    int tmpLen, findFlag;
+    // printIndent(count++);
+    // printf("g_rSize = %d, g_hashLen = %d \n", g_rSize, g_hashLen);
+    if (root == NULL) {
+        *returnLen = 1;
+        // printIndent(--count);
+        // printf("return NULL\n");
+        return NULL;
+    }
+    left = traverse(root->left, ret, knowTree, &leftLen);
+    right = traverse(root->right, ret, knowTree, &rightLen);
+    nowLen = leftLen + rightLen + 1;
+    now = (int*)malloc(sizeof(int) * nowLen);
+    for (i = 0; i < leftLen; i++) {
+        if (left == NULL) {
+            now[i] = -100;
+            break;
+        }
+        now[i] = left[i];
+    }
+    for (i = 0; i < rightLen; i++) {
+        if (right == NULL) {
+            now[i + leftLen] = -100;
+            break;
+        }
+        now[i + leftLen] = right[i];
+    }
+    now[leftLen + rightLen] = root->val;
+    findFlag = 0;
+    for (i = 0; i < g_hashLen; i++) {
+        tmpLen = knowTree[i].treeLen;
+        if (tmpLen != nowLen) {
+            continue;
+        }
+        for (j = 0; j < tmpLen; j++) {
+            if (knowTree[i].tree[j] != now[j]) {
+                break;
+            }
+            if (j == (tmpLen - 1)) { // 出现过类似子树
+                findFlag = 1;
+                knowTree[i].times++;
+                if (knowTree[i].times == 2) {
+                    ret[g_rSize++] = root;
+                }
+            }
+        }
+    }
+    if (findFlag == 0) { // 保存新出现的子树
+        knowTree[g_hashLen].times++;
+        knowTree[g_hashLen].treeLen = nowLen;
+        for (i = 0; i < nowLen; i++) {
+            knowTree[g_hashLen].tree[i] = now[i];
+        }
+        g_hashLen++;
+    }
+    *returnLen = nowLen;
+    // printIndent(--count);
+    // printf("g_rSize = %d, g_hashLen = %d, returnLen = %d, findFlag = %d \n", g_rSize, g_hashLen, *returnLen, findFlag);
+    return now;
+}
+// 序列化自己的子树，和已知的比集合比较
+struct TreeNode** findDuplicateSubtrees(struct TreeNode* root, int* returnSize){
+    struct Hash knowTree[MAX_SIZE] = {0};
+    struct TreeNode** ret = NULL;
+    int treeLen;
+    g_rSize = 0;
+    g_hashLen = 0;
+    ret = (struct TreeNode**)malloc(sizeof(struct TreeNode*) * MAX_SIZE);
+    traverse(root, ret, knowTree, &treeLen);
+    *returnSize = g_rSize;
+    return ret;
+}
