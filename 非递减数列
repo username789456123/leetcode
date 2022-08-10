@@ -1,0 +1,24 @@
+bool isSorted(int* nums, int numsSize) {
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i - 1] > nums[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool checkPossibility(int* nums, int numsSize) {
+    for (int i = 0; i < numsSize - 1; ++i) {
+        int x = nums[i], y = nums[i + 1];
+        if (x > y) {
+            nums[i] = y;
+            if (isSorted(nums, numsSize)) {
+                return true;
+            }
+            nums[i] = x;  // 复原
+            nums[i + 1] = x;
+            return isSorted(nums, numsSize);
+        }
+    }
+    return true;
+}
