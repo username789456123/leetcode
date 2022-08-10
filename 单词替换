@@ -1,0 +1,69 @@
+#define MAX_STR_LEN 1024
+
+typedef struct {
+    char *key;
+    UT_hash_handle hh;
+} HashItem;
+
+char ** split(char *str, char ch, int *returnSize) {
+    int len = strlen(str);
+    char **res = (char **)malloc(sizeof(char *) * len);
+    int i = 0, pos = 0;
+    while (i < len) {
+        while (i < len && str[i] == ch) {
+            i++;
+        }
+        int start = i;
+        while (i < len && str[i] != ch) {
+            i++;
+        }
+        if (start < len) {
+            res[pos] = (char *)malloc(sizeof(char) * (i - start + 1));
+            memcpy(res[pos], str + start, sizeof(char) * (i - start));
+            res[pos][i - start] = '\0';
+            pos++;
+        }
+    }
+    *returnSize = pos;
+    return res;
+}
+
+char * replaceWords(char ** dictionary, int dictionarySize, char * sentence){
+    HashItem *dictionarySet = NULL;
+    for (int i = 0; i < dictionarySize; i++) {
+        HashItem *pEntry = (HashItem *)malloc(sizeof(HashItem));
+        pEntry->key = dictionary[i];
+        HASH_ADD_STR(dictionarySet, key, pEntry);
+    }
+    int n = strlen(sentence);
+    int wordsSize = 0;
+    char **words = split(sentence, ' ', &wordsSize);
+    char str[MAX_STR_LEN];
+    for (int i = 0; i < wordsSize; i++) {
+        int len = strlen(words[i]);
+        for (int j = 0; j < len; j++) {
+            snprintf(str, j + 2, "%s", words[i]);
+            HashItem *pEntry = NULL;
+            HASH_FIND_STR(dictionarySet, str, pEntry);
+            if (pEntry) {
+                words[i][j + 1] = '\0';
+                break;
+            }
+        }
+    }
+    char *res = (char *)malloc(sizeof(char) * (n + 1));
+    int pos = 0;
+    for (int i = 0; i < wordsSize - 1; i++) {
+        pos += sprintf(res + pos, "%s ", words[i]);
+    }
+    pos += sprintf(res + pos, "%s", words[wordsSize - 1]);
+    for (int i = 0; i < wordsSize; i++) {
+        free(words[i]);
+    }
+    HashItem *curr = NULL, *tmp = NULL;
+    HASH_ITER(hh, dictionarySet, curr, tmp) {
+        HASH_DEL(dictionarySet, curr);  
+        free(curr);         
+    }
+    return res;
+}
