@@ -1,0 +1,24 @@
+const int MOD = 1000000007;
+int add(int x, int y) {
+    int sum = x + y;
+    if (sum >= MOD) sum -= MOD;
+    return sum;
+}
+
+int kInversePairs(int n, int k){
+    int dp[n][k + 1];
+    for (int i = 0; i < n; ++i) dp[i][0] = 1;
+    for (int j = 1; j <= k; ++j) {
+        dp[0][j] = 0;
+        for (int i = 1; i < n; ++i) {
+            dp[i][j] = dp[i - 1][j];
+            for (int c = 0; c < i; ++c) {
+                int a = i - c; // 新增的逆序对
+                int r = j - a; // 之前的逆序对数量
+                if (r >= 0)
+                    dp[i][j] = add(dp[i][j], dp[i - 1][r]);
+            }
+        }
+    }
+    return dp[n - 1][k];  
+}
