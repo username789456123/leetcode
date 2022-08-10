@@ -1,0 +1,81 @@
+typedef long long ll;
+#define divNum 1000000007
+
+//获取当前的数字，*返回-1
+int getNum(char chr) {
+    if (chr == '*') {
+        return -1;
+    }
+    return chr -'0';
+}
+
+//根据前一节点的none和left 获取当前节点的none
+ll getNextNone(int pre, int cur, ll a, ll b) {
+    ll nextNone = 0;
+    if (a > divNum) {
+        a %= divNum;
+    }
+    if (b > divNum) {
+        b %= divNum;
+    }
+    if (cur == 0) {
+        if (pre == -1) {
+            nextNone = 2 * b;
+        }
+        if (pre == 1 || pre == 2) {
+            nextNone = b;
+        }
+    } else if (cur == -1) {
+        if (pre == 1) {               
+            nextNone = 9 * a + 9 * b;
+        } else if (pre == 2) {
+            nextNone = 9 * a + 6 * b;
+        } else if (pre == -1) {
+            nextNone = 9 * a + 15 * b;
+        } else {
+            nextNone = 9 * a;
+        }
+    } else {
+        nextNone = a;
+        if (pre == 1 || (pre == 2 && cur < 7) || pre == -1) {
+            nextNone += b;
+        }
+        if (pre == -1 && cur < 7) {
+            nextNone += b;
+        } 
+    }            
+    return nextNone;
+}
+int numDecodings(char * s){
+    int len = strlen(s);
+    int pre = getNum(s[0]);
+    int cur = 0;
+    ll nextNone;
+    ll none = getNum(s[0]);
+    //第一个数字不可以为0
+    if (none == 0) {
+        return 0;
+    }
+    if (none == -1) {
+        //如果第一个数字是*，则初始有九种情况
+        none = 9;
+    } else {
+        none = 1;
+    }
+    ll left = 1;
+    for (int i = 1; i < len; i++) {
+        cur = getNum(s[i]);
+        nextNone = getNextNone(pre,cur,none,left);
+        left = cur == 0 ? 0 : none;
+        none = nextNone;
+        //如果left=0 && left = 0 则代表结果已经为0
+        if (left + none == 0) {
+            return 0;
+        }
+        pre = cur;
+    }
+    if (none > divNum) {
+        none %= divNum;
+    }
+    return none;
+}
