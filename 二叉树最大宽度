@@ -1,0 +1,68 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+#define MAX_NUM 20000
+
+/* 二叉树最大深度计算函数 */
+int getDepth(struct TreeNode *root)
+{
+    if (root == NULL) {
+        return 0;
+    }
+
+    int left = getDepth(root->left);
+    int right = getDepth(root->right);
+
+    return 1 + (left > right ? left : right);
+}
+
+/* 中序遍历，更新每层最左子节点的下标合最右子节点下标 */
+void inOrder(struct TreeNode *root, unsigned long long *left, unsigned long long *right, unsigned long long level, unsigned long long index)
+{
+    if (root == NULL) {
+        return;
+    }  
+
+    inOrder(root->left, left, right, level + 1, 2 * index + 1);
+    if (left[level] == -1) {   // 先更新同一层 左子节点下标后固定不改了
+        left[level] = index;
+    } else {
+        right[level] = index;
+    }
+    inOrder(root->right, left, right, level + 1, 2 * index + 2);
+}
+
+int widthOfBinaryTree(struct TreeNode *root)
+{
+    if (root == NULL) {
+        return 0;
+    }
+
+    int depth = getDepth(root);
+    unsigned long long left[MAX_NUM];    // 记录每层最左子节点下标
+    unsigned long long right[MAX_NUM];   // 记录每层最右子节点下标
+    unsigned long long cur_level = 0;    // 当前所处的层级
+    unsigned long long cur_index = 0;    // 当前节点的下标
+    int i;
+    for (i = 0; i < depth; i++) {  // 下标初始化为-1
+        left[i] = -1;
+        right[i] = -1;
+    }
+
+    inOrder(root, left, right, cur_level, cur_index);    // 中序遍历
+
+    long maxWidth = 1;    // 每层只有一个节点时宽度为1
+    for (i = 0; i < depth; i++) {
+        if (left[i] != -1 && right[i] != -1) {
+            int cur_width = right[i] - left[i] + 1;
+            maxWidth = (maxWidth < cur_width) ? cur_width : maxWidth;
+        }
+    }
+
+    return maxWidth;
+}
