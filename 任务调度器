@@ -1,0 +1,41 @@
+int leastInterval(char* tasks, int tasksSize, int n) {
+    int freq[26];
+    memset(freq, 0, sizeof(freq));
+    for (int i = 0; i < tasksSize; ++i) {
+        ++freq[tasks[i] - 'A'];
+    }
+
+    // 任务总数
+    int m = 0;
+    int nextValid[26], rest[26];
+    for (int i = 0; i < 26; ++i) {
+        if (freq[i] > 0) {
+            nextValid[m] = 1;
+            rest[m++] = freq[i];
+        }
+    }
+
+    int time = 0;
+    for (int i = 0; i < tasksSize; ++i) {
+        ++time;
+        int minNextValid = INT_MAX;
+        for (int j = 0; j < m; ++j) {
+            if (rest[j]) {
+                minNextValid = fmin(minNextValid, nextValid[j]);
+            }
+        }
+        time = fmax(time, minNextValid);
+        int best = -1;
+        for (int j = 0; j < m; ++j) {
+            if (rest[j] && nextValid[j] <= time) {
+                if (best == -1 || rest[j] > rest[best]) {
+                    best = j;
+                }
+            }
+        }
+        nextValid[best] = time + n + 1;
+        --rest[best];
+    }
+
+    return time;
+}
