@@ -1,0 +1,33 @@
+bool checkValidString(char * s){
+    int stack[100];
+    int stack_index=0;
+    int star[100];
+    int star_index=0;
+    int i;
+    for(i=0; s[i]; i++){
+        if(s[i]=='('){
+            stack[stack_index++]=i;
+        }else if(s[i]=='*'){
+            star[star_index++]=i;
+        }else if(s[i]==')'){
+            if(stack_index!=0){
+                --stack_index;
+            }else{
+                if(star_index==0) return false;
+                else if(star[star_index-1]<i){
+                    --star_index;
+                }else return false;
+            }
+        }
+    }
+    if(stack_index!=0){
+        // puts("stack has Num");
+        while(1){
+            if(star_index==0) return false;
+            if(star[--star_index]>stack[--stack_index]) ;
+            else return false;
+            if(stack_index==0) return true;
+        }
+    }
+    return true;
+}
