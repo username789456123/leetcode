@@ -1,0 +1,20 @@
+int countBinarySubstrings(char* s) {
+    int n = strlen(s);
+    int counts[n], counts_len = 0;
+    memset(counts, 0, sizeof(counts));
+    int ptr = 0;
+    while (ptr < n) {
+        char c = s[ptr];
+        int count = 0;
+        while (ptr < n && s[ptr] == c) {
+            ++ptr;
+            ++count;
+        }
+        counts[counts_len++] = count;
+    }
+    int ans = 0;
+    for (int i = 1; i < counts_len; ++i) {
+        ans += fmin(counts[i], counts[i - 1]);
+    }
+    return ans;
+}
