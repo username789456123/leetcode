@@ -1,0 +1,61 @@
+typedef struct  Queue
+{
+    int x;
+    int y;
+}Queue;
+int next[4][2]={{0,1},{0,-1},{-1,0},{1,0}};
+void bfs(int** grid,int xs,int ys,int* sum, int gridSize, int* gridColSize)
+{
+    int n = gridSize;//行
+    int m=gridColSize[0];//列
+    Queue node[m*n];
+    int tail=0;
+    int head=0;
+    node[tail].x=xs;
+    node[tail].y=ys;
+    tail++;
+    if(grid[xs][ys]==1)
+    {
+        (*sum)++;
+        grid[xs][ys]=0;
+    }
+    while(head<tail)
+    {
+        for(int i=0;i<4;i++)
+        {
+            int tx=node[head].x+next[i][0];
+            int ty=node[head].y+next[i][1];
+            if(tx<0 || tx>=n || ty<0 || ty>= m)
+                 continue;
+            if(grid[tx][ty]==1)
+            {
+                (*sum)++;
+                grid[tx][ty]=0;
+                node[tail].x=tx;
+                node[tail].y=ty;
+                tail++;
+            }
+        }
+        head++;
+    }
+}
+int maxAreaOfIsland(int** grid, int gridSize, int* gridColSize){
+    int max=0;
+    int n = gridSize;//行
+    int m=gridColSize[0];//列
+    for(int i=0;i<n;i++)
+      for(int j=0;j<m;j++)
+      {
+          if(grid[i][j]==1)
+          {
+              int sum=0;
+              bfs(grid,i,j,&sum,gridSize,gridColSize);
+              if(max<sum)
+              {
+                  max=sum;
+              }
+          }
+          
+      }
+    return max;
+}
