@@ -1,0 +1,57 @@
+const int TARGET = 24;
+const double EPSILON = 1e-6;
+const int ADD = 0, MULTIPLY = 1, SUBTRACT = 2, DIVIDE = 3;
+
+bool solve(double *l, int l_len) {
+    if (l_len == 0) {
+        return false;
+    }
+    if (l_len == 1) {
+        return fabs(l[0] - TARGET) < EPSILON;
+    }
+    int size = l_len;
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            if (i != j) {
+                double list2[20];
+                int l2_len = 0;
+                for (int k = 0; k < size; k++) {
+                    if (k != i && k != j) {
+                        list2[l2_len++] = l[k];
+                    }
+                }
+                for (int k = 0; k < 4; k++) {
+                    if (k < 2 && i > j) {
+                        continue;
+                    }
+                    if (k == ADD) {
+                        list2[l2_len++] = l[i] + l[j];
+                    } else if (k == MULTIPLY) {
+                        list2[l2_len++] = l[i] * l[j];
+                    } else if (k == SUBTRACT) {
+                        list2[l2_len++] = l[i] - l[j];
+                    } else if (k == DIVIDE) {
+                        if (fabs(l[j]) < EPSILON) {
+                            continue;
+                        }
+                        list2[l2_len++] = l[i] / l[j];
+                    }
+                    if (solve(list2, l2_len)) {
+                        return true;
+                    }
+                    l2_len--;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool judgePoint24(int *nums, int numsSize) {
+    double l[20];
+    int l_len = 0;
+    for (int i = 0; i < numsSize; i++) {
+        l[l_len++] = nums[i];
+    }
+    return solve(l, l_len);
+}
