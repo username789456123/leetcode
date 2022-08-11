@@ -1,0 +1,32 @@
+bool canPartitionKSubsets(int* nums, int numsSize, int k){
+    //1<<16表示1作为二进制数左移16位，定义dp数组大小为2^16+2
+    int dp[(1<<16)+2];
+    //数组dp中每个元素赋值为-1
+    memset(dp,-1,sizeof(dp));
+    //对数组中元素进行求和赋给sum
+    int sum=0;
+    for(int i=0;i<numsSize;i++){
+        sum+=nums[i];
+    }
+    //如果所有数之和不能被k整数，那么一定是不可以的
+    if(sum%k!=0){
+        return false;
+    }
+    //定义每个子集中的和为target
+    int target=sum/k;
+    //dp[mask]记录的值为当前状态求和之后%target的余数
+    dp[0]=0;
+    for(int mask=0;mask<(1<<numsSize);mask++){
+        //mask此时状态如果没被更新过 就跳出循环
+        if(dp[mask]==-1) continue;
+        for(int i=0;i<numsSize;i++){
+            //如果（mask第i位不为1）且（此时状态下dp(mask)+数组第i位元素值<=子集要求和)，进行更新dp
+            if(!(mask&(1<<i))&&dp[mask]+nums[i]<=target){
+            //当前状态mask第i位变为1后dp值进行更新
+                dp[mask|(1<<i)]=(dp[mask]+nums[i])%target;
+            }
+        }
+    }
+    //返回值为判断语句的原因：dp存储值为取余的数，2^numsSize-1表示选定数组中所有数时，余数是否为0 为0代表有满足题意划分
+    return dp[(1<<numsSize)-1]==0;
+}
