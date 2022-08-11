@@ -1,0 +1,121 @@
+#define MAX_QUEUE 1000001
+#define MAX_N 1001
+typedef struct {
+    int *key;
+    UT_hash_handle hh;
+} Hash;
+
+Hash *g_hash = NULL;
+
+void OddHandle(int *nums, int size)
+{
+    for (int i = 0; i < size; i++) {
+        if ((i + 1) % 2 == 1) {
+            nums[i] = nums[i] == 0 ? 1 : 0;
+        }
+    }
+}
+
+void EvenHandle(int *nums, int size)
+{
+    for (int i = 0; i < size; i++) {
+        if ((i + 1) % 2 == 0) {
+            nums[i] = nums[i] == 0 ? 1 : 0;
+        }
+    }
+}
+
+void AllHandle(int *nums, int size)
+{
+    for (int i = 0; i < size; i++) {
+        nums[i] = nums[i] == 0 ? 1 : 0;
+    }
+}
+
+void ThreeHandle(int *nums, int size)
+{
+    for (int i = 0; i < size; i++) {
+        if (i % 3 == 0) {
+            nums[i] = nums[i] == 0 ? 1 : 0;
+        }
+    }
+}
+
+bool AddToHash(int *nums, int n)
+{
+
+    Hash *find = NULL;
+    HASH_FIND(hh, g_hash, nums, n * sizeof(int), find);
+    if (find == NULL) {
+        find = calloc(1, sizeof(Hash));
+        find->key = calloc(1, n * sizeof(int));
+        memcpy(find->key, nums, n * sizeof(int));
+        HASH_ADD(hh, g_hash, key[0], n * sizeof(int), find);
+        for (int i = 0; i < n; i++) {
+            printf("%d ", nums[i]);
+        }
+        printf("\n");
+        return true;
+    }
+    return false;
+}
+
+int flipLights(int n, int presses)
+{
+    if (presses == 0) {
+        return 1;
+    }
+    int **queue = calloc(1, MAX_QUEUE * sizeof(int *));
+    int head = 0;
+    int tail = 0;
+    queue[tail] = calloc(1, n * sizeof(int));
+    for (int i = 0; i < n; i++) {
+        queue[tail][i] = 1;
+    }
+   
+    tail++;
+    g_hash = NULL;
+	int step = 0;
+    while (head < tail) {
+		int size = tail - head;
+		while (size--) {
+			int *cur = queue[head++];
+			int tmp[n];
+			memcpy(tmp, cur, n * sizeof(int));
+			OddHandle(tmp, n);
+			if (AddToHash(tmp, n)) {
+				queue[tail] = calloc(1, n * sizeof(int));
+				memcpy(queue[tail], tmp, n * sizeof(int));
+				tail++;
+			}
+
+			EvenHandle(tmp, n);
+			if (AddToHash(tmp, n)) {
+				queue[tail] = calloc(1, n * sizeof(int));
+				memcpy(queue[tail], tmp, n * sizeof(int));
+				tail++;
+			}
+
+			AllHandle(tmp, n);
+			if (AddToHash(tmp, n)) {
+				queue[tail] = calloc(1, n * sizeof(int));
+				memcpy(queue[tail], tmp, n * sizeof(int));
+				tail++;
+			}
+
+			ThreeHandle(tmp, n);
+			if (AddToHash(tmp, n)) {
+				queue[tail] = calloc(1, n * sizeof(int));
+				memcpy(queue[tail], tmp, n * sizeof(int));
+				tail++;
+			}
+		}
+		step++;
+		if (step == presses) {
+			break;
+		}
+    }
+    int ret = HASH_COUNT(g_hash);
+    // TODO free hash memory
+    return ret;
+}
