@@ -1,0 +1,105 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+int res;
+int cnt;
+
+//#define DEBUG
+#ifdef DEBUG
+int count = 0;
+void println(int count) {
+    for (int i = 0; i < count; i++) {
+        printf("\t");
+    }
+}
+#endif
+
+int dfs(struct TreeNode* root, int flag)
+{
+    int cnt1 = 0;
+    int cnt2 = 0;
+    int ret;
+
+    if (root == NULL) {
+        return 0;
+    }
+
+    #ifdef DEBUG
+    println(count++);
+    printf("root->val = %d, res = %d, flag = %d\n", root->val, res, flag);
+    #endif
+
+    if (root->left == NULL && root->right == NULL) {
+        #ifdef DEBUG
+        println(--count);
+        printf("res = %d\n", res);
+        #endif
+        return 0;
+    }
+
+    if (flag == 0) {
+        if (root->left != NULL) {
+            if (root->val == root->left->val) {
+                cnt1 = dfs(root->left, 1) + 1;
+            } else {
+                dfs(root->left, 0);
+            }
+        }
+
+        if (root->right != NULL) {
+            if (root->val == root->right->val) {
+                cnt2 = dfs(root->right, 1) + 1;
+            } else {
+                dfs(root->right, 0);
+            }
+        }
+
+        ret = cnt1 + cnt2;
+        res = fmax(res, ret);
+    } else {
+        if (root->left != NULL) {
+            if (root->val == root->left->val) {
+                cnt1 = dfs(root->left, 1) + 1;
+            } else {
+                dfs(root->left, 0);
+            }
+        }
+
+        if (root->right != NULL) {
+            if (root->val == root->right->val) {
+                cnt2 = dfs(root->right, 1) + 1;
+            } else {
+                dfs(root->right, 0);
+            }
+        }
+
+        ret = fmax(cnt1, cnt2);
+        res = fmax(res, ret);
+
+        // 思路类似于回溯，当方向不一致时，按新节点再来一次。
+        if (root->left != NULL && root->right != NULL && root->left->val == root->right->val) {
+            dfs(root, 0);
+        }
+
+    }
+
+    #ifdef DEBUG
+    println(--count);
+    printf("out = %d\n", ret);
+    #endif
+
+    return ret;
+}
+
+int longestUnivaluePath(struct TreeNode* root){
+    res = 0;
+
+    dfs(root, 0);
+
+    return res;
+}
