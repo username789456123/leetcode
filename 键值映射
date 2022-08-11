@@ -1,0 +1,73 @@
+typedef struct mapSum 
+{
+    struct mapSum *key[26];
+    int val;
+} MapSum;
+
+MapSum* mapSumCreate() 
+{
+    MapSum* ret = malloc(sizeof(MapSum));
+    for(int i = 0;i < 26;i++)
+    {
+        ret->key[i] = NULL;
+    }
+    ret->val = 0;
+    return ret;
+}
+
+void mapSumInsert(MapSum* obj, char * key, int val) 
+{
+    int len = strlen(key);
+    for(int i = 0;i < len;i++)
+    {
+        int x = key[i]-'a';
+        if(obj->key[x])
+        {
+            //tmp = obj;
+            obj = obj->key[x];
+        }
+        else
+        {
+            obj->key[x] = mapSumCreate();
+            obj = obj->key[x];
+        }
+    }
+    obj->val = val;
+}
+
+int mapSumRecursion(MapSum* obj)
+{
+    int ret = obj->val;
+    for(int i = 0;i < 26;i++)
+    {
+        if(obj->key[i])
+        {
+            ret += mapSumRecursion(obj->key[i]);
+        }
+    }
+    return ret;
+}
+
+int mapSumSum(MapSum* obj, char * prefix) 
+{
+    int ret = 0;
+    int len = strlen(prefix);
+    for(int i = 0;i < len;i++)
+    {
+        obj = obj->key[prefix[i]-'a'];
+        if(obj == NULL) return 0;
+    }
+    return mapSumRecursion(obj);
+}
+
+void mapSumFree(MapSum* obj) 
+{
+    for(int i = 0;i < 26;i++)
+    {
+        if(obj->key[i])
+        {
+            mapSumFree(obj->key[i]);
+        }
+    }  
+    free(obj); 
+}
