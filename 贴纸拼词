@@ -1,0 +1,38 @@
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+static int helper(int mask, int * dp, char ** stickers, int stickersSize, char * target) {
+    int m = strlen(target);
+    if (dp[mask] != -1) {
+        return dp[mask];
+    }
+    dp[mask] = m + 1;
+    for (int j = 0; j < stickersSize; j++) {
+        int left = mask;
+        int cnt[26];
+        int len = strlen(stickers[j]);
+        memset(cnt, 0, sizeof(cnt));
+        for (int i = 0; i < len; i++) {
+            cnt[stickers[j][i] - 'a']++;
+        }
+        for (int i = 0; i < m; i++) {
+            if ((mask >> i & 1) && cnt[target[i] - 'a'] > 0) {
+                cnt[target[i] - 'a']--;
+                left ^= 1 << i;
+            }
+        }
+        if (left < mask) {
+            dp[mask] = MIN(dp[mask], helper(left, dp, stickers, stickersSize, target) + 1);
+        }
+    }
+    return dp[mask];
+};
+
+int minStickers(char ** stickers, int stickersSize, char * target) {
+    int m = strlen(target);
+    int * dp = (int *)malloc(sizeof(int) * (1 << m));
+    memset(dp, -1, sizeof(int) * (1 << m));
+    dp[0] = 0;
+    int res = helper((1 << m) - 1, dp, stickers, stickersSize, target);
+    free(dp);
+    return res > m ? -1 : res;
+}
