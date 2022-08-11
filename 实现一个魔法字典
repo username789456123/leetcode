@@ -1,0 +1,40 @@
+typedef struct {
+    char **words;
+    int wordsSize;
+} MagicDictionary;
+
+MagicDictionary* magicDictionaryCreate() {
+    MagicDictionary *obj = (MagicDictionary *)malloc(sizeof(MagicDictionary));
+    return obj;
+}
+
+void magicDictionaryBuildDict(MagicDictionary* obj, char ** dictionary, int dictionarySize) {
+    obj->words = dictionary;
+    obj->wordsSize = dictionarySize;
+}
+
+bool magicDictionarySearch(MagicDictionary* obj, char * searchWord) {
+    int len = strlen(searchWord);
+    for (int j = 0; j < obj->wordsSize; j++) {
+        if (strlen(obj->words[j]) != len) {
+            continue;
+        }
+        int diff = 0;
+        for (int i = 0; i < len; ++i) {
+            if (obj->words[j][i] != searchWord[i]) {
+                ++diff;
+                if (diff > 1) {
+                    break;
+                }
+            }
+        }
+        if (diff == 1) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void magicDictionaryFree(MagicDictionary* obj) {
+    free(obj);
+}
