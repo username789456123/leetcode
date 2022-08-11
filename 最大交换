@@ -1,0 +1,25 @@
+void swap(char *nums, int i, int j) { // 通过函数实现字符串中数字的交换。
+    int temp = nums[i];
+    nums[i] = nums[j];
+    nums[j] = temp;
+    return ;
+}
+
+int maximumSwap(int num){
+    char str[10];
+    sprintf(str, "%d", num); // 将数字转换为字符串，便于后续的操作。
+
+    int len = strlen(str);
+    int i;
+    int j;
+    int max = num;
+
+    for (i = 0; i < len; i++) {
+        for (j = len - 1; j > 0; j--) {
+        swap(str, i, j); // 交换字符串中的两个值的位置。
+        max = fmax(max, atoi(str));
+        swap(str, i, j); // 复原字符串中两个值的位置，为了后续的重新比较。
+        }
+    }
+    return max;
+}
