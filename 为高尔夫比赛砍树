@@ -1,0 +1,91 @@
+typedef struct {
+    int x;
+    int y;
+    int height;
+} Tree;
+
+static int cmp(const void *pa, const void *pb) {
+    return ((Tree *)pa)->height - ((Tree *)pb)->height;
+}
+
+static int dirs[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+int bfs(const int **forest, int row, int col, int sx, int sy, int tx, int ty) {
+    if (sx == tx && sy == ty) {
+        return 0;
+    }
+
+    int step = 0;
+    int *queue = (int *)malloc(sizeof(int) * row * col);
+    int *visited = (int *)malloc(sizeof(int) * row * col);
+    int head = 0, tail = 0;
+    memset(visited, 0, sizeof(int) * row * col);
+    queue[tail++] = sx * col + sy;
+    visited[sx * col + sy] = true;
+    while (head != tail) {
+        step++;
+        int sz = tail - head;
+        for (int i = 0; i < sz; ++i) {
+            int cx = queue[head] / col;
+            int cy = queue[head] % col;
+            head++;
+            for (int j = 0; j < 4; ++j) {
+                int nx = cx + dirs[j][0];
+                int ny = cy + dirs[j][1];
+                if ( nx >= 0 && nx < row && ny >= 0 && ny < col) {
+                    if (!visited[nx * col + ny] && forest[nx][ny] > 0) {
+                        if (nx == tx && ny == ty) {
+                            free(queue);
+                            free(visited);
+                            return step;
+                        }
+                        queue[tail++] = nx * col + ny;
+                        visited[nx * col + ny] = true;
+                    }
+                }
+            }
+        }
+    }
+    free(queue);
+    free(visited);
+    return -1;
+}
+
+int cutOffTree(int** forest, int forestSize, int* forestColSize) {
+    int row = forestSize;
+    int col = forestColSize[0];
+    int treeSize = 0;
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            if (forest[i][j] > 1) {
+                treeSize++;
+            }
+        }
+    }
+    Tree * trees = (Tree *)malloc(sizeof(Tree) * treeSize);
+    int pos = 0;
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            if (forest[i][j] > 1) {
+                trees[pos].x = i;
+                trees[pos].y = j;
+                trees[pos].height = forest[i][j];
+                pos++;
+            }
+        }
+    }
+    qsort(trees, treeSize, sizeof(Tree), cmp);
+    int cx = 0;
+    int cy = 0;
+    int ans = 0;
+    for (int i = 0; i < treeSize; ++i) {
+        int steps = bfs(forest, row, col, cx, cy, trees[i].x, trees[i].y);
+        if (steps == -1) {
+            return -1;
+        }
+        ans += steps;
+        cx = trees[i].x;
+        cy = trees[i].y;
+    }
+    return ans;
+}
