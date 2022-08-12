@@ -1,0 +1,32 @@
+struct TreeNode* createTreeNode(int val) {
+    struct TreeNode* ret = malloc(sizeof(struct TreeNode));
+    ret->val = val;
+    ret->left = ret->right = NULL;
+    return ret;
+}
+
+struct TreeNode* insertIntoBST(struct TreeNode* root, int val) {
+    if (root == NULL) {
+        root = createTreeNode(val);
+        return root;
+    }
+    struct TreeNode* pos = root;
+    while (pos != NULL) {
+        if (val < pos->val) {
+            if (pos->left == NULL) {
+                pos->left = createTreeNode(val);
+                break;
+            } else {
+                pos = pos->left;
+            }
+        } else {
+            if (pos->right == NULL) {
+                pos->right = createTreeNode(val);
+                break;
+            } else {
+                pos = pos->right;
+            }
+        }
+    }
+    return root;
+}
