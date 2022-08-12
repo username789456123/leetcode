@@ -1,0 +1,143 @@
+#define MAX_LINE_LENGTH 81
+#define MAX_VALID_LINE_NUM 100
+
+/* Char States Define */
+typedef enum {
+    NORMAL,         // valid code
+    SLASH,          // valid code: got'/', expect'/'or'*', else goto normal
+    LINE_COMMENT,   // line comment: got'//', else delete till end of line
+    BLOCK_COMMENT,  // block comment: got'/*' expect'*/', delete all
+    ASTERISK        // valid code: got'*', expect'/', else goto normal
+} State;
+
+typedef struct {
+    unsigned int charIndex;
+    unsigned int validCharIndex;
+    char validLine[MAX_VALID_LINE_NUM];
+} Reader;
+
+void LineStateMachine(State *state, Reader *reader, char *line, int lineLength)
+{
+    while (reader->charIndex < lineLength) {
+        switch (*state) {
+            case NORMAL : {
+                /* copy valid code */
+                while ((reader->charIndex < lineLength) && (line[reader->charIndex] != '/')) {
+                    reader->validLine[reader->validCharIndex++] = line[reader->charIndex++];
+                }
+                if (reader->charIndex >= lineLength) {
+                    return;
+                }
+                /* meet a '/' */
+                if (line[reader->charIndex] == '/') {
+                    reader->charIndex++;
+                    if (reader->charIndex >= lineLength) { /* '/' at end is valid */
+                        reader->validLine[reader->validCharIndex++] = line[reader->charIndex - 1];
+                        break;
+                    }
+                    *state = SLASH;
+                    break;
+                }
+            };
+            case SLASH : { /* got '/' */
+                if (reader->charIndex >= lineLength) {
+                    return;
+                }
+                if (line[reader->charIndex] == '/') {
+                    reader->charIndex++;
+                    *state = LINE_COMMENT;
+                    break;
+                }
+                if (line[reader->charIndex] == '*') {
+                    reader->charIndex++;
+                    *state = BLOCK_COMMENT;
+                    break;
+                }
+                /* single '/' is valid, add '/' */
+                reader->validLine[reader->validCharIndex++] = line[reader->charIndex - 1];
+                *state = NORMAL;
+                break;
+            };
+            case LINE_COMMENT : { /* got '//', give up this line */
+                *state = NORMAL;
+                return;
+            };
+            case BLOCK_COMMENT : { /* got '/*' */
+                while ((reader->charIndex < lineLength) && (line[reader->charIndex] != '*')) {
+                    reader->charIndex++;
+                }
+                if (reader->charIndex >= lineLength) {
+                    return;
+                }
+                if (line[reader->charIndex] == '*') {
+                    reader->charIndex++;
+                    *state = ASTERISK;
+                }
+                break;
+            };
+            case ASTERISK : { /* BLOCK_COMMENT got a '*' */
+                if (reader->charIndex >= lineLength) {
+                    return;
+                }
+                if (line[reader->charIndex] == '/') {
+                    reader->charIndex++;
+                    *state = NORMAL;
+                    break;
+                }
+                if (line[reader->charIndex] == '*') {
+                    reader->charIndex++;
+                    *state = ASTERISK; /* goto self */
+                    break;
+                }
+                *state = BLOCK_COMMENT;
+                reader->charIndex++;
+                break;
+            };
+        };
+    }
+}
+
+char **removeComments(char **source, int sourceSize, int* returnSize)
+{
+    *returnSize = 0;
+    if (sourceSize == 0) {
+        return NULL;
+    }
+
+    /* init */
+    State state = NORMAL;
+    Reader reader = {0};
+    unsigned int lineIndex = 0;
+
+    char **ret = (char **)malloc(sizeof(char *) * sourceSize);
+    unsigned int validLineCounter = 0;
+
+    while (lineIndex < sourceSize) {
+        /* init a line */
+        char line[MAX_LINE_LENGTH];
+        strcpy(line, source[lineIndex]);
+        lineIndex++;
+        unsigned int lineLength = strlen(line);
+        reader.charIndex = 0;
+
+        /* proc a line */
+        LineStateMachine(&state, &reader, line, lineLength);
+        if (state == BLOCK_COMMENT) {
+            continue;
+        }
+        reader.validLine[reader.validCharIndex] = '\0'; /* end of a valid line */
+
+        /* save result */
+        if (reader.validCharIndex > 0) {
+            ret[validLineCounter] = (char *)malloc(sizeof(char) * MAX_LINE_LENGTH);
+            strcpy(ret[validLineCounter], reader.validLine);
+            validLineCounter++;
+        }
+        /* flush */
+        memset(reader.validLine, 0, sizeof(reader.validLine));
+        reader.validCharIndex = 0;
+    }
+
+    *returnSize = validLineCounter;
+    return ret;
+}
