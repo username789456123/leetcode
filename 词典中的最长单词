@@ -1,0 +1,64 @@
+#define MAX_STR_LEN 32
+
+typedef struct {
+    char * key;
+    UT_hash_handle hh;
+} HashEntry;
+
+void hashInsert(HashEntry ** obj, const char * str) {
+    HashEntry * pEntry = NULL;
+    HASH_FIND_STR(*obj, str, pEntry);
+    if (NULL == pEntry) {
+        pEntry = (HashEntry *)malloc(sizeof(HashEntry));
+        pEntry->key = str;
+        HASH_ADD_STR(*obj, key, pEntry);
+    }
+}
+
+bool hashFind(const HashEntry ** obj, const char * str) {
+    HashEntry * pEntry = NULL;
+    HASH_FIND_STR(*obj, str, pEntry);
+    if (NULL == pEntry) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+bool hashRelease(HashEntry ** obj) {
+    HashEntry * curr = NULL, * next = NULL;
+     HASH_ITER(hh, *obj, curr, next) {
+      HASH_DEL(*obj, curr);
+      free(curr);
+    }
+    return true;
+}
+
+int cmp(const void * a, const void * b) {
+    char * pa = *(char **)a;
+    char * pb = *(char **)b;
+    int la = strlen(pa);
+    int lb = strlen(pb);
+    if (la != lb) {
+        return la - lb;
+    } else {
+        return strcmp(pb, pa);
+    }
+}
+
+char * longestWord(char ** words, int wordsSize){
+    qsort(words, wordsSize, sizeof(char *), cmp);
+    char * longest = "";
+    HashEntry * candidates = NULL;
+    hashInsert(&candidates, "");
+    char str[MAX_STR_LEN] = {0};
+    for (int i = 0; i < wordsSize; i++) {
+        snprintf(str, strlen(words[i]), "%s", words[i]);
+        if (hashFind(&candidates, str)) {
+            hashInsert(&candidates, words[i]);
+            longest = words[i];
+        }
+    }
+    hashRelease(&candidates);
+    return longest;
+}
