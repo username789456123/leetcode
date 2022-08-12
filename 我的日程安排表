@@ -1,0 +1,32 @@
+typedef struct {
+    int *booked;
+    int bookedSize;
+} MyCalendar;
+
+#define MAX_BOOK_SIZE 1001
+
+MyCalendar* myCalendarCreate() {
+    MyCalendar *obj = (MyCalendar *)malloc(sizeof(MyCalendar));
+    obj->booked = (int *)malloc(sizeof(int) * 2 * MAX_BOOK_SIZE);
+    obj->bookedSize = 0;
+    return obj;
+}
+
+bool myCalendarBook(MyCalendar* obj, int start, int end) {
+    for (int i = 0; i < obj->bookedSize; i++) {
+        int l = obj->booked[2 * i];
+        int r = obj->booked[2 * i + 1];
+        if (l < end && start < r) {
+            return false;
+        }
+    }
+    obj->booked[obj->bookedSize * 2] = start;
+    obj->booked[obj->bookedSize * 2 + 1] = end;
+    obj->bookedSize++;
+    return true;
+}
+
+void myCalendarFree(MyCalendar* obj) {
+    free(obj->booked);
+    free(obj);
+}
