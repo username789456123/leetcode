@@ -1,0 +1,12 @@
+int findLength(int* A, int ASize, int* B, int BSize) {
+    int dp[ASize + 1][BSize + 1];
+    memset(dp, 0, sizeof(dp));
+    int ans = 0;
+    for (int i = ASize - 1; i >= 0; i--) {
+        for (int j = BSize - 1; j >= 0; j--) {
+            dp[i][j] = A[i] == B[j] ? dp[i + 1][j + 1] + 1 : 0;
+            ans = fmax(ans, dp[i][j]);
+        }
+    }
+    return ans;
+}
