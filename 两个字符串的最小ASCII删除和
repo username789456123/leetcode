@@ -1,0 +1,32 @@
+int min(int a, int b) {
+    return a > b ? b : a;
+}
+
+int minimumDeleteSum(char * s1, char * s2){
+    int s1Len = strlen(s1);
+    int s2Len = strlen(s2);
+
+    int dp[s2Len + 1];
+    dp[0] = 0;
+
+    for(int i = 1; i <= s2Len; i++) dp[i] = dp[i - 1] + s2[i - 1];
+
+    int pre, next;
+    
+    for(int i = 1; i <= s1Len; i++) {
+        pre = dp[0];
+        dp[0] = s1[i - 1] + dp[0];
+        for(int j = 1; j <= s2Len; j++) {
+            next = dp[j];   //j++时dp[i - 1][j - 1]保存在上一次内循环的pre中
+            if(s1[i - 1] == s2[j - 1]) {
+                //dp[i][j] = dp[i - 1][j - 1];
+                dp[j] = pre;
+            } else {
+                //dp[i][j] = min(dp[i - 1][j] + s1[i - 1], dp[i][j - 1] + s2[j - 1]);
+                dp[j] = min(dp[j] + s1[i - 1], dp[j - 1] + s2[j - 1]);
+            }
+            pre = next;
+        }
+    }
+    return dp[s2Len];
+}
