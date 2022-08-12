@@ -1,32 +1,83 @@
-struct TreeNode* createTreeNode(int val) {
-    struct TreeNode* ret = malloc(sizeof(struct TreeNode));
-    ret->val = val;
-    ret->left = ret->right = NULL;
+struct Heap {
+    int* heap;
+    int heapSize;
+    bool (*cmp)(int, int);
+};
+
+void init(struct Heap* obj, int n, bool (*cmp)(int, int)) {
+    obj->heap = malloc(sizeof(int) * (n + 1));
+    obj->heapSize = 0;
+    obj->cmp = cmp;
+}
+
+bool cmp(int a, int b) {
+    return a > b;
+}
+
+void swap(int* a, int* b) {
+    int tmp = *a;
+    *a = *b, *b = tmp;
+}
+
+void push(struct Heap* obj, int x) {
+    int p = ++(obj->heapSize), q = p >> 1;
+    obj->heap[p] = x;
+    while (q) {
+        if (!obj->cmp(obj->heap[q], obj->heap[p])) {
+            break;
+        }
+        swap(&(obj->heap[q]), &(obj->heap[p]));
+        p = q, q = p >> 1;
+    }
+}
+
+void pop(struct Heap* obj) {
+    swap(&(obj->heap[1]), &(obj->heap[(obj->heapSize)--]));
+    int p = 1, q = p << 1;
+    while (q <= obj->heapSize) {
+        if (q + 1 <= obj->heapSize) {
+            if (obj->cmp(obj->heap[q], obj->heap[q + 1])) {
+                q++;
+            }
+        }
+        if (!obj->cmp(obj->heap[p], obj->heap[q])) {
+            break;
+        }
+        swap(&(obj->heap[q]), &(obj->heap[p]));
+        p = q, q = p << 1;
+    }
+}
+
+int top(struct Heap* obj) {
+    return obj->heap[1];
+}
+
+typedef struct {
+    struct Heap* heap;
+    int maxSize;
+} KthLargest;
+
+KthLargest* kthLargestCreate(int k, int* nums, int numsSize) {
+    KthLargest* ret = malloc(sizeof(KthLargest));
+    ret->heap = malloc(sizeof(struct Heap));
+    init(ret->heap, k + 1, cmp);
+    ret->maxSize = k;
+    for (int i = 0; i < numsSize; i++) {
+        kthLargestAdd(ret, nums[i]);
+    }
     return ret;
 }
 
-struct TreeNode* insertIntoBST(struct TreeNode* root, int val) {
-    if (root == NULL) {
-        root = createTreeNode(val);
-        return root;
+int kthLargestAdd(KthLargest* obj, int val) {
+    push(obj->heap, val);
+    if (obj->heap->heapSize > obj->maxSize) {
+        pop(obj->heap);
     }
-    struct TreeNode* pos = root;
-    while (pos != NULL) {
-        if (val < pos->val) {
-            if (pos->left == NULL) {
-                pos->left = createTreeNode(val);
-                break;
-            } else {
-                pos = pos->left;
-            }
-        } else {
-            if (pos->right == NULL) {
-                pos->right = createTreeNode(val);
-                break;
-            } else {
-                pos = pos->right;
-            }
-        }
-    }
-    return root;
+    return top(obj->heap);
+}
+
+void kthLargestFree(KthLargest* obj) {
+    free(obj->heap->heap);
+    free(obj->heap);
+    free(obj);
 }
