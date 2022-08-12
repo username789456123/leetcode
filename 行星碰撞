@@ -1,0 +1,18 @@
+int* asteroidCollision(int* asteroids, int asteroidsSize, int* returnSize){
+    int *st = (int *)malloc(sizeof(int) * asteroidsSize);
+    int pos = 0;
+    for (int i = 0; i < asteroidsSize; i++) {
+        bool alive = true;
+        while (alive && asteroids[i] < 0 && pos > 0 && st[pos - 1] > 0) {
+            alive = st[pos - 1] < -asteroids[i]; // aster 是否存在
+            if (st[pos - 1] <= -asteroids[i]) {  // 栈顶行星爆炸
+                pos--;
+            }
+        }
+        if (alive) {
+            st[pos++] = asteroids[i];
+        }
+    }
+    *returnSize = pos;
+    return st;
+}
