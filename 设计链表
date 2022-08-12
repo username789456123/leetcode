@@ -1,0 +1,152 @@
+typedef struct myList{
+    int val;
+    struct myList* prev;
+    struct myList* next;
+} MyLinkedList;
+
+
+MyLinkedList* myLinkedListCreate() {
+    MyLinkedList * head = (MyLinkedList *)malloc(sizeof(MyLinkedList));
+    head->val = -1;
+    head->prev = NULL;
+    head->next = NULL;
+    return head;
+}
+
+void printList(MyLinkedList* obj){
+    // if(obj->next != NULL){
+    //     while(obj->next != NULL){
+    //         obj = obj->next;
+    //         printf(" %d -> ",obj->val);
+    //     }
+    //     printf(" NULL\n");
+    // } 
+    // else{
+    //     printf("empty\n");
+    // }
+}
+
+int myLinkedListGet(MyLinkedList* obj, int index) {
+    if(obj->next == NULL){
+        printf("get index %d, return %d\n",index,-1);
+        return -1;
+    }
+        
+    obj = obj->next;
+    for(int i=0;i<index;i++){
+        if(obj != NULL)
+            obj = obj->next;
+        else{
+            printf("get index %d, return %d\n",index,-1);
+            return -1;
+        }
+            
+    }
+    if(obj == NULL){
+        printf("get index %d, return %d\n",index,-1);
+        return -1;
+    }
+    printf("get index %d, return %d\n",index,obj->val);
+    return obj->val;
+}
+
+void myLinkedListAddAtHead(MyLinkedList* obj, int val) {
+    MyLinkedList* head = obj;
+    MyLinkedList* cur = (MyLinkedList*)malloc(sizeof(MyLinkedList));
+    cur->val = val;
+    cur->next = head->next;
+    cur->prev = head;
+    head->next = cur;
+    if(cur->next != NULL)
+        cur->next->prev = cur;
+    printf("add at head\n");
+    printList(head);
+}
+
+void myLinkedListAddAtTail(MyLinkedList* obj, int val) {
+    MyLinkedList* head = obj;
+    MyLinkedList* cur = NULL;
+    while(obj->next != NULL)
+        obj = obj->next;
+    cur = (MyLinkedList*)malloc(sizeof(MyLinkedList));
+    cur->val = val;
+    cur->next = NULL;
+    cur->prev = obj;
+    obj->next = cur;
+    printf("add at tail\n");
+    printList(head);
+}
+
+void myLinkedListAddAtIndex(MyLinkedList* obj, int index, int val) {
+    MyLinkedList* head = obj;
+    MyLinkedList* cur = NULL;
+    MyLinkedList* objLast = obj;
+
+    obj = obj->next;
+    for(int i=0;i<index;i++){
+        objLast = obj;
+        if(obj != NULL)
+            obj = obj->next;
+        else
+            return;
+    }
+    cur = (MyLinkedList*)malloc(sizeof(MyLinkedList));
+    cur->val = val;
+    cur->next = obj;
+    cur->prev = objLast;
+    objLast->next = cur;
+    if(obj != NULL)
+        obj->prev = cur;
+
+    printf("add at index\n");
+    printList(head);
+}
+
+void myLinkedListDeleteAtIndex(MyLinkedList* obj, int index) {
+    MyLinkedList* head = obj;
+    obj = obj->next;
+    for(int i=0;i<index;i++){
+        if(obj != NULL)
+            obj = obj->next;
+        else
+            return;
+    }
+    if(obj == NULL)
+        return;
+    obj->prev->next = obj->next;
+    if(obj->next != NULL)
+        obj->next->prev = obj->prev;
+    free(obj);
+    printf("Delete At Index %d\n",index);
+    printList(head);
+}
+
+void myLinkedListFree(MyLinkedList* obj) {
+    MyLinkedList* head = obj;
+    MyLinkedList* next = obj;
+    int i=0;
+    while(obj!= NULL){
+        next = obj->next;
+        printf("free index %d\n",i++);
+        obj->next = NULL;
+        free(obj);
+        obj = next;
+    }
+    printf("free end\n");
+}
+
+/**
+ * Your MyLinkedList struct will be instantiated and called as such:
+ * MyLinkedList* obj = myLinkedListCreate();
+ * int param_1 = myLinkedListGet(obj, index);
+ 
+ * myLinkedListAddAtHead(obj, val);
+ 
+ * myLinkedListAddAtTail(obj, val);
+ 
+ * myLinkedListAddAtIndex(obj, index, val);
+ 
+ * myLinkedListDeleteAtIndex(obj, index);
+ 
+ * myLinkedListFree(obj);
+*/
