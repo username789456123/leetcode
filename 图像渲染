@@ -1,0 +1,46 @@
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+ const int dx[4]={0,0,-1,1};
+ const int dy[4]={1,-1,0,0};
+//定义用于之后的查找，由于是找出邻接的四个单位，
+//所以就是(x,y+1)(上)，（x,y-1)(下)，（x-1,y)(左)，（x+1)(右)。
+//tips:为了能够完成该操作，在对应的dx[i]和对应的dy[i]中要实现对应的数，下面的A中可以看到
+
+ void dfs(int **image,int imageSize,int *imageColSize,int x,int y,int curcolor,int newcolor)
+ {
+  if(x<0||x>=imageSize||y<0||y>=imageColSize[0]){
+  return;
+}
+//判断是否越界，如果越界直接返回。
+//tips：imageColSize[0]不能漏掉[0],因为imageColSize原名imagecolumnsize,
+//对应每列的长度并且在输入值时，输入的就是数组，所以要用它本身的元素
+ if(image[x][y]==curcolor)
+ {
+  image[x][y]=newcolor;
+//替换颜色
+  for(int i=0;i<4;i++)
+  {
+      int nx=x+dx[i];
+      int ny=y+dy[i];
+//A操作，i=0,1,2,3分别对应上下左右新定义nx,ny，并且判断nx,ny是否越界用于下面的深度优先查找
+      if(nx>=0&&nx<imageSize&&ny>=0&&ny<imageColSize[0])
+      {
+       dfs(image,imageSize,imageColSize,nx,ny,curcolor,newcolor);
+      }
+  }
+ }
+ return;
+ }
+
+int** floodFill(int** image, int imageSize, int* imageColSize, int sr, int sc, int newColor, int* returnSize, int** returnColumnSizes){
+*returnSize=imageSize;
+*returnColumnSizes=imageColSize;
+if(image[sr][sc]!=newColor){
+dfs(image,imageSize,imageColSize,sr,sc,image[sr][sc],newColor);
+}
+//要先判断是否和新颜色相同，用例中有原来就是新颜色不需要更改的例子
+return image;
+}
