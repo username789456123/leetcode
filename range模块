@@ -1,0 +1,71 @@
+typedef struct {} RangeModule;  void rangeModuleFree(RangeModule* obj) {}
+int tr[10000000], lson[10000000], rson[10000000], cnt = 2, lazy0[10000000], lazy1[10000000];
+RangeModule* rangeModuleCreate() { memset(lazy0,0,sizeof(lazy0)); memset(lazy1,0,sizeof(lazy1)); 
+memset(tr,0,sizeof(tr)); memset(lson,0,sizeof(lson)); return NULL;}
+ void push_down(int p) {
+        if (lson[p] == 0) lson[p] = cnt++;
+        if (rson[p] == 0) rson[p] = cnt++;
+        if (lazy0[p]) {
+            lazy0[lson[p]] = 1;
+            lazy0[rson[p]] = 1;
+            lazy1[lson[p]] = 0;
+            lazy1[rson[p]] = 0;
+            tr[lson[p]] = 0;
+            tr[rson[p]] = 0;
+            lazy0[p] = 0;
+        }
+        if (lazy1[p]) {
+            lazy0[lson[p]] = 0;
+            lazy0[rson[p]] = 0;
+            lazy1[lson[p]] = 1;
+            lazy1[rson[p]] = 1;
+            tr[lson[p]] = 1;
+            tr[rson[p]] = 1;
+            lazy1[p] = 0;
+        }
+    }
+
+    void change(int p, int l, int r, int s, int t, int v) {
+        if (r < s || l > t) {
+            return;
+        } else if (s <= l && r <= t) {
+            if (v == 0) {
+                lazy0[p] = 1;
+                lazy1[p] = 0;
+                tr[p] = 0;
+            } else {
+                lazy0[p] = 0;
+                lazy1[p] = 1;
+                tr[p] = 1;
+            }
+        } else {
+            int m = l + r >> 1;
+            push_down(p);
+            change(lson[p], l, m, s, t, v);
+            change(rson[p], m + 1, r, s, t, v);
+            tr[p] = tr[lson[p]] & tr[rson[p]];
+        }
+    }
+
+    int query(int p, int l, int r, int s, int t) {
+        if (r < s || l > t) {
+            return 1;
+        } else if (s <= l && r <= t) {
+            return tr[p];
+        } else {
+            int m = l + r >> 1;
+            push_down(p);
+            return query(lson[p], l, m, s, t) & query(rson[p], m + 1, r, s, t);
+        }
+    }
+void rangeModuleAddRange(RangeModule* obj, int left, int right) {
+      change(1, 0, 1e9, left, right - 1, 1);
+}   
+
+bool rangeModuleQueryRange(RangeModule* obj, int left, int right) {
+    return query(1, 0, 1e9, left, right - 1);
+}
+
+void rangeModuleRemoveRange(RangeModule* obj, int left, int right) {
+    change(1, 0, 1e9, left, right - 1, 0);
+}
