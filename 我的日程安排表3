@@ -1,0 +1,51 @@
+typedef struct {
+    int startCnt;
+    int endCnt;
+    int start[2000]; // 左边界
+    int end[2000]; // 右边界
+} MyCalendarThree;
+
+int compare(const int *a, const int *b)
+{
+    return a[0] > b[0] ? 1 : -1;
+}
+
+MyCalendarThree* myCalendarThreeCreate() 
+{
+    MyCalendarThree *obj = (MyCalendarThree *)malloc(sizeof(MyCalendarThree));
+    memset(obj, 0, sizeof(MyCalendarThree));
+    return obj;
+}
+
+int myCalendarThreeBook(MyCalendarThree* obj, int start, int end)
+{
+    // 插入新节点
+    obj->start[obj->startCnt++] = start;
+    obj->end[obj->endCnt++] = end;
+    // 左、右边界排序
+    qsort(obj->start, obj->startCnt, sizeof(obj->start[0]), compare);
+    qsort(obj->end, obj->endCnt, sizeof(obj->end[0]), compare);
+
+    int i = 0;
+    int j = 0;
+    int tmp = 0;
+    int sum = 0;
+    while (i < obj->startCnt && j < obj->endCnt) {
+        if (obj->start[i] < obj->end[j]) {
+            tmp++;
+            sum = fmax(sum, tmp);
+            i++;
+        } else {
+            tmp--;
+            j++;
+        }
+    }
+    return sum;
+}
+
+void myCalendarThreeFree(MyCalendarThree* obj) {
+    if (obj != NULL) {
+        free(obj);
+        obj = NULL;
+    }
+}
