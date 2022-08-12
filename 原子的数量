@@ -1,0 +1,167 @@
+#define MAX_NUM 10001
+
+typedef struct {
+    char a[10];
+} Element;
+
+typedef struct {
+    char a[12];
+    int cnt;
+    UT_hash_handle hh;
+} HashChar;
+
+HashChar *g_hashTbl;
+
+Element g_eleStack[MAX_NUM];
+int g_eleTop;
+int g_numStack[MAX_NUM];
+int g_numTop;
+
+bool IsSmallChar(char a)
+{
+    return (a >= 'a') && (a <= 'z');
+}
+
+bool IsNumChar(char a)
+{
+    return (a >= '0' && a <= '9');
+}
+
+int GetEleLen(char *s, int start)
+{
+    int end = start + 1;
+    while (1) {
+        if (IsSmallChar(s[end])) {
+            end++;
+        } else {
+            break;
+        }
+    }
+    return end - start;
+}
+
+int GetNumLen(char *s, int start, int *ret)
+{
+    int end = start;
+    int num = 0;
+    while (1) {
+        if (IsNumChar(s[end])) {
+            num = num * 10 + s[end] - '0';
+            end++;
+        } else {
+            break;
+        }       
+    }
+    
+    *ret =  (num == 0) ? 1 : num;
+    return (end - start);
+}
+
+void PushEle(char *s, int start, int len)
+{
+    ++g_eleTop;
+    int j = 0;
+    for (int i = start; i < start + len; i++) {
+        g_eleStack[g_eleTop].a[j] = s[i];
+        j++;
+    }
+    g_eleStack[g_eleTop].a[j] = '\0';
+}
+
+void PushNum(int num)
+{
+    g_numTop++;
+    g_numStack[g_numTop] = num;
+}
+
+// 遇到）更新栈处理,弹栈不太好处理，直接在栈内把（后面的都更新数字栈，然后从栈中去掉（
+void UpdateStack(int num)
+{
+    int pos = g_eleTop;
+    int tmpNumPos = g_numTop;
+    while (g_eleStack[pos].a[0] != '(') {
+        int tmpNum = num * g_numStack[tmpNumPos];
+        g_numStack[tmpNumPos] = tmpNum;
+        pos--;
+        tmpNumPos--;
+    }
+    // 从栈中去掉（
+    for (int i = pos; i < g_eleTop; i++) {
+        g_eleStack[i] = g_eleStack[i + 1];
+    }
+    g_eleTop--;
+}
+
+void PopProc()
+{
+    while (g_eleTop >= 0) {
+        char *ch = g_eleStack[g_eleTop].a;
+        HashChar *tmp = NULL;
+        HASH_FIND_STR(g_hashTbl, ch, tmp);
+        if (tmp != NULL) {
+            tmp->cnt += g_numStack[g_numTop];
+        } else {
+            HashChar *node = (HashChar *)malloc(sizeof(HashChar));
+            node->cnt = g_numStack[g_numTop];
+            strcpy(node->a, ch);
+            HASH_ADD_STR(g_hashTbl, a, node);
+        }
+        g_eleTop--;
+        g_numTop--;
+    }
+}
+
+int CmpName(HashChar *p1, HashChar *p2)
+{
+    return strcmp(p1->a, p2->a);
+
+}
+
+char * countOfAtoms(char * formula)
+{
+    g_eleTop = -1;
+    g_numTop = -1;
+    g_hashTbl = NULL;
+
+    int pos = 0;
+    while (formula[pos] != '\0') {
+        if (formula[pos] != '(' && formula[pos] != ')') {
+            int len = GetEleLen(formula, pos);
+            PushEle(formula, pos, len);
+            pos += len;
+            int num = 0;
+            int numLen = GetNumLen(formula, pos, &num);
+            pos += numLen;
+            PushNum(num);
+        } else if (formula[pos] == '(') {
+            g_eleStack[++g_eleTop].a[0] = '(';
+            pos++;
+        } else { // )场景
+            pos++;
+            int num = 0;
+            int numLen = GetNumLen(formula, pos, &num);
+            pos += numLen;
+            UpdateStack(num);
+        }       
+    }
+
+    // 弹栈进行hash计算
+    PopProc();
+
+    char *ans = (char *)malloc(MAX_NUM);
+    memset(ans, 0, MAX_NUM);
+    //printf("%d\n", strlen(formula));
+    HASH_SORT(g_hashTbl, CmpName);
+    HashChar *iter, *tmp;
+    HASH_ITER(hh, g_hashTbl, iter, tmp) {
+        //printf("%d\n", strlen(ans));
+        sprintf(ans + strlen(ans), "%s", iter->a);
+        if (iter->cnt > 1) {
+            sprintf(ans + strlen(ans), "%d", iter->cnt);
+        }
+    }
+
+    HASH_CLEAR(hh, g_hashTbl);
+
+    return ans;
+}
