@@ -1,0 +1,47 @@
+typedef struct {
+    int *booked;
+    int bookedSize;
+    int *overlaps;
+    int overlapsSize;
+} MyCalendarTwo;
+
+#define MAX_BOOK_SIZE 1001
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+MyCalendarTwo* myCalendarTwoCreate() {
+    MyCalendarTwo *obj = (MyCalendarTwo *)malloc(sizeof(MyCalendarTwo));
+    obj->booked = (int *)malloc(sizeof(int) * 2 * MAX_BOOK_SIZE);
+    obj->overlaps = (int *)malloc(sizeof(int) * 2 * MAX_BOOK_SIZE);
+    obj->bookedSize = 0;
+    obj->overlapsSize = 0;
+    return obj;
+}
+
+bool myCalendarTwoBook(MyCalendarTwo* obj, int start, int end) {
+    for (int i = 0; i < obj->overlapsSize; i++) {
+        int l = obj->overlaps[2 * i];
+        int r = obj->overlaps[2 * i + 1];
+        if (l < end && start < r) {
+            return false;
+        }
+    }
+    for (int i = 0; i < obj->bookedSize; i++) {
+        int l = obj->booked[2 * i];
+        int r = obj->booked[2 * i + 1];
+        if (l < end && start < r) {
+            obj->overlaps[obj->overlapsSize * 2] = MAX(l, start);
+            obj->overlaps[obj->overlapsSize * 2 + 1] = MIN(r, end);
+            obj->overlapsSize++;
+        }
+    }
+    obj->booked[obj->bookedSize * 2] = start;
+    obj->booked[obj->bookedSize * 2 + 1] = end;
+    obj->bookedSize++;
+    return true;
+}
+
+void myCalendarTwoFree(MyCalendarTwo* obj) {
+    free(obj->booked);
+    free(obj->overlaps);
+}
