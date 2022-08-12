@@ -1,0 +1,74 @@
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashItem;
+
+typedef struct {
+    HashItem *b2w;
+    int bound;
+} Solution;
+
+Solution* solutionCreate(int n, int* blacklist, int blacklistSize) {
+    Solution *obj = (Solution *)malloc(sizeof(Solution));
+    obj->b2w = NULL;
+    obj->bound = n - blacklistSize;
+    HashItem *black = NULL;
+    for (int i = 0; i < blacklistSize; i++) {
+        int b = blacklist[i];
+        if (b >= obj->bound) {
+            HashItem *pEntry = NULL;
+            HASH_FIND_INT(black, &b, pEntry);
+            if (NULL == pEntry) {
+                pEntry = (HashItem *)malloc(sizeof(HashItem));
+                pEntry->key = b;
+                pEntry->val = 0;
+                HASH_ADD_INT(black, key, pEntry);
+            }
+        }
+    }
+    int w = obj->bound;
+    for (int i = 0; i < blacklistSize; i++) {
+        int b = blacklist[i];
+        if (b < obj->bound) {
+            HashItem *pEntry = NULL;
+            do {
+                pEntry = NULL;
+                HASH_FIND_INT(black, &w, pEntry);
+                if (pEntry) {
+                    ++w;
+                }
+            } while(pEntry);
+            pEntry = NULL;
+            HASH_FIND_INT(obj->b2w, &b, pEntry);
+            if (pEntry == NULL) {
+                pEntry = (HashItem *)malloc(sizeof(HashItem));
+                pEntry->key = b;
+                HASH_ADD_INT(obj->b2w, key, pEntry);
+            } 
+            pEntry->val = w++;
+        }
+    }
+    HashItem *curr, *tmp;
+    HASH_ITER(hh, black, curr, tmp) {
+        HASH_DEL(black, curr); 
+        free(curr);        
+    }
+    return obj;
+}
+
+int solutionPick(Solution* obj) {
+    int x = rand() % obj->bound;
+    HashItem *pEntry = NULL;
+    HASH_FIND_INT(obj->b2w, &x, pEntry);
+    return pEntry != NULL ? pEntry->val : x;
+}
+
+void solutionFree(Solution* obj) {
+    HashItem *curr, *tmp;
+    HASH_ITER(hh, obj->b2w, curr, tmp) {
+        HASH_DEL(obj->b2w, curr);  
+        free(curr);        
+    }
+    free(obj);
+}
