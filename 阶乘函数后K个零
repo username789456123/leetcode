@@ -1,0 +1,11 @@
+int preimageSizeFZF(int K){
+    int step=0;
+    while (step < K)  step = step * 5 + 1;
+
+    while (K) {
+        step = (step - 1) / 5;
+        if (K / step == 5) return 0;
+        K %= step;
+    }
+    return 5;
+}
