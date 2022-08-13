@@ -1,0 +1,10 @@
+int reachNumber(int target){
+    target = abs(target);
+    int s, dt;
+    // 1+2+...+n求和公式Sn = n*(n+1)/2
+    // 由求和公式逆推得n = sqrt(2*Sn - 0.25) - 0.5
+    s = sqrt(2 * target + 0.25) - 0.5;
+    s += s * (s + 1)/2 < target? 1:0;
+    dt = s * (s + 1)/2 - target;
+    return dt % 2 == 0? s: s + 1 + s % 2;
+}
