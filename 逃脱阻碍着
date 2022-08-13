@@ -1,0 +1,15 @@
+int manhattanDistance(int* point1, int* point2) {
+    return abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]);
+}
+
+bool escapeGhosts(int** ghosts, int ghostsSize, int* ghostsColSize, int* target, int targetSize) {
+    int source[2] = {0, 0};
+    int distance = manhattanDistance(source, target);
+    for (int i = 0; i < ghostsSize; i++) {
+        int ghostDistance = manhattanDistance(ghosts[i], target);
+        if (ghostDistance <= distance) {
+            return false;
+        }
+    }
+    return true;
+}
