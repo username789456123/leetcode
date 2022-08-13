@@ -1,0 +1,44 @@
+static inline int cmp(const void* pa, const void* pb) {
+    return strcmp(*(char **)pb, *(char **)pa);
+}
+
+char *helper(char *s, int start, int end) {
+    int len = end - start + 1;
+    if (len <= 2) {
+        char *ans = (char *)malloc(sizeof(char) * (len + 1));
+        strncpy(ans, s + start, len);
+        ans[len] = '\0';
+        return ans;
+    }
+    int cnt = 0, left = start;
+    char **subs = (char **)malloc(sizeof(char *) * len);
+    int subsSize = 0;
+    for (int i = start; i <= end; ++i) {
+        if (s[i] == '1') {
+            ++cnt;
+        } else {
+            --cnt;
+            if (cnt == 0) {
+                char *res = helper(s, left + 1, i - 1);
+                subs[subsSize] = (char *)malloc(sizeof(char) * (strlen(res) + 3));
+                sprintf(subs[subsSize], "%s%s%s", "1", res, "0");
+                left = i + 1;
+                subsSize++;
+            }
+        }
+    }
+    qsort(subs, subsSize, sizeof(char *), cmp);
+    char *ans = (char *)malloc(sizeof(char) * (len + 1));
+    int pos = 0;
+    for (int i = 0; i < subsSize; i++) {
+        pos += sprintf(ans + pos, "%s", subs[i]);
+        free(subs[i]);
+    }
+    ans[pos] = '\0';
+    return ans;
+}
+
+char * makeLargestSpecial(char * s) {
+    int len = strlen(s);
+    return helper(s, 0, len - 1);
+}
