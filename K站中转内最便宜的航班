@@ -1,0 +1,15 @@
+int findCheapestPrice(int n, int** flights, int flightsSize, int* flightsColSize, int src, int dst, int k) {
+    int f[k + 2][n];
+    memset(f, 0x3f, sizeof(f));
+    f[0][src] = 0;
+    for (int t = 1; t <= k + 1; ++t) {
+        for (int k = 0; k < flightsSize; k++) {
+            int j = flights[k][0], i = flights[k][1], cost = flights[k][2];
+            f[t][i] = fmin(f[t][i], f[t - 1][j] + cost);
+        }
+    }
+    int ans = 0x3f3f3f3f;
+    for (int t = 1; t <= k + 1; ++t) {
+        ans = fmin(ans, f[t][dst]);
+    }
+    return (ans == 0x3f3f3f3f ? -1 : ans);
