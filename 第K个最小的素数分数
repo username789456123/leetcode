@@ -1,0 +1,57 @@
+typedef struct {
+    int numerator;
+    int denominator;
+} Pair;
+
+void swap(Pair tree[], int i, int j) {
+    Pair temp = tree[i];
+    tree[i] = tree[j];
+    tree[j] = temp;
+}
+
+void maxHeapify(Pair tree[], int n, int i) {
+    if (i >= n) {
+        return;
+    }
+    int c1 = 2 * i + 1;
+    int c2 = 2 * i + 2;
+    int max = i;
+    if (c1 < n && tree[c1].numerator * tree[max].denominator > tree[max].numerator * tree[c1].denominator) {
+        max = c1;
+    }
+    if (c2 < n && tree[c2].numerator * tree[max].denominator > tree[max].numerator * tree[c2].denominator) {
+        max = c2;
+    }
+    if (max != i) {
+        swap(tree, i, max);
+        maxHeapify(tree, n, max);
+    }
+}
+
+void maxHeapPush(Pair tree[], int *size, Pair val) {
+    tree[*size] = val;
+    for (int i = *size; i >= 0 && tree[i].numerator * tree[(i - 1) / 2].denominator > tree[(i - 1) / 2].numerator * tree[i].denominator; i = (i - 1) / 2) {
+        swap(tree, i, (i - 1) / 2);
+    }
+    (*size)++;
+}
+
+int* kthSmallestPrimeFraction(int *arr, int arrSize, int k, int *returnSize) {
+    Pair tree[k + 5];
+    int size = 0;
+    *returnSize = 2;
+    int *res = (int *)calloc(2, sizeof(int));
+    for (int i = 0; i < arrSize; i++) {
+        for (int j = i + 1; j < arrSize; j++) {
+            if (size < k) {
+                maxHeapPush(tree, &size, (Pair){arr[i], arr[j]});
+            } else if (tree[0].numerator * arr[j] > arr[i] * tree[0].denominator) {
+                tree[0] = (Pair){arr[i], arr[j]};
+                maxHeapify(tree, size, 0);
+            }
+        }
+    }
+    res[0] = tree[0].numerator;
+    res[1] = tree[0].denominator;
+    return res;
+}
