@@ -1,0 +1,23 @@
+bool isIdealPermutation(int* A, int ASize){
+    int lastMax;
+
+    if(ASize <= 2){
+        return true;
+    }
+
+    lastMax = 0- INT_MAX;
+
+    for(int i = 1; i< ASize; i++){        
+        if((A[i] <A[i-1]) && lastMax > A[i]){          
+            return false;
+        } else {        
+            if(lastMax > A[i])
+             return false;
+        } 
+
+        if(A[i-1] > lastMax)
+            lastMax = A[i-1];
+    }
+    return true;
+
+}
