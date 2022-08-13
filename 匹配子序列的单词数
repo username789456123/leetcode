@@ -1,0 +1,57 @@
+struct Node{
+    char word[5000][60];
+    int wordNum;
+};
+
+int numMatchingSubseq(char * S, char ** words, int wordsSize){
+    struct Node barrels[26];
+    int resultNum = 0;
+    int strLen = strlen(S);
+    int index = 0;
+    char removeChar = 0;
+    char secondChar = 0;
+    for (int i = 0; i < 26; i++) {    //初始化26个桶
+        for (int j = 0; j < 200; ++j) {
+            memset(barrels[i].word[j], 0, 60);
+            barrels[i].wordNum = 0;
+        }
+    }
+    if (wordsSize <= 5000){
+        for (int i = 0; i < wordsSize; i++) {  //将words存入到26个桶中
+            int barrelIdx = words[i][0] - 'a';
+            strcpy(barrels[barrelIdx].word[barrels[barrelIdx].wordNum], words[i]);
+            barrels[barrelIdx].wordNum ++;
+        }
+    }
+    for (int j = 0; j < strLen; j++) {  //遍历S,消首字母，做桶操作
+        int doubleChar[26] = {0};
+        char temp[60] = {0};
+        removeChar = S[j];
+        index = (int)(removeChar - 'a');
+        if (index < 26){
+            for (int i = 0; i < barrels[index].wordNum; i++) {
+                if (strlen(barrels[index].word[i]) > 1){
+                    if (barrels[index].word[i][1] == barrels[index].word[i][0]){  //首字母与第二字母相同
+                        memset(temp, 0, 60);
+                        strcpy(temp, barrels[index].word[i] + 1);
+                        memset(barrels[index].word[doubleChar[index]], 0, 60);
+                        strcpy(barrels[index].word[doubleChar[index]], temp);  //消首字母后复制到原始桶
+                        doubleChar[index] ++;  //原始桶操作后单词个数记录
+                    } else {  
+                        secondChar = barrels[index].word[i][1] - 'a';
+                        if (secondChar < 26){
+                            strcpy(barrels[secondChar].word[barrels[secondChar].wordNum], barrels[index].word[i] + 1);  //消首字母后复制到新桶
+                            barrels[secondChar].wordNum ++;  //单词数加1
+                            memset(barrels[index].word[i], 0, 60);
+                        }
+                    }
+                } else if (strlen(barrels[index].word[i]) == 1){  //最后一个字符
+                    resultNum++;    //全部字符消除，子序列个数加1
+                    memset(barrels[index].word[i], 0, 60);
+                }
+            }
+            barrels[index].wordNum = doubleChar[index];  //遍历一个字符，操作一个桶，更新该桶wordNum
+        }
+    }
+    return resultNum;
+}
