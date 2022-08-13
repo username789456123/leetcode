@@ -1,0 +1,19 @@
+int rotatedDigits(int n){
+    int j=0,sum=0;
+    for(int i=1;i<=n;i++){
+        int a=i;
+        while(a>0){
+            int x=a%10;
+            if(x==3 || x==4 || x==7)break;
+            if(x==2 || x==5 || x==6 || x==9){
+                j++;
+            }
+            a=a/10;
+        }
+        if(j>0 && a<=0)sum++;
+        j=0;
+        
+    }
+    return sum;
+
+}
