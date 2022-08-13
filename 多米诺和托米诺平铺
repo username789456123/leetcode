@@ -1,0 +1,17 @@
+int numTilings(int N){
+    if (N < 3) {
+        return N;
+    }
+
+    int mod = 1000000007;
+    long dp[N + 1];
+    dp[0] = 1;
+    dp[1] = 1;
+    long d2 = 0, d1 = dp[0] + dp[1];
+    for (int i = 2; i <= N; i++) {
+        dp[i] = (d1 + d2 * 2) % mod;
+        d1 = (d1 - dp[i - 2] + dp[i] + mod) % mod;
+        d2 = (d2 + dp[i - 2]) % mod;
+    }
+    return dp[N];
+}
