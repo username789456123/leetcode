@@ -1,0 +1,90 @@
+struct HashTable {
+    char str[5];
+    UT_hash_handle hh;
+};
+
+struct Node {
+    char str[5];
+    int val;
+};
+
+char num_prev(char x) {
+    return (x == '0' ? '9' : x - 1);
+}
+
+char num_succ(char x) {
+    return (x == '9' ? '0' : x + 1);
+}
+
+// 枚举 status 通过一次旋转得到的数字
+char** getNextStatus(char* status, int* retSize) {
+    char** ret = malloc(sizeof(char*) * 8);
+    *retSize = 0;
+    for (int i = 0; i < 4; ++i) {
+        char num = status[i];
+        status[i] = num_prev(num);
+        ret[(*retSize)] = malloc(sizeof(char) * 5);
+        strcpy(ret[(*retSize)++], status);
+        status[i] = num_succ(num);
+        ret[(*retSize)] = malloc(sizeof(char) * 5);
+        strcpy(ret[(*retSize)++], status);
+        status[i] = num;
+    }
+    return ret;
+}
+
+int openLock(char** deadends, int deadendsSize, char* target) {
+    char str_0[5] = "0000";
+    if (strcmp(target, str_0) == 0) {
+        return 0;
+    }
+    struct HashTable* dead = NULL;
+    struct HashTable* tmp;
+    for (int i = 0; i < deadendsSize; i++) {
+        HASH_FIND(hh, dead, deadends[i], sizeof(char) * 5, tmp);
+        if (tmp == NULL) {
+            tmp = malloc(sizeof(struct HashTable));
+            strcpy(tmp->str, deadends[i]);
+            HASH_ADD(hh, dead, str, sizeof(char) * 5, tmp);
+        }
+    }
+    HASH_FIND(hh, dead, str_0, sizeof(char) * 5, tmp);
+
+    if (tmp != NULL) {
+        return -1;
+    }
+
+    struct Node q[10001];
+    int left = 0, right = 0;
+    strcpy(q[right].str, str_0);
+    q[right++].val = 0;
+
+    struct HashTable* seen = NULL;
+    tmp = malloc(sizeof(struct HashTable));
+    strcpy(tmp->str, str_0);
+    HASH_ADD(hh, seen, str, sizeof(char) * 5, tmp);
+
+    while (left < right) {
+        char* status = q[left].str;
+        int step = q[left++].val;
+        int nextStatusSize;
+        char** nextStatus = getNextStatus(status, &nextStatusSize);
+        for (int i = 0; i < nextStatusSize; i++) {
+            struct HashTable *tmp1, *tmp2;
+            HASH_FIND(hh, dead, nextStatus[i], sizeof(char) * 5, tmp1);
+            HASH_FIND(hh, seen, nextStatus[i], sizeof(char) * 5, tmp2);
+            if (tmp1 == NULL && tmp2 == NULL) {
+                if (strcmp(nextStatus[i], target) == 0) {
+                    return step + 1;
+                }
+                strcpy(q[right].str, nextStatus[i]);
+                q[right++].val = step + 1;
+                tmp = malloc(sizeof(struct HashTable));
+                strcpy(tmp->str, nextStatus[i]);
+                HASH_ADD(hh, seen, str, sizeof(char) * 5, tmp);
+            }
+        }
+    }
+
+    return -1;
+}
