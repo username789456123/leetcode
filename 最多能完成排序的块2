@@ -1,0 +1,55 @@
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashItem;
+
+static inline int cmp(const void *pa, const void *pb) {
+    return *(int *)pa - *(int *)pb;
+}
+
+int maxChunksToSorted(int* arr, int arrSize){
+    HashItem *cnt = NULL;
+    int res = 0;
+    int *sortedArr = (int *)malloc(sizeof(int) * arrSize);
+    memcpy(sortedArr, arr, sizeof(int) * arrSize);
+    qsort(sortedArr, arrSize, sizeof(int), cmp);
+    for (int i = 0; i < arrSize; i++) {
+        int x = arr[i], y = sortedArr[i];
+        HashItem *pEntry = NULL;
+        HASH_FIND_INT(cnt, &x, pEntry);
+        if (pEntry == NULL) {
+            pEntry = (HashItem *)malloc(sizeof(HashItem));
+            pEntry->key = x;
+            pEntry->val = 0;
+            HASH_ADD_INT(cnt, key, pEntry);
+        }
+        pEntry->val++;
+        if (pEntry->val == 0) {
+            HASH_DEL(cnt, pEntry);
+            free(pEntry);
+        }
+        pEntry = NULL;
+        HASH_FIND_INT(cnt, &y, pEntry);
+        if (pEntry == NULL) {
+            pEntry = (HashItem *)malloc(sizeof(HashItem));
+            pEntry->key = y;
+            pEntry->val = 0;
+            HASH_ADD_INT(cnt, key, pEntry);
+        }
+        pEntry->val--;
+        if (pEntry->val == 0) {
+            HASH_DEL(cnt, pEntry);
+            free(pEntry);
+        }
+        if (HASH_COUNT(cnt) == 0) {
+            res++;
+        }
+    }
+    HashItem *cur = NULL, *tmp = NULL;
+    HASH_ITER(hh, cnt, cur, tmp) {
+        HASH_DEL(cnt, cur);  
+        free(cur);  
+    }
+    return res;
+}
