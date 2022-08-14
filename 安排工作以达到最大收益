@@ -1,0 +1,47 @@
+typedef struct {
+    int profit;      // 工作收益
+    int difficulty;  // 工作难度
+} Work;
+
+/* 按照工作收益进行排序 */
+int compare(void *a, void *b)
+{
+    Work *ap = (Work *)a;
+    Work *bp = (Work *)b;
+
+    return ap->profit - bp->profit;
+}
+
+int maxProfitAssignment(int *difficulty, int difficultySize, int *profit, int profitSize, int *worker, int workerSize)
+{
+    if ((difficulty == NULL) || (difficultySize == 0) || (profit == NULL) || (profitSize == 0) || (worker == NULL) || (workerSize == 0)) {
+        return 0;
+    }
+
+    Work *tmp = (Work *)malloc(sizeof(Work) * difficultySize);
+    if (tmp == NULL) {
+        return 0;
+    }
+
+    int i;
+    for (i = 0; i < difficultySize; i++) {
+        tmp[i].difficulty = difficulty[i];
+        tmp[i].profit = profit[i];
+    }
+
+    qsort(tmp, difficultySize, sizeof(Work), compare);
+
+    int max_profit = 0;
+    int j;
+    for (i = 0; i < workerSize; i++) {
+        for (j = profitSize - 1; j >= 0; j--) {
+            if (worker[i] >= tmp[j].difficulty) {
+                max_profit += tmp[j].profit;
+                break;
+            }
+        }
+    }
+
+    return max_profit;
+
+}
