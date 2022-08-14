@@ -1,0 +1,14 @@
+bool splitArraySameAverage(int* A, int ASize){
+int i,j,k;
+int sum=0;
+for(i=0;i<ASize;i++)
+sum+=A[i];
+int dp[ASize+1][sum+1];
+memset(dp,0,sizeof(dp));
+dp[0][0]=1;
+for(i=0;i<ASize;i++)
+for(k=i;k>=1;k--)
+for(j=sum;j>=A[i];j--)
+if(dp[k-1][j-A[i]]) {dp[k][j]=1;if(sum*k==j*ASize) return true;}
+return false;
+}
