@@ -1,0 +1,69 @@
+struct Vector {
+    int* arr;
+    int capacity;
+    int size;
+};
+
+void init(struct Vector* vec) {
+    vec->arr = malloc(sizeof(int));
+    vec->capacity = 1;
+    vec->size = 0;
+}
+
+void push_back(struct Vector* vec, int val) {
+    if (vec->size == vec->capacity) {
+        vec->capacity <<= 1;
+        vec->arr = realloc(vec->arr, sizeof(int) * vec->capacity);
+    }
+    vec->arr[vec->size++] = val;
+}
+
+int numBusesToDestination(int** routes, int routesSize, int* routesColSize, int source, int target) {
+    if (source == target) {
+        return 0;
+    }
+
+    int n = routesSize;
+    int edge[n][n];
+    memset(edge, 0, sizeof(edge));
+    struct Vector rec[100001];
+    for (int i = 0; i < 100001; i++) {
+        init(&rec[i]);
+    }
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < routesColSize[i]; j++) {
+            int site = routes[i][j];
+            for (int k = 0; k < rec[site].size; k++) {
+                edge[i][rec[site].arr[k]] = edge[rec[site].arr[k]][i] = true;
+            }
+            push_back(&rec[site], i);
+        }
+    }
+    int dis[n];
+    memset(dis, -1, sizeof(dis));
+    int que[n];
+    int left = 0, right = 0;
+
+    for (int i = 0; i < rec[source].size; i++) {
+        dis[rec[source].arr[i]] = 1;
+        que[right++] = rec[source].arr[i];
+    }
+    while (left < right) {
+        int x = que[left++];
+        for (int y = 0; y < n; y++) {
+            if (edge[x][y] && dis[y] == -1) {
+                dis[y] = dis[x] + 1;
+                que[right++] = y;
+            }
+        }
+    }
+
+    int ret = INT_MAX;
+
+    for (int i = 0; i < rec[target].size; i++) {
+        if (dis[rec[target].arr[i]] != -1) {
+            ret = fmin(ret, dis[rec[target].arr[i]]);
+        }
+    }
+    return ret == INT_MAX ? -1 : ret;
+}
