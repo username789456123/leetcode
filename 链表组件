@@ -1,0 +1,27 @@
+int numComponents(struct ListNode* head, int* G, int GSize){
+    int icount =0  , iflag = 0;//icount累加器 iflag是标志变量 如果是0就累加 并重新赋值为1
+     char *num = (char *)calloc(10000,sizeof(char));
+    int i;
+    for(i=0;i<GSize;i++)
+    {
+        num[G[i]] = '1';
+    }
+    while(head)
+    {
+        if(num[head->val])
+        {
+            if(iflag == 0)
+            icount++;
+
+            iflag=1;
+        }
+        else
+        {
+            iflag=0;
+        }
+        
+        head=head->next;
+    }
+
+    return icount;
+}
