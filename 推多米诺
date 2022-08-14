@@ -1,0 +1,109 @@
+typedef struct StListNode {
+    int val;
+    struct StListNode * next;
+} StListNode;
+
+typedef struct Queue{
+    struct StListNode * head;
+    struct StListNode * tail;
+    int length;
+} Queue;
+
+bool isEmpty(const Queue * obj) {
+    return obj->length == 0;
+}
+
+int length(const Queue * obj) {
+    return obj->length;
+}
+
+bool initQueue(Queue * obj) {
+    obj->head = NULL;
+    obj->tail = NULL;
+    obj->length = 0;
+    return true;
+}
+
+bool pushQueue(Queue * obj, int val) {
+    StListNode * node = (StListNode *)malloc(sizeof(StListNode));
+    node->val = val;
+    node->next = NULL;
+    if (NULL == obj->head) {
+        obj->head = node;
+        obj->tail = node;
+    } else {
+        obj->tail->next = node;
+        obj->tail = obj->tail->next;
+    }
+    obj->length++;
+    return true;
+}
+
+int front(const Queue * obj) {
+    if (obj->length == 0) {
+        return -1;
+    }
+    return obj->head->val;
+}
+
+int popQueue(Queue * obj) {
+    if (obj->length == 0) {
+        return -1;
+    }
+    int res = obj->head->val;
+    StListNode * node = obj->head;
+    obj->head = obj->head->next;
+    obj->length--;
+    free(node);
+    return res;
+}
+
+char * pushDominoes(char * dominoes){
+    int n = strlen(dominoes);
+    int * time = (int *)malloc(sizeof(int) * n);
+    char * res = (char *)malloc(sizeof(char) * (n + 1));
+    Queue ** force = (Queue **)malloc(sizeof(Queue *) * n);
+
+    for (int i = 0; i < n; i++) {
+        time[i] = -1;
+        force[i] = (Queue *)malloc(sizeof(Queue));
+        initQueue(force[i]);
+        res[i] = '.';
+    }
+    res[n] = '\0';
+    Queue qu; 
+    initQueue(&qu);
+    for (int i = 0; i < n; i++) {
+        if (dominoes[i] != '.') {
+            pushQueue(&qu, i);
+            time[i] = 0;
+            pushQueue(force[i], dominoes[i]);
+        }
+    }
+
+    while (!isEmpty(&qu)) {
+        int i = popQueue(&qu);
+        if (length(force[i]) == 1) {
+            char f = front(force[i]);
+            res[i] = f;
+            int ni = (f == 'L') ? (i - 1) : (i + 1);
+            if (ni >= 0 && ni < n) {
+                int t = time[i];
+                if (time[ni] == -1) {
+                    pushQueue(&qu, ni);
+                    time[ni] = t + 1;
+                    pushQueue(force[ni], f);
+                } else if(time[ni] == t + 1) {
+                    pushQueue(force[ni], f);
+                }
+            }
+        }
+    }
+    /* free resource */
+    for (int i = 0; i < n; i++) {
+        while (!isEmpty(force[i])) {
+            popQueue(force[i]);
+        }
+    }
+    return res;
+}
