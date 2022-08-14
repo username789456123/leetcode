@@ -1,0 +1,81 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+#include <limits.h>
+
+#define MMAX(a, b)        ((a) > (b)? (a) : (b))
+#define MMIN(a, b)        ((a) < (b)? (a) : (b))
+
+#define MAX_LEN     5000
+
+double memo[MAX_LEN][MAX_LEN];
+
+double helper(int na, int nb) {
+
+    if(memo[na][nb] != 0.0) {
+        return memo[na][nb];
+    }
+
+    double ret = 0.0;
+    //分配方式1
+    if(na <= 100) {
+        ret += 0.25;
+    } else {
+        ret += 0.25 * helper(na - 100, nb);
+    }
+
+    //分配方式2
+    if(na <= 75 && nb > 25) {
+        ret += 0.25;
+    } else if(na <= 75 && nb <= 25) {
+        ret += 0.125;
+    } else if(na > 75 && nb <= 25) {
+    } else {
+        ret += 0.25 * helper(na - 75, nb - 25);
+    }
+
+    //分配方式3
+    if(na <= 50 && nb > 50) {
+        ret += 0.25;
+    } else if(na <= 50 && nb <= 50) {
+        ret += 0.125;
+    } else if(na > 50 && nb <= 50) {
+    } else {
+        ret += 0.25 * helper(na - 50, nb - 50);
+    }
+
+    //分配方式4
+    if(na <= 25 && nb > 75) {
+        ret += 0.25;
+    } else if(na <= 25 && nb <= 75) {
+        ret += 0.125;
+    } else if(na > 25 && nb <= 75) {
+    } else {
+        ret += 0.25 * helper(na - 25, nb - 75);
+    }
+
+    memo[na][nb] = ret;
+
+    return ret;
+}
+
+//【算法思路】DFS + memo.
+double soupServings(int N){
+    if(N == 0) {
+        return 0.5;
+    } else if(N >= 5000) {
+        return 1.0;
+    }
+
+    for(int i = 0; i <= N; i++) {
+        for(int j = 0; j <= N; j++) {
+            memo[i][j] = 0.0;
+        }
+    }
+
+    double ret = helper(N, N);
+
+    return ret;
+}
