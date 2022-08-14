@@ -1,0 +1,34 @@
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+int maxDistToClosest(int* seats, int seatsSize)
+{
+    int left = 0;
+    int right = 0;
+    int longestLen = 0;
+    int leftLog = 0;
+    int rightLog = seatsSize - 1;
+    int rtn;
+    while (right < seatsSize) {
+        if (seats[right] == 0) {
+            ++right;
+        } else {
+            longestLen = MAX(right - left, longestLen);
+            ++right;
+            left = right;
+        }
+    }
+    longestLen = MAX(right - left, longestLen);
+    while (seats[leftLog] == 0 && leftLog < seatsSize) {
+        ++leftLog;
+    }
+    while (seats[rightLog] == 0 && right >= 0) {
+        --rightLog;
+    }
+    rtn = (longestLen + 1) / 2;
+    if (leftLog > rtn) {
+        rtn = leftLog;
+    }
+    if (seatsSize - rightLog - 1 > rtn) {
+        rtn = seatsSize - rightLog - 1;
+    }
+    return rtn;
+}
