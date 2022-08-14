@@ -1,0 +1,47 @@
+char * maskPII(char * S){
+    int len = strlen(S);
+    char *ret = malloc(sizeof(char) * (len + 6));
+    int retSize = 0;
+    int i = 0;
+    if( !((S[i] >= 'A' && S[i] <= 'Z') || (S[i] >= 'a' && S[i] <= 'z')) ){
+        int tmp[41] = {0};
+        int tmpLen = 0;
+        for(i; i<len; i++){
+            if(isdigit(S[i])){
+                tmp[tmpLen++] = S[i];
+            }
+        }
+        if(tmpLen > 10){
+            ret[retSize++] = '+';
+            for(i=0; i<tmpLen-10; i++){
+                ret[retSize++] = '*';
+            }
+            ret[retSize++] = '-';
+        }
+        for(int k=0; k<3; k++){
+            ret[retSize++] = '*';
+        }
+        ret[retSize++] = '-';
+        for(int k=0; k<3; k++){
+            ret[retSize++] = '*';
+        }
+        ret[retSize++] = '-';
+        for(int k = tmpLen-4; k<tmpLen; k++){
+            ret[retSize++] = tmp[k];
+        }
+    }else{
+        while(S[i] != '@'){
+            i++;
+        }
+        ret[retSize++] = tolower(S[0]);
+        while(retSize < 6){
+            ret[retSize++] = '*';
+        }
+        ret[retSize++] = tolower(S[i-1]);
+        for(i; i<len; i++){
+            ret[retSize++] = tolower(S[i]);
+        }
+    }
+    ret[retSize] = '\0';
+    return ret;
+}
