@@ -1,0 +1,36 @@
+bool backtrack(int* list, int* listSize, char* num, int length, int index, long long sum, int prev) {
+    if (index == length) {
+        return (*listSize) >= 3;
+    }
+    long long curr = 0;
+    for (int i = index; i < length; i++) {
+        if (i > index && num[index] == '0') {
+            break;
+        }
+        curr = curr * 10 + num[i] - '0';
+        if (curr > INT_MAX) {
+            break;
+        }
+        if ((*listSize) >= 2) {
+            if (curr < sum) {
+                continue;
+            } else if (curr > sum) {
+                break;
+            }
+        }
+        list[(*listSize)++] = curr;
+        if (backtrack(list, listSize, num, length, i + 1, prev + curr, curr)) {
+            return true;
+        }
+        (*listSize)--;
+    }
+    return false;
+}
+
+int* splitIntoFibonacci(char* num, int* returnSize) {
+    int n = strlen(num);
+    int* list = malloc(sizeof(int) * n);
+    *returnSize = 0;
+    backtrack(list, returnSize, num, strlen(num), 0, 0, 0);
+    return list;
+}
