@@ -1,0 +1,60 @@
+#define MAXSIZE 10000
+typedef struct hashmap{
+    int key;
+    int num;
+    UT_hash_handle hh;
+}UTHash;
+    UTHash* hash =NULL;
+
+
+char * findReplaceString(char * s, int* indices, int indicesSize, char ** sources, int sourcesSize, char ** targets, int targetsSize){
+    int len =strlen(s);
+    char* res=(char*)malloc(sizeof(char)*MAXSIZE);
+    memset(res,0,sizeof(char)*MAXSIZE);
+    int j=0;
+    int k=0;
+    for(int i=0;i<indicesSize;i++){
+        UTHash* users = (UTHash*)malloc(sizeof(UTHash)*MAXSIZE);
+        users->key = indices[i];
+        users->num = i;
+        HASH_ADD_INT(hash,key,users);
+    }
+    UTHash* out =NULL;
+    for(int i=0;i<len;i++){
+        int find = i;
+        HASH_FIND_INT(hash,&find,out);
+        if(out != NULL){
+            j=out->num;
+            int sourceslen=strlen(sources[j]);
+            int targetslen =strlen(targets[j]);
+            int currpc=i;
+            int matchlen=0;
+            for(int coun=0;coun<sourceslen;coun++){
+                if(sources[j][coun]==s[currpc++]){
+                    matchlen++;
+                }
+            }
+            if(matchlen==sourceslen && sourceslen>0){
+                //满足
+                i=i+sourceslen-1;//i跳过
+                for(int l=0;l<targetslen;l++){
+                    res[k++]=targets[j][l];
+                }
+            }else{
+                res[k++]=s[i];
+            }
+            if(j<sourcesSize-1){
+                j++;
+            }
+        }else{
+            res[k++]=s[i];
+        }
+    }
+    UTHash *tmp = NULL;
+    HASH_ITER(hh,hash , out, tmp)
+    {
+        HASH_DEL(hash, out);
+        free(out);
+    }
+    return res;
+}
