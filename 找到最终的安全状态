@@ -1,0 +1,27 @@
+int color[10000];
+
+bool safe(int** graph, int graphSize, int* graphColSize, int x) {
+    if (color[x] > 0) {
+        return color[x] == 2;
+    }
+    color[x] = 1;
+    for (int i = 0; i < graphColSize[x]; i++){
+        if (!safe(graph, graphSize, graphColSize, graph[x][i])) {
+            return false;
+        }
+    }
+    color[x] = 2;
+    return true;
+}
+
+int* eventualSafeNodes(int** graph, int graphSize, int* graphColSize, int* returnSize) {
+    memset(color, 0, sizeof(int) * graphSize);
+    int* ans = malloc(sizeof(int) * graphSize);
+    *returnSize = 0;
+    for (int i = 0; i < graphSize; ++i) {
+        if (safe(graph, graphSize, graphColSize, i)) {
+            ans[(*returnSize)++] = i;
+        }
+    }
+    return ans;
+}
