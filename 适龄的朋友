@@ -1,0 +1,21 @@
+static int cmp(const void * pa, const void * pb) {
+    return *(int *)pa - *(int *)pb;
+}
+
+int numFriendRequests(int* ages, int agesSize){
+    qsort(ages, agesSize, sizeof(int), cmp);
+    int left = 0, right = 0, ans = 0;
+    for (int i = 0; i < agesSize; ++i) {
+        if (ages[i] < 15) {
+            continue;
+        }
+        while (ages[left] <= 0.5 * ages[i] + 7) {
+            ++left;
+        }
+        while (right + 1 < agesSize && ages[right + 1] <= ages[i]) {
+            ++right;
+        }
+        ans += right - left;
+    }
+    return ans;
+}
