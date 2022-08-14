@@ -1,0 +1,17 @@
+#define max INT_MAX
+int minSwap(int* nums1, int nums1Size, int* nums2, int nums2Size){
+    int dp[nums1Size][2]; dp[0][0]=0; dp[0][1]=1;
+    int i,j;
+    for(i=1;i<nums1Size;i++){
+        dp[i][0]=max;  dp[i][1]=max;  int value1=nums1[i],value2=nums2[i];
+
+        if(value1>nums1[i-1]&&value2>nums2[i-1]){
+            dp[i][1]=fmin(dp[i][1],dp[i-1][1]+1);dp[i][0]=fmin(dp[i][0],dp[i-1][0]);
+        }
+        if(value1>nums2[i-1]&&value2>nums1[i-1]){
+            dp[i][0]=fmin(dp[i][0],dp[i-1][1]); dp[i][1]=fmin(dp[i][1],dp[i-1][0]+1);
+        }
+        
+    }
+    return fmin(dp[i-1][0],dp[i-1][1]);
+}
