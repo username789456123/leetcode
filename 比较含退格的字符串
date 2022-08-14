@@ -1,0 +1,17 @@
+char* build(char* str) {
+    int n = strlen(str), len = 0;
+    char* ret = malloc(sizeof(char) * (n + 1));
+    for (int i = 0; i < n; i++) {
+        if (str[i] != '#') {
+            ret[len++] = str[i];
+        } else if (len > 0) {
+            len--;
+        }
+    }
+    ret[len] = '\0';
+    return ret;
+}
+
+bool backspaceCompare(char* S, char* T) {
+    return strcmp(build(S), build(T)) == 0;
+}
