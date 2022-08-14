@@ -1,0 +1,77 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+#include <limits.h>
+
+#define MMAX(a, b)        ((a) > (b)? (a) : (b))
+#define MMIN(a, b)        ((a) < (b)? (a) : (b))
+
+bool check(char *s, char *d) {
+    int slen = strlen(s);
+    int dlen = strlen(d);
+
+    //分别记录s和d的当前比较位置
+    int sid = 0;
+    int did = 0;
+
+    while(sid < slen && did < dlen) {
+        if(s[sid] != d[did]) {
+            return false;
+        } else {
+            //找到连续相同的字符
+            int tmp_slen = 0;
+            for(int i = sid; i < slen; i++) {
+                if(s[i] == s[sid]) {
+                    tmp_slen++;
+                } else {
+                    break;
+                }
+            }
+
+            int tmp_dlen = 0;
+            for(int i = did; i < dlen; i++) {
+                if(d[i] == d[did]) {
+                    tmp_dlen++;
+                } else {
+                    break;
+                }
+            }
+
+            //判断是否满足要求,从d扩展为s
+            //printf("tmp_slen = %d, tmp_dlen = %d\n", tmp_slen, tmp_dlen);
+
+            if(tmp_slen == tmp_dlen || (tmp_slen > tmp_dlen && tmp_slen >= 3)) {
+                sid += tmp_slen;
+                did += tmp_dlen;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    //最后检查是否同时消耗完
+    if(did < dlen || sid < slen) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+//【算法思路】双指针。
+// 分别使用1个指针从头遍历每个字串，相等则进行长度判断
+int expressiveWords(char * S, char ** words, int wordsSize){
+    if(wordsSize == 0) {
+        return 0;
+    }
+
+    int cnt = 0;
+    for(int i = 0; i < wordsSize; i++) {
+        if(check(S, words[i])) {
+            cnt++;
+        }
+    }
+
+    return cnt;
+}
