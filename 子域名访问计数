@@ -1,0 +1,84 @@
+#define STRNUM 300
+#define MAXNUM 101
+#define SPRINTFMAX 8
+typedef struct {
+    char hashKey[MAXNUM];
+    int value;
+    struct UT_hash_handle hh;
+}My_Hash;
+My_Hash *g_hash;
+
+My_Hash *FindUsr(char *key)
+{
+    if (!key) {
+        return NULL;
+    }
+    My_Hash *newHash = NULL;
+    HASH_FIND_STR(g_hash, key, newHash);
+    if (newHash) {
+        return newHash;
+    }
+    return NULL;
+}
+
+void AddUsr(char *key, int num)
+{
+    if (!key) {
+        return;
+    }
+    My_Hash *newHash = NULL;
+    HASH_FIND_STR(g_hash, key, newHash);
+    if (!newHash) {
+        newHash = (My_Hash *)malloc(sizeof(My_Hash));
+        strcpy(newHash->hashKey, key);
+        newHash->value = num;
+        HASH_ADD_STR(g_hash, hashKey, newHash);
+    }
+}
+char ** subdomainVisits(char ** cpdomains, int cpdomainsSize, int* returnSize){
+    g_hash = NULL;
+    char **res = (char **)malloc(sizeof(char *) * STRNUM);
+    for (int i = 0; i < cpdomainsSize; i++) {
+        char *ret = strtok(cpdomains[i], " ");
+        if (!ret) {
+            break;
+        }
+        int num = atoi(ret);
+        while (ret) {
+            ret = strtok(NULL, " ");
+            if (!ret) {
+                break;
+            }
+            My_Hash *con = FindUsr(ret);
+            if (con) {
+                con->value += num;
+            } else {
+                AddUsr(ret, num);
+            }
+            char *tmp;
+            int retLen = strlen(ret);
+            char *str = (char *)malloc(sizeof(char) * (retLen + 1));
+            strcpy(str, ret);
+            char *ret1 = strtok_r(str, ".", &tmp);
+            while (strcmp(tmp, "") != 0) {
+                My_Hash *con1 = FindUsr(tmp);
+                if (con1) {
+                    con1->value += num;
+                } else {
+                    AddUsr(tmp, num);
+                }
+                ret1 = strtok_r(NULL, ".", &tmp);
+            }
+            free(str);
+        }
+    }
+    *returnSize = HASH_COUNT(g_hash);
+    int i = 0;
+    My_Hash *cur, *tmp;
+    HASH_ITER(hh, g_hash, cur, tmp) {
+        int curLen = strlen(cur->hashKey);
+        res[i] = (char *)malloc(sizeof(char) * (curLen + SPRINTFMAX));
+        sprintf(res[i++], "%d %s", cur->value, cur->hashKey);
+    }
+    return res;
+}
