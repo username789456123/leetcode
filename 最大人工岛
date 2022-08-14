@@ -1,0 +1,126 @@
+int *g_parent;
+int *g_size;
+int g_count;
+
+void UFInit(int n)
+{
+    g_parent = malloc(sizeof(int)*n);
+    g_size = malloc(sizeof(int)*n);
+    for(int i = 0;i < n;i++){
+        g_parent[i] = i;
+        g_size[i] = 1;
+    }
+    g_count = n;
+}
+
+int Find(int x)
+{
+    if(x < 0) {
+        return -1;
+    }
+    if(g_parent[x] == x) return x;
+    return g_parent[x] = Find(g_parent[x]);
+}
+
+void Union(int p,int q)
+{
+    int rootP = Find(p);
+    int rootQ = Find(q);
+    if(rootP == rootQ) return;
+    if(g_size[rootP] > g_size[rootQ]){
+        g_parent[rootQ] = rootP;
+        g_size[rootP] += g_size[rootQ];
+    } else {
+        g_parent[rootP] = rootQ;
+        g_size[rootQ] += g_size[rootP];
+    }
+    g_count--;
+}
+
+void Destory()
+{
+    free(g_parent);
+    free(g_size);
+}
+
+int GetArea(int** grid,int x,int y,int m,int n)
+{
+    if(x >= m || x < 0 || y >= n || y < 0) return 0;
+    int root = Find(x * m + y);
+    if(g_size[root] == 1) {
+        return grid[x][y] == 1;
+    }
+    return g_size[root];
+}
+
+int largestIsland(int** grid, int gridSize, int* gridColSize){
+    int m = gridSize;
+    int n = gridColSize[0];
+    UFInit((m + 1) * (n + 1));
+    for(int i = 0; i < m; ++i) {
+        for(int j = 0; j < n; ++j) {
+            if(grid[i][j] == 1) {
+                if(i > 0 && grid[i - 1][j] == 1) {
+                    Union(i * m + j , (i - 1) * m + j);
+                }
+                if(j > 0 && grid[i][j - 1] == 1) {
+                    Union(i * m + j , i * m + j - 1);
+                }
+            }
+        }
+    }
+    int ret = 0;
+    if(g_count == m + n + 2) {
+        Destory();
+        return m * n;
+    }
+    int hashTable[(m + 1) * (n + 1) + 1];
+    memset(hashTable,0,sizeof(hashTable));
+    for(int i = 0; i < m; ++i) {
+        for(int j = 0 ; j < n ; ++j) {
+            if(grid[i][j] == 0) {
+                int area = 1;
+                int root1 = Find((i -1) * m + j);
+                if(root1 >= 0 && hashTable[root1] == 0) {
+                    hashTable[root1] = 1;
+                    area += GetArea(grid,i - 1,j,m,n);
+                }
+
+                int root2 = Find((i + 1) * m + j);
+                if(root2 >= 0 && hashTable[root2] == 0) {
+                    hashTable[root2] = 1;
+                    area += GetArea(grid,i + 1,j,m,n);
+                }
+
+                int root3 = Find(i * m + j - 1);
+                if(root3 >= 0 && hashTable[root3] == 0) {
+                    hashTable[root3] = 1;
+                    area += GetArea(grid,i,j - 1,m,n);
+                }
+
+                int root4 = Find(i * m + j + 1);
+                if(root4 >= 0 && hashTable[root4] == 0) {
+                    hashTable[root4] = 1;
+                    area += GetArea(grid,i,j + 1,m,n);
+                }
+
+                if(root1 >= 0) {
+                    hashTable[root1] = 0;
+                }
+                if(root2 >= 0) {
+                    hashTable[root2] = 0;
+                }
+                if(root3 >= 0) {
+                    hashTable[root3] = 0;
+                }
+                if(root4 >= 0) {
+                    hashTable[root4] = 0;
+                }      
+
+                ret = fmax(ret, area);
+            }
+        }
+    }
+    Destory();
+    return ret;
+}
