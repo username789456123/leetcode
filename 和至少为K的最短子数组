@@ -1,0 +1,28 @@
+int shortestSubarray(int* nums, int numsSize, int k){
+    if(numsSize == 0) return -1;
+    
+    int queueIndex[numsSize+1];//保存数组元素的下标
+    int front = 0;
+    int rear = 0;
+    long long presum[numsSize+1];//注意long long
+    presum[0] = 0;
+    //前缀和
+    for(int i = 0 ; i < numsSize; ++ i){
+        presum[i+1] = presum[i] + nums[i];
+    }   
+    int minCount = numsSize+1;//比numsSize大即可
+    for(int i = 0; i < numsSize+1; ++i ){
+        while(front < rear && presum[i] < presum[queueIndex[rear-1]]){
+        //因为要维护一个递增队列，故如果最新的元素比队尾小，影响单调性，把队尾元素弹出
+            rear--;
+        }
+        queueIndex[rear++] = i;
+        while(front < rear && (presum[i] - presum[queueIndex[front]]) >= k){
+            minCount = fmin(minCount, i-queueIndex[front]);
+            //i-queueIndex[front] 表示最短的数组长度
+            front++;
+        } 
+    }
+    if(minCount > numsSize) return -1;
+    return minCount;
+}
