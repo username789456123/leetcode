@@ -1,0 +1,33 @@
+#define MAX_BUF_LEN 5000
+
+int Find(int *prev, int x)
+{
+    if (prev[x] == x) {
+        return x;
+    }
+    return prev[x] = Find(prev, prev[x]);
+}
+
+bool possibleBipartition(int N, int** dislikes, int dislikesSize, int* dislikesColSize)
+{
+    int maxSize = N + 1;
+    int prev[MAX_BUF_LEN] = {};
+    for (int i = 1; i < 2 * maxSize; i++) { // 维护两个祖先数组：朋友圈、敌对圈
+        prev[i] = i;
+    }
+
+    for (int i = 0; i < dislikesSize; i++) {
+        int x = Find(prev, dislikes[i][0]); // 朋友圈
+        int y = Find(prev, dislikes[i][1]);
+        int a = Find(prev, dislikes[i][0] + maxSize); // 敌对圈
+        int b = Find(prev, dislikes[i][1] + maxSize);
+
+        if (x == y) {    // 敌对关系，不可能属于同一个朋友圈
+            return false;
+        } else {
+            prev[a] = y; // 由于x和y互为敌对关系，只能加入敌对圈
+            prev[b] = x;
+        }
+    }
+    return true;
+}
