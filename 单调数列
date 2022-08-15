@@ -1,0 +1,20 @@
+bool isSorted(int* nums, int numsSize, bool increasing) {
+    if (increasing) {
+        for (int i = 0; i < numsSize - 1; ++i) {
+            if (nums[i] > nums[i + 1]) {
+                return false;
+            }
+        }
+    } else {
+        for (int i = 0; i < numsSize - 1; ++i) {
+            if (nums[i] < nums[i + 1]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool isMonotonic(int* nums, int numsSize) {
+    return isSorted(nums, numsSize, true) || isSorted(nums, numsSize, false);
+}
