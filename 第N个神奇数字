@@ -1,0 +1,40 @@
+#define MOD 1000000007
+
+/* 辗转相除法，计算出最大公约数 */
+unsigned int maxCommonFactor(int a, int b)
+{
+    if (b <= 0) {
+        return a;
+    }
+    return maxCommonFactor(b, a % b);
+}
+
+int nthMagicalNumber(int n, int a, int b)
+{
+    /* 确保a不大于b */
+    if (a > b) {
+        return nthMagicalNumber(n, b, a);
+    }
+
+    unsigned int gcd = maxCommonFactor(a, b);
+
+    /* 最小公倍数 */
+    long long gmd = a * b / gcd;
+    unsigned int muti = a / gcd + b / gcd - 1;
+
+    unsigned int N = n % muti;
+    unsigned int hit = N * a / (a + b);
+
+    long long rem = 0;
+
+    if (N == (hit * b / a + hit)) {
+        rem = b * hit;
+    } else if (N == ((hit + 1) * b / a + hit + 1)) {
+        rem = b * (hit + 1);
+    } else {
+        rem = a * (N - hit);
+    }
+
+    rem += gmd * (n / muti);
+    return rem % MOD;
+}
