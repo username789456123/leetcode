@@ -1,0 +1,32 @@
+int cmpChar(const void *a, const void *b) {
+    return *(char *)a - *(char *)b;
+}
+
+int cmpStr(const void *a, const void *b) {
+    return strcmp(*(char **)a, *(char **)b);
+}
+
+int numSpecialEquivGroups(char ** A, int ASize){
+    for (int i = 0; i < ASize; i++) {
+        int len = strlen(A[i]);
+        // 偶数多后退1，奇数不用
+        for (int idx1 = 1, idx2 = len - 1 - (len % 2 == 0); idx1 < idx2; idx1 += 2, idx2 -= 2) {
+            char tmp = A[i][idx1];
+            A[i][idx1] = A[i][idx2];
+            A[i][idx2] = tmp;
+        }
+        // 分别排序前后两个部分；奇数与偶数长度时奇数个数是len/2，因此偶数个数len-odds
+        int odds = len / 2, evens = len - odds;
+        qsort(A[i], evens, sizeof(A[i][0]), cmpChar);
+        qsort(A[i] + evens, odds, sizeof(A[i][evens]), cmpChar);
+    }
+    qsort(A, ASize, sizeof(A[0]), cmpStr);
+    // 2. 暴力对比
+    int cnt = 1;  // 肯定存在一个，向前向后比较都可以
+    for (int i = 1; i < ASize; i++) {
+        if (strcmp(A[i], A[i-1]) != 0) {
+            cnt++;
+        }
+    }
+    return cnt;
+}
