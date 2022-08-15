@@ -1,0 +1,105 @@
+#define MAXN    (10050)
+#define EPS     (1e-5)
+
+
+typedef struct {
+    void *array[MAXN];
+    int size;
+    int (*cmp)(const void *o1, const void *o2);
+} Heap;
+
+
+typedef struct {
+    double wq;
+    int w, q;
+} Worker;
+
+
+static void *pop(Heap *heap)
+{
+    void *ans = heap->array[1], *val = heap->array[heap->size];
+    heap->size--;
+    int i = 1, j = 2;
+    for (; j <= heap->size; i = j, j <<= 1) {
+        if (j + 1 <= heap->size && heap->cmp(&(heap->array[j]), &(heap->array[j + 1])) > 0) {
+            j++;
+        }
+
+        if (heap->cmp(&(heap->array[j]), &val) >= 0) {
+            break;
+        }
+        heap->array[i] = heap->array[j];
+    }
+    heap->array[i] = val;
+    return ans;
+}
+
+
+static void push(Heap *heap, void *val)
+{
+    heap->size++;
+    int i = heap->size, j = heap->size >> 1;
+    for (; j > 0; i = j, j >>= 1) {
+        if (heap->cmp(&(heap->array[j]), &val) <= 0) {
+            break;
+        }
+        heap->array[i] = heap->array[j];
+    }
+    heap->array[i] = val;
+}
+
+
+static int cmpWq(const void *o1, const void *o2)
+{
+    Worker *w1 = *((Worker**)o1), *w2 = *((Worker**)o2);
+    if (w1->wq + EPS < w2->wq) {
+        return -1;
+    }
+    return 1;
+}
+
+
+static int cmpHeap(const void *o1, const void *o2)
+{
+    Worker *w1 = *((Worker**)o1), *w2 = *((Worker**)o2);
+    return w2->q - w1->q;
+}
+
+
+double mincostToHireWorkers(int* quality, int qualitySize, int* wage, int wageSize, int k){
+    int workerSize = qualitySize, i;
+    Worker workersPool[workerSize], *workers[workerSize], *w;
+
+    for (i = 0; i < workerSize; i++) {
+        w = workersPool + i;
+        workers[i] = w;
+        w->wq = ((double)wage[i]) / quality[i];
+        w->w = wage[i];
+        w->q = quality[i];
+    }
+
+    qsort(workers, workerSize, sizeof(Worker*), cmpWq);
+
+    Heap heap = {
+        .size = 0,
+        .cmp = cmpHeap
+    };
+
+    int sumQ = 0;
+    double ans = 1e9, tmp;
+    for (i = 0; i < workerSize; i++) {
+        sumQ += workers[i]->q;
+        push(&heap, workers[i]);
+        if (heap.size > k) {
+            w = pop(&heap);
+            sumQ -= w->q;
+        }
+
+        if (heap.size == k) {
+            tmp = sumQ * workers[i]->wq;
+            ans = fmin(ans, tmp);
+        }
+    }
+
+    return ans;
+}
