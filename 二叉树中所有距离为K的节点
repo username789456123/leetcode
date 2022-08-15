@@ -1,0 +1,76 @@
+struct HashTable {
+    int key;
+    struct TreeNode* val;
+    UT_hash_handle hh;
+};
+
+void modify(struct HashTable** hashTable, int ikey, struct HashTable* ival) {
+    struct HashTable* iter;
+    HASH_FIND_INT(*hashTable, &ikey, iter);
+    if (iter == NULL) {
+        iter = malloc(sizeof(struct HashTable));
+        iter->key = ikey;
+        iter->val = ival;
+        HASH_ADD_INT(*hashTable, key, iter);
+    } else {
+        iter->val = ival;
+    }
+}
+
+struct HashTable* query(struct HashTable** hashTable, int ikey) {
+    struct HashTable* iter;
+    HASH_FIND_INT(*hashTable, &ikey, iter);
+    if (iter == NULL) {
+        return NULL;
+    }
+    return iter->val;
+}
+
+struct HashTable* parents;
+int* ans;
+int ansSize;
+
+void findParents(struct TreeNode* node) {
+    if (node->left != NULL) {
+        modify(&parents, node->left->val, node);
+        findParents(node->left);
+    }
+    if (node->right != NULL) {
+        modify(&parents, node->right->val, node);
+        findParents(node->right);
+    }
+}
+
+void findAns(struct TreeNode* node, struct TreeNode* from, int depth, int k) {
+    if (node == NULL) {
+        return;
+    }
+    if (depth == k) {
+        ans[ansSize++] = node->val;
+        return;
+    }
+    if (node->left != from) {
+        findAns(node->left, node, depth + 1, k);
+    }
+    if (node->right != from) {
+        findAns(node->right, node, depth + 1, k);
+    }
+    if (query(&parents, node->val) != from) {
+        findAns(query(&parents, node->val), node, depth + 1, k);
+    }
+}
+
+int* distanceK(struct TreeNode* root, struct TreeNode* target, int k, int* returnSize) {
+    parents = NULL;
+    ans = malloc(sizeof(int) * 500);
+    ansSize = 0;
+
+    // 从 root 出发 DFS，记录每个结点的父结点
+    findParents(root);
+
+    // 从 target 出发 DFS，寻找所有深度为 k 的结点
+    findAns(target, NULL, 0, k);
+
+    *returnSize = ansSize;
+    return ans;
+}
