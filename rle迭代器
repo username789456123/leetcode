@@ -1,0 +1,57 @@
+typedef struct {
+    int* cnt;
+    int* nums;
+    int nowIndex;
+    int nowLeftCnt;
+    int size;
+} RLEIterator;
+
+RLEIterator* rLEIteratorCreate(int* encoding, int encodingSize) {
+    RLEIterator* obj = (RLEIterator*)malloc(sizeof(RLEIterator));
+    obj->cnt = (int*)malloc(sizeof(int) * (encodingSize / 2));
+    obj->nums = (int*)malloc(sizeof(int) * (encodingSize / 2));    
+    int cntIndex = 0;
+    int numsIndex = 0;
+    for (int i = 0; i < encodingSize; i++) {
+        if (i % 2 == 0) {
+            obj->cnt[cntIndex++] = encoding[i];
+        } else {
+            obj->nums[numsIndex++] = encoding[i];            
+        }
+    }
+    obj->nowIndex = 0;
+    obj->nowLeftCnt = obj->cnt[0];
+    obj->size = encodingSize / 2;
+    return obj;
+}
+
+int rLEIteratorNext(RLEIterator* obj, int n) {
+    int tmpN = n;
+    for (int i = obj->nowIndex; i < obj->size && tmpN > 0; i++) {
+        if (tmpN < obj->nowLeftCnt) {
+            obj->nowIndex = i;
+            obj->nowLeftCnt = obj->nowLeftCnt - tmpN;
+            return obj->nums[obj->nowIndex]; 
+        }
+        if (tmpN == obj->nowLeftCnt) {
+            obj->nowIndex++;
+            if (obj->nowIndex < obj->size) {
+                obj->nowLeftCnt = obj->cnt[obj->nowIndex];
+            }
+            return obj->nums[obj->nowIndex - 1];
+        }
+        if (tmpN > obj->nowLeftCnt) {
+            tmpN -= obj->nowLeftCnt;
+            obj->nowIndex++;
+            if (obj->nowIndex >= obj->size) {
+                break;
+            }
+            obj->nowLeftCnt = obj->cnt[obj->nowIndex];
+        }
+    }
+    return -1;
+}
+
+void rLEIteratorFree(RLEIterator* obj) {
+    free(obj);
+}
