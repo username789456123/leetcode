@@ -1,0 +1,26 @@
+bool match(const char* word, const char* pattern) {
+    char mp[256];
+    memset(mp, 0, sizeof(mp));
+    int len = strlen(word);
+    for (int i = 0; i < len; ++i) {
+        char x = word[i], y = pattern[i];
+        if (!mp[x]) {
+            mp[x] = y;
+        } else if (mp[x] != y) { // word 中的同一字母必须映射到 pattern 中的同一字母上
+            return false;
+        }
+    }
+    return true;
+}
+
+char ** findAndReplacePattern(char ** words, int wordsSize, char * pattern, int* returnSize){
+    char **ans = (char **)malloc(sizeof(char *) * wordsSize);
+    int pos = 0;
+    for (int i = 0; i < wordsSize; i++) {
+        if (match(words[i], pattern) && match(pattern, words[i])) {
+            ans[pos++] = words[i];
+        }
+    }
+    *returnSize = pos;
+    return ans;
+}
