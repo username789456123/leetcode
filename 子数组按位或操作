@@ -1,0 +1,24 @@
+bool hash[1100000001];
+int subarrayBitwiseORs(int* arr, int arrSize){
+    int max = 0,ans = 0;
+    for(int i = 0;i < arrSize;i++)
+        max |= arr[i];  //算出最大的或值
+    for(int i = 0;i < arrSize;i++){
+        int temp = 0;
+        for(int j = i;j < arrSize;j++){
+            temp |= arr[j];
+            hash[temp] = 0;
+            if(temp == max) break;
+        }
+    }
+    hash[max] = 1,ans++;
+    for(int i = 0;i < arrSize;i++){
+        int temp = 0;
+        for(int j = i;j < arrSize;j++){
+            temp |= arr[j];
+            if(!hash[temp])    ans++,hash[temp] = 1;
+            if(temp == max) break;
+        }
+    }
+    return ans;
+}
