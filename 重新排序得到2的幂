@@ -1,0 +1,42 @@
+bool reorderedPowerOf2(int n){
+    int a[31][10]={0};
+
+    int m=1;
+    int i=1;
+    a[0][1]++;
+    while(i<=30)
+    {
+       
+        m=m*2;
+        int b=m;
+        while(b)
+        {
+            a[i][b%10]++;
+            b/=10;
+
+         }
+            i++;
+
+    }
+    int c[10]={0};
+    while(n)
+    {
+        c[n%10]++;
+            n/=10;
+
+    }
+    for(int i=0;i<=30;i++)
+    {
+        int flag=0;
+        for(int j=0;j<10;j++)
+        {
+            if(a[i][j]==c[j])
+            {flag=1;continue;}
+            else
+            {flag=0;break;}
+        }
+        if(flag==1)
+        return true;
+    }
+    return false;
+}
