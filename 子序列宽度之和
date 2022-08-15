@@ -1,0 +1,78 @@
+#define MAX_COUNTER 100001
+
+static const long int module = 1000000007;
+
+/* 全局数组，只初始化一次，后面已经计算过的结果可以直接调用。 */
+long int power2[MAX_COUNTER] = {0};
+
+/* 从小到大排序。 */
+static int compare(const void *a, const void *b)
+{
+    return (*(int *)a < *(int *)b) ? -1 : 1;
+}
+
+/* 计算2的幂次，这里用到了递归。 */
+long int calculatePower2(int x)
+{
+    long int result = 0;
+
+    /* 有结果可以直接调取。 */
+    if(0 != power2[x])
+    {
+        return power2[x];
+    }
+
+    /* 0次方直接等于1。 */
+    if(0 == x)
+    {
+        result = 1;
+    }
+    else
+    {
+        /* 先计算一半的幂次，再算平方。 */
+        result = calculatePower2(x >> 1);
+        result = result * result;
+        /* 奇数次的话，再乘以2。 */
+        if(1 & x)
+        {
+            result = result << 1L;
+        }
+        if(module <= result)
+        {
+            result %= module;
+        }
+    }
+
+    /* 取模之后存到哈希数组中。 */
+    power2[x] = result;
+    return result;
+}
+
+int sumSubseqWidths(int *nums, int numsSize)
+{
+    /* 对排序后的数组，可以从右往左遍历。result先用long int类型存储。 */
+    int x = numsSize - 1;
+    long int y = 0, result = 0;
+
+    /* 先从小到大排序。 */
+    qsort(nums, numsSize, sizeof(int), compare);
+
+    while(0 <= x)
+    {
+        y = calculatePower2(x) - calculatePower2(numsSize - 1 - x);
+        result += y * nums[x];
+        /* 大于module的时候，取模。 */
+        if(module <= result)
+        {
+            result %= module;
+        }
+        /* 这里有个坑，中间过程可能出现负数，要对负数模进行特殊处理。 */
+        else if(0 > result)
+        {
+            result = (result % module + module) % module;
+        }
+        x--;
+    }
+
+    return (int)result;
+}
