@@ -1,0 +1,175 @@
+struct hash_node {
+    int *key;
+    struct hash_node *next;
+};
+
+struct hash {
+    struct hash_node **slots;
+    int size;
+};
+
+struct hash *hash_init() {
+    struct hash *hash = NULL;
+    hash = malloc(sizeof(struct hash));
+    if (hash == NULL) return NULL;
+    assert(hash);
+
+    hash->slots = NULL;
+    hash->size = 1001;
+
+    hash->slots = calloc(1001, sizeof(struct hash_node *));
+    if (hash->slots == NULL) {
+        free(hash);
+        return NULL;
+    }
+    assert(hash);
+
+    return hash;
+}
+
+void hash_put(struct hash *hash, int *key) {
+    // 考虑到负数的存在，故采用无符号整数表示下标
+    // 当然，加一个判断，把负数转成正数也是可以的
+    unsigned int index = (unsigned int)key[0] % hash->size;
+    struct hash_node *node = malloc(sizeof(struct hash_node));
+    if (node == NULL) {
+        perror("malloc failed in put()");
+        exit(1);
+    }
+    assert(node);
+
+    node->next = NULL;
+    node->key = key;
+
+    node->next = hash->slots[index];
+    hash->slots[index] = node;
+    return;
+}
+
+bool hash_contains(struct hash *hash, int x, int y) {
+    unsigned int index = (unsigned int)x % hash->size;
+    struct hash_node *node = NULL;
+    node = hash->slots[index];
+    
+    while (node) {
+        if (node->key[0] == x && node->key[1] == y) 
+            return 1;
+        node = node->next;
+    }
+    return 0;
+}
+
+// 当需要前进的时候，通过该函数实现 判断是否被阻挡
+// 如果被阻挡则停止前进，否则在相应的方向前进相应的步数
+void solution(struct hash *hash, int *x, int *y, int *max, int flag, int steps) {
+    int i, target;
+
+    // 分别对应上下左右四个方向（或者说四种情况）
+    if (flag == 0) { // up
+        while (steps) {
+            // 如果哈希表中包含下一步所对应的坐标，则函数终止
+            //（说明要走向的下一个格子上有障碍物, 无法前进）
+            if (hash_contains(hash, *x, *y + 1)) break;
+            else { // 否则说明下一步对应的格子上没有障碍物，可以前进
+                (*y)++; 
+                steps--; // 每次只能前进一步，且每前进一步之前都要进行判断
+            }
+        }
+        if (*x * *x + *y * *y > *max)
+            *max = *x * *x + *y * *y;
+        return;
+    } else if (flag == 2) { // down
+        while (steps) {
+            if (hash_contains(hash, *x, *y - 1)) break;
+            else {
+                (*y)--; 
+                steps--;
+            }
+        }
+        if (*x * *x + *y * *y > *max)
+            *max = *x * *x + *y * *y;
+        return;
+    } else if (flag == 3) { // left
+        while (steps) {
+            if (hash_contains(hash, *x - 1, *y)) break;
+            else {
+                (*x)--; 
+                steps--;
+            }
+        }
+        if (*x * *x + *y * *y > *max)
+            *max = *x * *x + *y * *y;
+        return;
+    } else if (flag == 1) { // right
+        while (steps) {
+            if (hash_contains(hash, *x + 1, *y)) break;
+            else {
+                (*x)++; 
+                steps--;
+            }
+        }
+        if (*x * *x + *y * *y > *max)
+            *max = *x * *x + *y * *y;
+        return;
+    }
+    return;
+}
+
+int robotSim(int* commands, int commandsSize, int** obstacles, int obstaclesSize, int* obstaclesColSize) {
+    int max = 0; // 用于记录 最大欧式距离的平方
+    int steps; // 用于记录需要前进的步数
+    int now_x = 0, now_y = 0; // 用于记录当前位置
+    int i, stat = 0; // stat 用于记录状态
+    int flag = 0; // 用于记录前进方向 0 1 2 3 对应 上 右 下 左
+
+    // 把障碍点存入哈希表
+    struct hash *hash = hash_init();
+    for (i = 0; i < obstaclesSize; i++) {
+        hash_put(hash, obstacles[i]);
+    }
+
+    i = 0; // i 接下来用于表示数组的下标，从 0 开始
+    while (1) {
+        switch (stat) {
+            case 0:
+            // 如果数组已经遍历完了，则返回答案，程序运行结束
+            if (i == commandsSize) goto outer;
+            
+            // 如果需要转向，则进入相应的实现转向的代码块
+            if (commands[i] < 0) stat = commands[i];
+            else { // 否则进入实现前进的代码块
+                stat = 1; 
+                steps = commands[i]; // 记录需要前进的步数
+            }
+
+            i++;
+            break;
+            
+            case -1: // 实现右转90°
+            flag = (flag + 1) % 4;
+            stat = 0; // 使程序重新回到 case 0
+            break;
+
+            case -2: // 实现左转90°
+            flag += 3; // 左转90°等价于右转270°
+            flag %= 4;
+            stat = 0;
+            break;
+
+            case 1:
+            // 由于可能需要对当前的 横纵坐标 及 最大值进行修改
+            // 故需要传入这三个参数的地址，否则无法实现修改
+            solution(hash, &now_x, &now_y, &max, flag, steps);
+            stat = 0;
+            break;
+
+            default : 
+            // 代码其实不会运行到这里，因为 stat 只有 0 1 -1 -2 这几种情况
+            assert(0);
+            goto outer;
+        }
+    }
+
+outer:
+    return max;
+}
