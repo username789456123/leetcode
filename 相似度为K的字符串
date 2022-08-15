@@ -1,0 +1,38 @@
+void Swap(char *a,char *b){
+    char mid=*a; *a=*b; *b=mid;
+}
+int min;
+int len;
+int map[1050000];
+void dfs(char *s1,char *s2,int num,int step,int value){
+    if(num==0){if(step<min)min=step; return;}
+    if(step>=min)return;
+    if(step>=map[value])return; map[value]=step;
+    int i,j;
+    for(i=0;i<len;i++){
+        if(s1[i]!=s2[i]){
+            for(j=i+1;j<len;j++){
+                if(s1[j]!=s2[j]&&s1[j]==s2[i]){
+                    Swap(&s1[i],&s1[j]);
+                    value|=1<<i;
+                    if(s1[j]==s2[j]){
+                        value|=1<<j;
+                        dfs(s1,s2,num-2,step+1,value);
+                        value^=1<<j;
+                    }else dfs(s1,s2,num-1,step+1,value);
+                        Swap(&s1[i],&s1[j]);    value^=1<<i;
+                    
+                }
+            }
+        }
+    }
+
+}
+
+int kSimilarity(char * s1, char * s2){
+    min=INT_MAX; len=strlen(s1); int i,sum=0; memset(map,0x3f,sizeof(map)); int value=0;
+    for(i=0;i<len;i++){if(s1[i]!=s2[i])sum++;else value|=(1<<i);}
+    dfs(s1,s2,sum,0,value);
+    int res=min;
+    return res;
+}
