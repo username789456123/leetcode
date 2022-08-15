@@ -1,0 +1,87 @@
+typedef struct {
+    int val;
+    int cnt;
+    struct FreqStack *next;
+} FreqStack;
+
+int arr[10000][2];
+int arr_cnt;
+
+FreqStack* freqStackCreate() {
+    FreqStack *obj = malloc(sizeof(FreqStack));
+    obj->next = NULL;
+    arr_cnt = 0;
+    return obj;
+}
+
+void freqStackPush(FreqStack* obj, int val) {
+    int val_cnt;
+    int flag = 0;
+    for(int i=0; i<arr_cnt; i++){
+        if(arr[i][0] == val){
+            flag = 1;
+            arr[i][1]++;
+            val_cnt = arr[i][1];
+            break;
+        }
+    }
+    if(flag == 0){
+        arr[arr_cnt][0] = val;
+        arr[arr_cnt][1] = 1;
+        arr_cnt++;
+        val_cnt = 1;
+    }
+    FreqStack *node = malloc(sizeof(FreqStack));
+    node->val = val;
+    node->cnt = val_cnt;
+    node->next = NULL;
+
+    FreqStack *curr, *pre;
+    pre = obj;
+    curr = obj->next;
+    int flag_null = 0;
+    while(curr != NULL){
+        if(curr->cnt > val_cnt){
+            pre = curr;
+            curr = curr->next;
+        }else{
+            pre->next = node;
+            node->next = curr;
+            flag_null = 1;
+            break;
+        }
+    }
+    if(flag_null == 0){
+        pre->next = node;
+    }
+
+}
+
+int freqStackPop(FreqStack* obj) {
+    FreqStack *curr;
+    int rc;
+    curr = obj->next;
+    rc = curr->val;
+    obj->next = curr->next;
+    free(curr);
+
+    for(int i=0; i<arr_cnt; i++){
+        if(rc == arr[i][0]){
+            arr[i][1]--;
+            break;
+        }
+    }
+
+    return rc;
+}
+
+void freqStackFree(FreqStack* obj) {
+    FreqStack *curr;
+    curr = obj->next;
+    while(curr != NULL){
+        obj->next = curr->next;
+        free(curr);
+        curr = obj->next;
+    }
+    free(obj);
+}
