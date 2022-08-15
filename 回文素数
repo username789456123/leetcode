@@ -1,0 +1,54 @@
+/* 判断回文数 */
+bool isPalindrome(int x) {
+    if (x < 0 || (x % 10 == 0 && x != 0)) {
+        return false;
+    }
+    int revertedNumber = 0;
+    while (x > revertedNumber) {
+        revertedNumber = revertedNumber * 10 + x % 10;
+        x /= 10;
+    }
+    return x == revertedNumber || x == revertedNumber / 10;
+}
+/* 计算数字的位数 */
+int numlen(int x){
+    x = abs(x);
+    if(x < 10)return 1;
+    else return numlen(x/10) + 1;
+}
+/* 下一个回文数 */
+int nextPal(int x){
+    if(isPalindrome(x) == false)return -1;
+    int n = numlen(x);
+    int p = pow(10, n/2);
+
+    /* 计算数的左边一半，加一后翻转，再拼接 */
+    int left = x / p;
+    left++;
+    int right = 0;
+    int temp = left;
+    while(temp > 0){
+        right = right * 10 + temp % 10;
+        temp /= 10;
+    }
+    return left * p + right % p;        //拼接左右
+}
+/* 判断素数 */
+bool isPrime(int n){
+    if(n < 2)return false;
+    for(int i = 2; i * i <= n; i++){
+        if(n % i == 0)return false;
+    }
+    return true;
+}
+/* 找到回文数，判断是不是素数 */
+int primePalindrome(int N){
+    for(int i = N; i < 2e8; i++){
+        if(isPalindrome(i)){
+            if(isPrime(i))return i;
+            else i = nextPal(i) - 1;
+        }
+        
+    }
+    return -1;
+}
