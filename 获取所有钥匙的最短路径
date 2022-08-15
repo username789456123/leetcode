@@ -1,0 +1,155 @@
+#define ROW_MAX 30
+#define COLUMN_MAX 30
+#define KEY_MAX 6
+#define KEY_STATUS_MAX 64
+
+// 注意是3维空间，那么队列个数范围也要考虑第3维，否则bfs过程中入队操作会超出范围
+#define QUE_MAX ((ROW_MAX) * (COLUMN_MAX) * KEY_STATUS_MAX)
+
+struct note {
+    int x;       // 横坐标
+    int y;       // 纵坐标
+    int step;    // 步数
+    int status;  // 当前钥匙状态，也记录至队列中，便于更新第3维度
+};
+
+struct note que[QUE_MAX];
+
+int next[4][2] = {
+    { 0, 1 },   // 右
+    { 1, 0 },   // 下
+    { 0, -1 },  // 左
+    { -1, 0 },  // 上
+};
+
+int bfs(int startx, int starty, char **grid, int m, int n, int end_status, int ***book)
+{
+    int i;
+    int head, tail;
+    int flag = 0;  // 用来标记是否到达目标点，0表示暂时还没有到达，1表示到达;
+    int nextx, nexty, next_status;
+    int min_step = -1;
+
+    // 队列初始化
+    head = 0;
+    tail = 0;
+    // 往队列中插入迷宫入口坐标
+    que[tail].x = startx;
+    que[tail].y = starty;
+    que[tail].step = 0;
+    que[tail].status = 0;  // 钥匙状态
+    tail++;
+    book[startx][starty][0] = 1; // 意思表示，起点0,0处，钥匙状态为0的点已经走过
+
+    // 当队列不为空的时候循环
+    while (head < tail) {
+        // 枚举4个方向
+        for (i = 0; i < 4; i++) {
+            // 计算下一个点的坐标
+            nextx = que[head].x + next[i][0];
+            nexty = que[head].y + next[i][1];
+
+            // 判断是否越界
+            if (nextx < 0 || nextx >= m || nexty < 0 || nexty >= n) {
+                continue;
+            }
+            // 判断是否是墙
+            if (grid[nextx][nexty] == '#') {
+                continue;
+            }
+            // 如果是空房间或者起点，且没有走过
+            if (((grid[nextx][nexty] == '.') || (grid[nextx][nexty] == '@')) && (book[nextx][nexty][que[head].status] == 0)) {
+                next_status = que[head].status;
+                book[nextx][nexty][que[head].status] = 1;  // 把这个点标记为已经走过
+                que[tail].x = nextx;     // 插入新的点到队列中
+                que[tail].y = nexty;
+                que[tail].step = que[head].step + 1;  // 步数是父亲的步数加1
+                que[tail].status = next_status;        // 已经消除障碍物个数等于父亲
+                tail++;
+            }
+            // 如果是钥匙，且没有走过
+            if (islower(grid[nextx][nexty]) && (book[nextx][nexty][que[head].status | (1 << (grid[nextx][nexty] - 'a'))] == 0)) {
+                next_status = (que[head].status | (1 << (grid[nextx][nexty] - 'a')));
+                book[nextx][nexty][next_status] = 1;  // 把这个点标记为已经走过
+                que[tail].x = nextx;     // 插入新的点到队列中
+                que[tail].y = nexty;
+                que[tail].step = que[head].step + 1;  // 步数是父亲的步数加1
+                que[tail].status = next_status;    // 已经消除障碍物个数等于父亲+1
+                tail++;
+            }
+            // 如果是锁，且已经获取对应的钥匙，且没有走过
+            if (isupper(grid[nextx][nexty]) && (que[head].status & (1 << (grid[nextx][nexty] - 'A'))) && (book[nextx][nexty][que[head].status] == 0)) {
+                next_status = que[head].status;
+                book[nextx][nexty][que[head].status] = 1;  // 把这个点标记为已经走过
+                que[tail].x = nextx;     // 插入新的点到队列中
+                que[tail].y = nexty;
+                que[tail].step = que[head].step + 1;  // 步数是父亲的步数加1
+                que[tail].status = next_status;    // 已经消除障碍物个数等于父亲+1
+                tail++;
+            }
+            // 如果到达目标点，停止扩展，任务结束，退出循环
+            if (next_status == end_status) {
+                // 标记找到
+                flag = 1;
+                break;
+            }
+        }
+        // 如果找到
+        if (flag == 1) {
+            min_step = que[tail - 1].step;
+            break;
+        }
+        head++;  // 当一个点扩展结束后，head++才能对后面的点再进行扩展，出队列
+    }
+
+    return min_step;
+}
+
+int shortestPathAllKeys(char **grid, int gridSize)
+{
+    int i, j;
+    int result;
+    int m = gridSize;
+    int n = strlen(grid[0]);
+    int startx, starty;
+    int key_num = 0;
+
+    for (i = 0; i < m; i++) {
+        for (j = 0; j < n; j++) {
+            if (grid[i][j] == '@') {
+                startx = i;
+                starty = j;
+            }
+            if (islower(grid[i][j])) {
+                key_num++;
+            }
+        }
+    }
+
+    int ***book = (int ***)malloc(m * sizeof(int **));
+    if (book == NULL) {
+        return -1;
+    }
+    memset(book, 0, m * sizeof(int **));
+    for (i = 0; i < m; i++) {
+        book[i] = (int **)malloc(n * sizeof(int *));
+        if (book[i] == NULL) {
+            return -1;
+        }
+        memset(book[i], 0, n * sizeof(int *));
+    }
+    for (i = 0; i < m; i++) {
+        for (j = 0; j < n; j++) {
+            book[i][j] = (int *)malloc(sizeof(int) * pow(2, key_num));
+            if (book[i][j] == NULL) {
+                return -1;
+            }
+            memset(book[i][j], 0, sizeof(int) * pow(2, key_num));
+        }
+    }
+
+    // bfs计算最短路径
+    result = bfs(startx, starty, grid, m, n, pow(2, key_num) - 1, book);
+
+    return result;
+}
