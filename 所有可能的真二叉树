@@ -1,0 +1,65 @@
+typedef struct {
+    struct TreeNode **trees;
+    int size;
+} Entry;
+
+Entry *dp[21] = {0};
+
+struct TreeNode *createNode() {
+    struct TreeNode *p = malloc(sizeof(struct TreeNode));
+    p->left = p->right = NULL;
+    p->val = 0;
+    return p;
+}
+
+struct TreeNode *copyTree(struct TreeNode *root) {
+    if (!root) return NULL;
+    struct TreeNode *p = createNode();
+    p->left = copyTree(root->left);
+    p->right = copyTree(root->right);
+    return p;
+}
+
+struct TreeNode** allPossibleFBT(int N, int* returnSize){
+    if (dp[N]) {
+        *returnSize = dp[N]->size;
+        return dp[N]->trees;
+    }
+    if (N == 1) {
+        dp[1] = malloc(sizeof(Entry));
+        dp[1]->trees = malloc(sizeof(struct TreeNode*));
+        dp[1]->trees[0] = createNode();
+        *returnSize = dp[1]->size = 1;
+        return dp[1]->trees;
+    } else if (N % 2 == 0) {
+        dp[N] = malloc(sizeof(Entry));
+        dp[N]->trees = malloc(0);
+        dp[N]->size = 0;
+        *returnSize = 0;
+        return dp[N]->trees;
+    } else {
+        dp[N] = malloc(sizeof(Entry));
+        dp[N]->size = 0;
+        dp[N]->trees = malloc(0);
+        for (int i=1; N-1-i > 0; ++i) {
+            int sizeLeft,sizeRight;
+            struct TreeNode **leftTrees = allPossibleFBT(i, &sizeLeft),
+                **rightTrees = allPossibleFBT(N-1-i, &sizeRight);
+            if (sizeRight > 0 && sizeLeft > 0) {
+                for (int I=0; I<sizeLeft; ++I) {
+                    for (int J=0; J<sizeRight; ++J) {
+                        struct TreeNode *p = createNode();
+                        // p->left = copyTree(leftTrees[I]);
+                        // p->right = copyTree(rightTrees[J]);
+                        p->left = leftTrees[I];
+                        p->right = rightTrees[J];
+                        dp[N]->trees = realloc(dp[N]->trees, ++(dp[N]->size) * sizeof(struct TreeNode*));
+                        dp[N]->trees[dp[N]->size - 1] = p;
+                    }
+                }
+            }
+        }
+        *returnSize = dp[N]->size;
+        return dp[N]->trees;
+    }
+}
