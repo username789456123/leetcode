@@ -1,0 +1,37 @@
+struct HashTable {
+    int x;
+    UT_hash_handle hh;
+};
+
+int* fairCandySwap(int* aliceSizes, int aliceSizesSize, int* bobSizes, int bobSizesSize, int* returnSize) {
+    int sumA = 0, sumB = 0;
+    for (int i = 0; i < aliceSizesSize; i++) {
+        sumA += aliceSizes[i];
+    }
+    for (int i = 0; i < bobSizesSize; i++) {
+        sumB += bobSizes[i];
+    }
+    int delta = (sumA - sumB) / 2;
+    struct HashTable* hashTable = NULL;
+    for (int i = 0; i < aliceSizesSize; i++) {
+        struct HashTable* tmp;
+        HASH_FIND_INT(hashTable, &aliceSizes[i], tmp);
+        if (tmp == NULL) {
+            tmp = malloc(sizeof(struct HashTable));
+            tmp->x = aliceSizes[i];
+            HASH_ADD_INT(hashTable, x, tmp);
+        }
+    }
+    int* ans = malloc(sizeof(int) * 2);
+    for (int i = 0; i < bobSizesSize; i++) {
+        int x = bobSizes[i] + delta;
+        struct HashTable* tmp;
+        HASH_FIND_INT(hashTable, &x, tmp);
+        if (tmp != NULL) {
+            ans[0] = x, ans[1] = bobSizes[i];
+            *returnSize = 2;
+            break;
+        }
+    }
+    return ans;
+}
