@@ -1,0 +1,45 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+    //最深子树可能是很多个，所以需要找到他们的最小公共子树
+    //这个val可以用来记录吧，其深度就是左右子树深度的最小值
+    //先找到最深层数
+    //有一个节点
+
+int depth(struct TreeNode* root){
+    //先找最深的节点的层数
+    if(root == NULL){
+        return 0;
+    }
+    return fmax(depth(root->left), depth(root->right))+1;
+}
+
+struct TreeNode* subtreeWithAllDeepest(struct TreeNode* root){
+    if(root == NULL){
+        return NULL;
+    }
+    //从根节点开始，公共节点要么是自己，即左右相等
+    //要么选择最大的那个子树，可能是公共节点，然后一直寻找
+
+    int ldepth, rdepth;
+    ldepth = depth(root->left);
+    rdepth = depth(root->right);
+    //找到左右节点的深度
+
+    if(ldepth == rdepth){
+        return root;
+    }
+    //相等时，那么这个父节点就是左右节点的公共最深节点，可以直接返回
+    else if(ldepth > rdepth){
+        return subtreeWithAllDeepest(root->left);
+        //不相等时就不是，分别去看左右子树
+    }
+    else{
+        return subtreeWithAllDeepest(root->right);
+    }
+}
