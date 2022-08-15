@@ -1,0 +1,25 @@
+static int cmp(const int** a, const int** b){
+    return *a[0] - *b[0];
+}
+
+int carFleet(int target, int* position, int positionSize, int* speed, int speedSize){
+    int res = 1;
+    int sz = sizeof(int*);
+    int sz1 = sizeof(int);
+    int** arr = malloc(sz * positionSize);
+    for (int i = 0; i < positionSize; i++){
+        arr[i] = malloc(sz1 * 2);
+        arr[i][0] = position[i];
+        arr[i][1] = speed[i];
+    }
+    qsort(arr, positionSize, sz, cmp);
+    int cur = positionSize - 1;
+    //后面的车追上了前面的车，就会和前面的车保持一致的速度啦，这样就只需要排序后从后向前遍历即可了
+    for (int i = positionSize - 2; i >= 0; i--){
+        if ((long long)(target - arr[cur][0]) * arr[i][1] < (long long)(target - arr[i][0]) * arr[cur][1]){
+            res++;
+            cur = i;
+        }
+    }
+    return res;
+}
