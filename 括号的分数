@@ -1,0 +1,28 @@
+int CalScore(char *S, int len)
+{
+    int i;
+    int j = 1;
+    if (len == 2) {
+        return 1;
+    }
+    for (i = 1; i < len; i++) {
+        if (S[i] == '(') {
+            j++;
+        } else {
+            j--;
+        }
+        if (j == 0) {
+            break;
+        }
+    }
+    if (i == len - 1) {
+        return CalScore(S + 1, len - 2) * 2;
+    } else {
+        return CalScore(S, i + 1) + CalScore(S + i + 1, len - i - 1);
+    }
+}
+
+int scoreOfParentheses(char * S){
+    int len = strlen(S);
+    return CalScore(S, len);
+}
