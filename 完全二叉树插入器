@@ -1,0 +1,159 @@
+typedef struct DLinkListNode {
+    struct TreeNode *val;
+    struct DLinkListNode *prev, *next;
+} DLinkListNode;
+
+typedef struct {
+    DLinkListNode *head, *tail;
+    int size;
+} Deque;
+
+DLinkListNode * dLinkListNodeCreat(struct TreeNode* val) {
+    DLinkListNode *obj = (DLinkListNode *)malloc(sizeof(DLinkListNode));
+    obj->val = val;
+    obj->prev = NULL;
+    obj->next = NULL;
+    return obj;
+} 
+
+Deque* dequeCreate() {
+    Deque *obj = (Deque *)malloc(sizeof(Deque));
+    obj->size = 0;
+    obj->head = obj->tail = NULL;
+    return obj;
+}
+
+bool dequeInsertFront(Deque* obj, struct TreeNode* value) {
+    DLinkListNode *node = dLinkListNodeCreat(value);
+    if (obj->size == 0) {
+        obj->head = obj->tail = node;
+    } else {
+        node->next = obj->head;
+        obj->head->prev = node;
+        obj->head = node;
+    }
+    obj->size++;
+    return true;
+}
+
+bool dequeInsertLast(Deque* obj, struct TreeNode* value) {
+    DLinkListNode *node = dLinkListNodeCreat(value);
+    if (obj->size == 0) {
+        obj->head = obj->tail = node;
+    } else {
+        obj->tail->next = node;
+        node->prev = obj->tail;
+        obj->tail = node;
+    }
+    obj->size++;
+    return true;
+}
+
+bool dequeDeleteFront(Deque* obj) {
+    if (obj->size == 0) {
+        return false;
+    }
+    DLinkListNode *node = obj->head;
+    obj->head = obj->head->next;
+    if (obj->head) {
+        obj->head->prev = NULL;
+    }
+    free(node);
+    obj->size--;
+    return true;
+}
+
+bool dequeDeleteLast(Deque* obj) {
+    if (obj->size == 0) {
+        return false;
+    }
+    DLinkListNode *node = obj->tail;
+    obj->tail = obj->tail->prev;
+    if (obj->tail) {
+        obj->tail->next = NULL;
+    }
+    free(node);
+    obj->size--;
+    return true;
+}
+
+struct TreeNode* dequeGetFront(Deque* obj) {
+    if (obj->size == 0) {
+        return NULL;
+    }
+    return obj->head->val;
+}
+
+struct TreeNode* dequeGetRear(Deque* obj) {
+    if (obj->size == 0) {
+        return NULL;
+    }
+    return obj->tail->val;
+}
+
+bool dequeIsEmpty(Deque* obj) {
+    return obj->size == 0;
+}
+
+void dequeFree(Deque* obj) {
+    for (DLinkListNode *curr = obj->head; curr;) {
+        DLinkListNode *node = curr;
+        curr = curr->next;
+        free(node);
+    }
+    free(obj);
+}
+
+typedef struct {
+    Deque* candidate;
+    struct TreeNode* root;
+} CBTInserter;
+
+
+CBTInserter* cBTInserterCreate(struct TreeNode* root) {
+    CBTInserter *obj = (CBTInserter *)malloc(sizeof(CBTInserter));
+    obj->candidate = dequeCreate();
+    obj->root = root;
+    Deque *q = dequeCreate();
+    dequeInsertLast(q, root);
+    while (!dequeIsEmpty(q)) {
+        struct TreeNode* node = dequeGetFront(q);
+        dequeDeleteFront(q);
+        if (node->left) {
+            dequeInsertLast(q, node->left);
+        }
+        if (node->right) {
+            dequeInsertLast(q, node->right);
+        }
+        if (!(node->left && node->right)) {
+            dequeInsertLast(obj->candidate, node);
+        }
+    }
+    return obj;
+}
+
+int cBTInserterInsert(CBTInserter* obj, int val) {
+    struct TreeNode* child = (struct TreeNode *)malloc(sizeof(struct TreeNode));
+    child->val = val;
+    child->left = NULL;
+    child->right = NULL;
+    struct TreeNode* node = dequeGetFront(obj->candidate);
+    int ret = node->val;
+    if (!node->left) {
+        node->left = child;
+    } else {
+        node->right = child;
+        dequeDeleteFront(obj->candidate);
+    }
+    dequeInsertLast(obj->candidate, child);
+    return ret;
+}
+
+struct TreeNode* cBTInserterGet_root(CBTInserter* obj) {
+    return obj->root;
+}
+
+void cBTInserterFree(CBTInserter* obj) {
+    dequeFree(obj->candidate);
+    free(obj);
+}
