@@ -1,0 +1,97 @@
+typedef struct {
+    int times[5000]; /* 投票时间数组，传递下去用于二分查找距离target最近的时间 */
+    int timesSize; /* 投票时间数组大小 */
+    int winner[5000]; /* 每一个投票时间累计投票数对应的胜利者 */
+} TopVotedCandidate;
+
+typedef struct {
+    int person; /* 人物id作为key */
+    int index; /* 时间索引 */
+    int count; /* 个数 */
+    UT_hash_handle hh;
+} Hash;
+
+Hash *g_user = NULL;
+
+/* 比较函数，排序时 优先票数多的，票数一样时index时间索引靠后的、大的 */
+int CMP(void *a, void *b)
+{
+    Hash *aa = (Hash*)a;
+    Hash *bb = (Hash*)b;
+    if (aa->count == bb->count) {
+        return bb->index - aa->index;
+    }
+    return bb->count - aa->count;
+}
+
+TopVotedCandidate* topVotedCandidateCreate(int* persons, int personsSize, int* times, int timesSize) {
+    /* data变量用来保存times数组，以及排好序的每个时刻的胜利者 */
+    TopVotedCandidate *data = (TopVotedCandidate*)calloc(1, sizeof(TopVotedCandidate));
+    data->timesSize = timesSize;
+    Hash *temp = NULL;
+    g_user = NULL;
+    /* 这里很巧妙，每投票一个人，如果hash表里没这个人，就增加，如果有，个数增加，时间节点index换成最新的 */
+    for (int i = 0; i < timesSize; i++) {
+        data->times[i] = times[i];
+        temp = NULL;
+        HASH_FIND_INT(g_user, &persons[i], temp);
+        if (temp == NULL) {
+            temp = (Hash*)calloc(1, sizeof(Hash));
+            temp->person = persons[i];
+            temp->index = i;
+            temp->count = 1;
+            HASH_ADD_INT(g_user, person, temp);
+        } else {
+            temp->index = i;
+            temp->count++;
+        }
+        /* 每投票一次就排序一次，把每个时间节点的胜利者都统计出来存到data里 */
+        HASH_SORT(g_user, CMP);
+        Hash *cur = NULL;
+        Hash *tar = NULL;
+        HASH_ITER(hh, g_user, cur, tar) {
+            if (cur) {
+                data->winner[i] = cur->person;
+                break;
+            }
+        }
+    }
+    /* 把data传递下去 */
+    return data;
+}
+
+/* 二分查找，找target，如果有就返回target，如果没有就返回比target小的最大值（比target小，距离target最近） */
+int BinaryFind(int *array, int arraySize, int target)
+{
+    int left = 0; 
+    int right = arraySize - 1;
+    int ans;
+    while (left <= right) {
+        int middle = (left + right) >> 1;
+        if (array[middle] <= target) {
+            ans = middle;
+            left = middle + 1;
+        } else {
+            right = middle - 1;
+        }
+    }
+    return ans;
+}
+
+int topVotedCandidateQ(TopVotedCandidate* obj, int t) {
+    /* 二分找到index后，直接输出胜利者id即可 */
+    int len = obj->timesSize;
+    int res = BinaryFind(obj->times, obj->timesSize, t);
+    return obj->winner[res];
+}
+
+void topVotedCandidateFree(TopVotedCandidate* obj) {
+    Hash *cur = NULL;
+    Hash *tar = NULL;
+    HASH_ITER(hh, g_user, cur, tar) {
+        if (cur) {
+            HASH_DEL(g_user, cur);
+            cur = NULL;
+        }
+    }
+}
