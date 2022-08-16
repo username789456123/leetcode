@@ -1,0 +1,74 @@
+typedef struct{
+    int x;
+    int y;
+}Point;
+int **g_graph;
+int g_graphSize;
+int *g_initial;
+int g_initialSize;
+int visited[300];
+int cmp(const void * a, const void *b){
+    int val1 = *((int*)a);
+    int val2 = *((int*)b);
+    if (val1 > val2){
+        return 1;
+    }
+    return -1;
+}
+int getSavedCountSize(int initIndex, int currIndex)
+{
+    if (visited[currIndex] != 0){
+        return visited[currIndex] == -1? -1 : 0;
+    }
+    if(currIndex != initIndex){
+        for (int i = 0; i < g_initialSize; i++){
+            if(currIndex == g_initial[i]){
+                return -1;
+            }
+        }        
+    }
+    visited[currIndex] = 1;
+    int ret = 0;
+    for (int i = 0; i < g_graphSize; i++){
+        if (i == currIndex || g_graph[currIndex][i] == 0){
+            continue;
+        }
+        int cnt  = getSavedCountSize(initIndex, i);
+        if (cnt == -1){
+            if (currIndex == initIndex){
+                continue;
+            }
+            visited[currIndex] = -1;
+            return -1;
+        }
+        ret += cnt;
+    }
+    
+    return ret + 1;
+}
+int minMalwareSpread(int** graph, int graphSize, int* graphColSize, int* initial, int initialSize){
+    if (initialSize == graphSize){
+        return 0;
+    }
+    g_initial = initial;
+    g_initialSize = initialSize;
+    g_graph = graph;
+    g_graphSize = graphSize;
+    qsort(initial, initialSize, sizeof(int), cmp);
+
+    int minInfect = 0;
+    int minPos = 0;
+
+    for (int i = 0; i < initialSize; i++){
+        int minInfectedTemp = 0;
+        memset(visited, 0, sizeof(visited));
+        minInfectedTemp = getSavedCountSize(initial[i], initial[i]);
+
+        if (minInfect < minInfectedTemp){
+            minInfect = minInfectedTemp;
+            minPos = i;
+        }
+    }
+
+    return initial[minPos];
+}
