@@ -1,0 +1,75 @@
+static int min(const int a, const int b){
+    return a < b ? a : b;
+}
+void init(int* set, int* num,int len){
+    for (int i = 0; i < len; i++){
+        set[i] = i;
+        num[i] = 1;
+    }
+}
+
+int find(int* set, int x){
+    if (set[x] != x){
+        set[x] = find(set, set[x]);
+    }
+    return set[x];
+}
+
+void unions(int* set, int* num,int x, int y){
+    int px = find(set, x);
+    int py = find(set, y);
+    if (px != py){
+        set[px] = py;
+        num[px] = num[py] + num[px];
+        num[py] = num[px];
+    }
+}
+
+int getSize(int* set, int* num, int x, int* pa){
+    *pa = find(set, x);
+    return num[*pa];
+}
+
+int minMalwareSpread(int** graph, int graphSize, int* graphColSize, int* initial, int initialSize){
+    int* findSet = malloc(graphSize * sizeof(int));
+    int* num = malloc(graphSize * sizeof(int));
+    init(findSet, num, graphSize);
+    for (int i = 0; i < graphSize; i++){
+        for (int j = 0; j < graphColSize[i]; j++){
+            if (graph[i][j] == 1){
+                unions(findSet, num, i, j);
+            }
+        }
+    }
+    int max = 0;
+    int index = INT_MAX;
+    int* finds = malloc((graphSize + 1) * sizeof(int));
+    int* ele = malloc((graphSize + 1) * sizeof(int));
+    memset(finds, 0,  (graphSize + 1) * sizeof(int));
+    memset(ele, 0,  (graphSize + 1) * sizeof(int));
+    int pa = 0;
+    int mins = graphSize;
+    for (int i = 0; i < initialSize; i++){//检查initial中的每个元素所在的集合以及该集合的大小，如果有相同集合的元素存在
+        //那么该集合的大小就设置为-1
+        mins = min(initial[i], mins);
+        int sz = getSize(findSet, num, initial[i], &pa);
+        if (finds[pa] == 0){
+            finds[pa] = sz;
+            ele[pa] = initial[i];
+        }else if (finds[pa] > 0){
+            finds[pa] = -1;
+        }
+    }
+    for (int i = 0; i <= graphSize; i++){//寻找目标值
+        if (finds[i] > max){
+            max = finds[i];
+            index = ele[i];
+        }else if (finds[i] == max){
+            index = min(ele[i], index);
+        }
+    }
+    if (max == 0){//没找到，返回initial中最小的值
+        return mins;
+    }
+    return index;
+}
