@@ -1,0 +1,50 @@
+//! 递归函数，
+void quick_sort (int* nums,int p, int r);
+// 分区函数
+int partition (int* nums, int p, int r);
+//！ 交换函数
+void swap(int *nums, int i,int j);
+
+int* sortArray(int* nums, int numsSize, int* returnSize){
+  quick_sort(nums, 0, numsSize-1);
+  *returnSize = numsSize;
+  return nums;
+}
+
+void quick_sort (int* nums,int p, int r) {
+  if (p >= r) {
+    return;
+  }
+  int q;
+  //!  
+  q = partition(nums, p, r);
+  quick_sort(nums, p,q-1);
+  quick_sort(nums, q+1, r);
+}
+
+int partition (int* nums, int p, int r) {
+  int i,j;
+  i = j = p;
+
+  //! 随机选择一个元素作为锚点，跟最后一个元素交换
+  int q = rand() % (r - p + 1) + p;
+  swap(nums,q,r);
+ 
+  for (; j < r; j++) {
+    if (nums[j] < nums[r]) {
+      if (i != j) {
+        swap(nums,i,j);
+      }
+      i++;
+    }
+  }
+  swap(nums,i,r);
+  return i;
+}
+
+//！ 交换函数
+void swap(int *nums, int i,int j) {
+  int tmp = nums[i];
+  nums[i] = nums[j];
+  nums[j] = tmp;
+}
