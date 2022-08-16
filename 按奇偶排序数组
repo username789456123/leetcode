@@ -1,0 +1,15 @@
+int* sortArrayByParity(int* nums, int numsSize, int* returnSize) {
+    int *res = (int *)malloc(sizeof(int) * numsSize), index = 0;
+    for (int i = 0; i < numsSize; i++) {
+        if (nums[i] % 2 == 0) {
+            res[index++] = nums[i];
+        }
+    }
+    for (int i = 0; i < numsSize; i++) {
+        if (nums[i] % 2 == 1) {
+            res[index++] = nums[i];
+        }
+    }
+    *returnSize = numsSize;
+    return res;
+}
