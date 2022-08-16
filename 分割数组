@@ -1,0 +1,32 @@
+int partitionDisjoint(int *A, int ASize) {
+    int pos = 0;
+    int leftMax = A[0];
+    int temp = 0;
+
+    int i = 1;
+    while (i < ASize) {
+        if (leftMax > A[i]) {
+            ++i;
+            continue;
+        }
+
+        temp = A[i];
+        pos = i - 1;
+        ++i;
+        while (i < ASize) {
+            if (A[i] > temp)
+                temp = A[i];
+
+            if (A[i] >= leftMax) {
+                ++i;
+                continue;
+            }
+
+            pos = i;
+            leftMax = temp;
+            break;
+        }
+    }
+
+    return pos + 1;
+}
