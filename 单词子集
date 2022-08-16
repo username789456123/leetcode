@@ -1,0 +1,33 @@
+char ** wordSubsets(char ** words1, int words1Size, char ** words2, int words2Size, int* returnSize){
+    char **ret=malloc(sizeof(char *)*words1Size);
+    int word2Val[26]={0};
+    for(int i=0;i<words2Size;i++){
+        int tmp[26]={0};
+        int len=strlen(words2[i]);
+        for(int j=0;j<len;j++){
+            char ch=words2[i][j]-'a';
+            tmp[ch]++;
+            if(word2Val[ch]<tmp[ch]){
+                word2Val[ch]=tmp[ch];
+            }
+        }
+    }
+    *returnSize=0;
+    for(int i=0;i<words1Size;i++){
+        int word1Val[26]={0};
+        int k=0,len=strlen(words1[i]);
+        for(int j=0;j<len;j++){
+            word1Val[words1[i][j]-'a']++;
+        }
+        for(;k<26;k++){
+            if(word1Val[k]<word2Val[k]){
+                break;
+            }
+        }
+        if(k==26){
+            ret[(*returnSize)]=malloc(sizeof(char)*len);
+            ret[(*returnSize)++]=words1[i];
+        }
+    }
+    return ret;
+}
