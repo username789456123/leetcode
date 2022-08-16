@@ -1,0 +1,97 @@
+void Method(int* arr, char* ret, int arrSize, int n, int* j) {
+	for (int i = 0; i < arrSize; i++){
+		if (arr[i] == n) {
+			ret[(*j)++] = n + 48;
+			arr[i] = -1;
+			break;
+		}
+	}
+}
+
+int cmp(const void* a, const void* b) {
+	return *(int*)a - *(int*)b;
+}
+
+char* largestTimeFromDigits(int* arr, int arrSize) {
+	qsort(arr, arrSize, sizeof(int), cmp);
+	char* ret = (char*)malloc(6 * sizeof(char));
+	if (arr[0] < 2 && arr[1] < 6 && arr[2] > 5 && arr[3] > 5) { //当出现这种情况，两小，两大于5，就不能使用优先位置选取其所能选取的最大值，须根据以下情况
+		if (arr[0] == 0 && arr[1] == 1) {
+			ret[0] = arr[1] + 48;
+			ret[3] = arr[0] + 48;
+		}
+		else {
+			ret[0] = arr[0] + 48;
+			ret[3] = arr[1] + 48;
+		}
+        ret[1] = arr[3] + 48;
+		ret[2] = ':';
+        ret[4] = arr[2] + 48;
+		ret[5] = '\0';
+		return ret;
+	}
+    //以下是每个位置选取其所能放置的最大值，分别为 （0/1/2）  （0-9/0-9/0-3） ： （0-5）  （0-9）
+	int j = 0;
+	Method(arr, ret, arrSize, 2, &j);
+	if (j == 0)
+		Method(arr, ret, arrSize, 1, &j);
+	if (j == 0)
+		Method(arr, ret, arrSize, 0, &j);
+	if (j == 0)
+		return "";
+	if (ret[0] == '2') {
+		Method(arr, ret, arrSize, 3, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 2, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 1, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 0, &j);
+	}
+	else {
+		Method(arr, ret, arrSize, 9, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 8, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 7, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 6, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 5, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 4, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 3, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 2, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 1, &j);
+		if (j == 1)
+			Method(arr, ret, arrSize, 0, &j);
+	}
+	if (j == 1)
+		return "";
+	ret[j++] = ':';
+	Method(arr, ret, arrSize, 5, &j);
+	if (j == 3)
+		Method(arr, ret, arrSize, 4, &j);
+	if (j == 3)
+		Method(arr, ret, arrSize, 3, &j);
+	if (j == 3)
+		Method(arr, ret, arrSize, 2, &j);
+	if (j == 3)
+		Method(arr, ret, arrSize, 1, &j);
+	if (j == 3)
+		Method(arr, ret, arrSize, 0, &j);
+	if (j == 3)
+		return "";
+	for (int i = 0; i < arrSize; i++)
+	{
+		if (arr[i] != -1) {
+			ret[j++] = arr[i] + 48;
+			break;
+		}
+	}
+	ret[j] = '\0';
+	return ret;
+}
