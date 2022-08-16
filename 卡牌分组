@@ -1,0 +1,23 @@
+int gcd(int a, int b){
+    if(b==0)return a;
+    else return gcd(b,a%b);
+}
+
+bool hasGroupsSizeX(int* deck, int deckSize){
+    int max = 0;
+    int ret = 0;
+    for(int l=0;l<deckSize;l++){
+        if(deck[l]>max)max=deck[l];
+    }
+    //int count[max]={0};
+    int *count=(int *)malloc((max+1)*sizeof(int));
+    memset(count,0,(max+1)*sizeof(int));
+    for(int i=0;i<deckSize;i++){
+        count[deck[i]]++;
+    }
+    for(int k=0;k<=max;k++){
+        if(count[k]>0)ret=gcd(count[k],ret);
+    }
+    return ret>=2? true:false;
+
+}
