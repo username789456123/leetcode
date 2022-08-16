@@ -1,0 +1,41 @@
+int sumSubarrayMins(int *arr, int arrSize)
+{
+    long result = 0;
+    int subsum[30001] = {0};
+    int smallptr[30001]; 
+    //smallptr[n] store position that closest arr[position] smaller than arr[n]
+
+    int i = 0;
+    smallptr[i] = -1;
+    subsum[i] = arr[i];
+    result += subsum[i];
+    result %= 1000000007;
+    i++;
+
+    while (i < arrSize)
+    {
+        if (arr[i - 1] <= arr[i])
+        {
+            subsum[i] = subsum[i - 1] + arr[i];
+            smallptr[i] = i-1;
+        }
+        else
+        {
+            int small = i - 1;
+            while (small >= 0 && arr[small] > arr[i])
+            {
+                small = smallptr[small];
+            }
+            smallptr[i] = small;
+            subsum[i] = arr[i] * (i - small);
+            if (small >= 0)
+            {
+                subsum[i] += subsum[small];
+            }
+        }
+        result += subsum[i];
+        result %= 1000000007;
+        i++;
+    }
+    return result;
+}
