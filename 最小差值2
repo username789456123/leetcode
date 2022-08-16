@@ -1,0 +1,25 @@
+int cmp(const void *_a,const void *_b) {
+    return *(int*)_a > *(int*)_b ? 1 : -1;
+}
+
+#define printnums()  \
+            for(int i = 0; i < numsSize; i++) { \
+                printf("%d ", nums[i]); \
+            }\
+            printf("\r\n"); 
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+int smallestRangeII(int* nums, int numsSize, int k){
+    qsort(nums, numsSize, sizeof(int), cmp);
+    printnums();
+    int min = 20000; int max = -1;
+    int diff = nums[numsSize - 1] - nums[0];
+    for (int i = 0; i < numsSize - 1; i++) {
+        min = MIN(nums[0] + k, nums[i + 1] - k);
+        max = MAX(nums[i] + k, nums[numsSize - 1] - k);
+        diff = MIN(diff, max - min);
+    }
+    return diff;
+}
