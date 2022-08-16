@@ -1,0 +1,58 @@
+int threeSumMulti(int* arr, int arrSize, int target){
+    long long* a,*b,i,j,k,s,t;
+    a=(long long*)malloc(sizeof(long long)*arrSize);
+    b=(long long*)malloc(sizeof(long long)*arrSize);
+    s=0;
+    for(i=0;i<arrSize;i++){
+        for(j=0;j<s;j++){
+            if(*(arr+i)==*(a+j)){
+                break;
+            }
+        }
+        if(j<s){
+            (*(b+j))++;
+        }
+        else{
+            *(a+s)=*(arr+i);
+            *(b+s)=1;
+            s++;
+        }
+    }
+    t=0;
+    for(i=0;i<s;i++){
+        for(j=i;j<s;j++){
+            if(i==j&&*(b+i)==1){
+                continue;
+            }
+            for(k=j;k<s;k++){
+                if(i==j&&j==k&&*(b+i)==2){
+                    continue;
+                }
+                else if(j==k&&*(b+j)==1){
+                    continue;
+                }
+                else{
+                    if(*(a+i)+*(a+j)+*(a+k)==target){
+                        if(i==j&&j==k){
+                            t=t+*(b+i)*(*(b+i)-1)*(*(b+i)-2)/6;
+                            t=t%1000000007;
+                        }
+                        else if(i==j&&j!=k){
+                            t=t+*(b+i)*(*(b+i)-1)**(b+k)/2;
+                            t=t%1000000007;
+                        }
+                        else if(i!=j&&j==k){
+                            t=t+*(b+i)**(b+j)*(*(b+j)-1)/2;
+                            t=t%1000000007;
+                        }
+                        else{
+                            t=t+*(b+i)**(b+j)**(b+k);
+                            t=t%1000000007;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return t;
+}
