@@ -1,0 +1,28 @@
+#define MOD 1000000007
+int numPermsDISequence(char * s){
+    int i,j,k,N=strlen(s);
+    long long res=0,dp[N+1][N+1]; memset(dp,0,sizeof(dp)); for(i=0;i<=N;i++)dp[0][i]=1;
+
+   for(int i = 1; i <= N; ++i) {
+            for (int j = 0; j <= i; ++j) {
+                if (s[i-1] == 'D') {
+                    for (int k = j; k < i; ++k) {
+                        dp[i][j] += dp[i-1][k];
+                        dp[i][j] %= MOD;
+                    }
+                } else {
+                    for (int k = 0; k < j; ++k) {
+                        dp[i][j] += dp[i-1][k];
+                        dp[i][j] %= MOD;
+                    }
+                }
+            }
+        }
+    for(i=0;i<=N;i++){
+        res+=dp[N][i];
+        res%=MOD;
+    }
+
+
+    return res;
+}
