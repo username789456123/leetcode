@@ -1,0 +1,16 @@
+int minAddToMakeValid(char * s){
+    int remain = 0, stack = 0;
+
+    for(int i=0; s[i] != '\0'; ++i){    //遍历字符串
+        if(s[i] == '('){
+            ++stack;
+        }else{
+            if(stack == 0)              //说明此时字符串平衡
+                ++remain;               
+            else
+                --stack;
+        }
+    }
+
+    return remain + stack;
+}
