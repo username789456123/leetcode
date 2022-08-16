@@ -1,0 +1,42 @@
+struct Pair {
+    int first;
+    int second;
+};
+
+struct Pair id2rc(int id, int n) {
+    int r = (id - 1) / n, c = (id - 1) % n;
+    if (r % 2 == 1) {
+        c = n - 1 - c;
+    }
+    return (struct Pair){n - 1 - r, c};
+}
+
+int snakesAndLadders(int** board, int boardSize, int* boardColSize) {
+    int n = boardSize;
+    int vis[n * n + 1];
+    memset(vis, 0, sizeof(vis));
+    struct Pair que[n * n];
+    int left = 0, right = 0;
+    que[right].first = 1, que[right++].second = 0;
+    while (left < right) {
+        struct Pair p = que[left++];
+        for (int i = 1; i <= 6; ++i) {
+            int nxt = p.first + i;
+            if (nxt > n * n) {  // 超出边界
+                break;
+            }
+            struct Pair rc = id2rc(nxt, n);  // 得到下一步的行列
+            if (board[rc.first][rc.second] > 0) {  // 存在蛇或梯子
+                nxt = board[rc.first][rc.second];
+            }
+            if (nxt == n * n) {  // 到达终点
+                return p.second + 1;
+            }
+            if (!vis[nxt]) {
+                vis[nxt] = true;
+                que[right].first = nxt, que[right++].second = p.second + 1;  // 扩展新状态
+            }
+        }
+    }
+    return -1;
+}
