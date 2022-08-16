@@ -1,0 +1,35 @@
+void dfs(int x, int **edge, int *edgeSize, int *vis) {
+    vis[x] = true;
+    for (int i = 0; i < edgeSize[x]; i++) {
+        int y = edge[x][i];
+        if (!vis[y]) {
+            dfs(y, edge, edgeSize, vis);
+        }
+    }
+}
+
+int removeStones(int **stones, int stonesSize, int *stonesColSize) {
+    int *edge[stonesSize];
+    for (int i = 0; i < stonesSize; i++) {
+        edge[i] = malloc(sizeof(int) * stonesSize);
+    }
+    int edgeSize[stonesSize];
+    memset(edgeSize, 0, sizeof(edgeSize));
+    for (int i = 0; i < stonesSize; i++) {
+        for (int j = 0; j < stonesSize; j++) {
+            if (stones[i][0] == stones[j][0] || stones[i][1] == stones[j][1]) {
+                edge[i][edgeSize[i]++] = j;
+            }
+        }
+    }
+    int vis[stonesSize];
+    memset(vis, 0, sizeof(vis));
+    int num = 0;
+    for (int i = 0; i < stonesSize; i++) {
+        if (!vis[i]) {
+            num++;
+            dfs(i, edge, edgeSize, vis);
+        }
+    }
+    return stonesSize - num;
+}
