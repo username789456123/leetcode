@@ -1,0 +1,23 @@
+bool validateStackSequences(int* pushed, int pushedSize, int* popped, int poppedSize){
+    int pushIndex = 0;
+    int popIndex = 0;
+    int index = -1;
+    int length = pushedSize > poppedSize ? pushedSize : poppedSize;
+    int *stack = malloc(sizeof(int) * length);
+    while (pushIndex < pushedSize) {
+        /* 挨个压入栈中 */
+        index++;
+        stack[index] = pushed[pushIndex];
+        pushIndex++;
+        /* 发现有一样的，就说明需要出栈 */
+        while (index >= 0 && stack[index] == popped[popIndex]) {
+            index--;
+            popIndex++;
+        }
+    }
+    /* 如果最后栈不是空的或者POP没有出完，则说明队列不对 */
+    if (index != -1 || popIndex != poppedSize) {
+        return false;
+    }
+    return true;
+}
