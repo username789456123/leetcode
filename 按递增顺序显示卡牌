@@ -1,0 +1,52 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int  compareFunc(int *a,int *b)
+{
+    if(*a > *b)
+    {
+        return 1;
+    }
+    return -1;
+}
+
+
+int* deckRevealedIncreasing(int* deck, int deckSize, int* returnSize)
+{
+    int dat[1001];
+    int queueFront = 0;
+    int queueRear = 0;
+    *returnSize = deckSize;
+    int *returnNums = (int *)malloc(sizeof(int) * deckSize);
+    //0表示没有进行赋值
+    memset(returnNums, 0 ,sizeof(int) * deckSize);
+    //快排一下原始数据
+    qsort(deck,deckSize,sizeof(int),compareFunc);
+    for(int i = 0; i < deckSize; i++)
+    {
+        //入队
+        dat[queueRear++] = deck[i];
+    }
+
+    bool isAns  = true;
+    int  index  = 0;
+    while(queueFront< queueRear )
+    {
+        if(returnNums[index] == 0)
+        {
+            if(isAns)
+            {
+                //出队
+                isAns = false;
+                returnNums[index] = dat[queueFront++]; 
+            }
+            else
+            {
+                isAns = true;
+            }
+        }
+        index = (index + 1)% deckSize;
+    }
+    return returnNums;
+
+}
