@@ -1,0 +1,22 @@
+int maxWidthRamp(int* A, int ASize){
+    int stk[ASize];//创建栈
+    int top=-1;
+    int res=0;
+    stk[++top]=0;//从数组最左边开始入栈
+
+    for(int i=1;i<ASize;i++)
+        if(A[stk[top]]>A[i])//严格单调递减
+            stk[++top]=i;
+
+    for(int j=ASize-1;j>=0;j--)
+    {
+        while(top!=-1&&A[stk[top]]<=A[j])//找到坡的两端，然后弹栈找到最宽的坡
+        {
+            res=fmax(res,j-stk[top]);
+            top--;
+        }
+        if(top==-1)
+            break;
+    }
+    return res;
+}
