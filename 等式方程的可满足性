@@ -1,0 +1,33 @@
+int cmp(const void* a1,const void* b1){
+    char** a=(char**)a1;  char** b=(char**)b1;
+    return (*b)[1]-(*a)[1];
+}
+
+char search(char* set,char x){  //寻找根节点
+    while(set[x-'a'] != x){
+        x=set[x-'a'];
+    }
+    return x;
+}
+
+bool equationsPossible(char ** equations, int equationsSize){
+    char* set=calloc(26,sizeof(char));  //下标0-25代表字母'a'-'z'，值域指示父节点
+    for(int i=0; i < 26; i++){   //初始化，自己为自己的父节点
+        set[i]=i+'a';
+    }
+    //对数据进行排序，让'=='排在'!='前面
+    qsort(equations,equationsSize,sizeof(equations[0]),cmp);
+
+    for(int i=0; i < equationsSize; i++){   
+        char t1=search(set,equations[i][3]);
+        char t2=search(set,equations[i][0]);
+        if(equations[i][1] == '='){
+            if(t1 != t2)             //若根节点不同，俩字符不在同一集合，将根节点合并
+                set[t1-'a']=t2;
+        }else if(equations[i][1] == '!'){
+            if(t1 == t2)             //若根节点相同，俩字符在同一集合
+                return false;
+        }
+    }
+    return true;
+}
