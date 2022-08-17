@@ -1,0 +1,35 @@
+int subarraysWithKDistinct(int* nums, int numsSize, int k) {
+    int num1[numsSize + 1], num2[numsSize + 1];
+    memset(num1, 0, sizeof(int) * (numsSize + 1));
+    memset(num2, 0, sizeof(int) * (numsSize + 1));
+    int tot1 = 0, tot2 = 0;
+    int left1 = 0, left2 = 0, right = 0;
+    int ret = 0;
+    while (right < numsSize) {
+        if (!num1[nums[right]]) {
+            tot1++;
+        }
+        num1[nums[right]]++;
+        if (!num2[nums[right]]) {
+            tot2++;
+        }
+        num2[nums[right]]++;
+        while (tot1 > k) {
+            num1[nums[left1]]--;
+            if (!num1[nums[left1]]) {
+                tot1--;
+            }
+            left1++;
+        }
+        while (tot2 > k - 1) {
+            num2[nums[left2]]--;
+            if (!num2[nums[left2]]) {
+                tot2--;
+            }
+            left2++;
+        }
+        ret += left2 - left1;
+        right++;
+    }
+    return ret;
+}
