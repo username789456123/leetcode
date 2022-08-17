@@ -1,0 +1,85 @@
+/* 判断是否以重复的（9..）结尾 */
+bool is_9_repeat(char* s)
+{
+    int len = strlen(s);
+    if (s[len - 1] != ')') return false;
+    int i;
+    for (i = len - 2; s[i] != '('; i--) {
+        if (s[i] != '9') return  false;
+    }
+    return true;
+}
+
+/* 将小数点之前的整数部分字符串转换为整数 */
+int get_int_part(char* s)
+{
+    int len = strlen(s);
+    int ret = 0;
+    int i;
+    for (i = 0; i < len && s[i] != '.'; i++) {
+        ret  = ret * 10 + s[i] - '0';
+    }
+    printf("%s, int part:%d \n", s, ret);
+    return ret;
+}
+
+/* 不考虑重复9结尾的场景，将小数点后字符串，固定转为8位的整数 */
+int get_dot_part(char* s)
+{
+    int len = strlen(s);
+    int i = 0;
+    while(s[i] != '.' && i < len) i++;
+    if (i == len || i == (len - 1)) return 0;
+    i++;
+
+    int j = 0;
+    char temp[9] = {0}; /* 认为最多8位小数 */
+    for (j = 0; j < 8; j++) {
+        temp[j] = '0';
+    }
+    j= 0;
+
+    /* 非循环小数位，直接拷贝到temp */
+    while(s[i] != '(' && i < len) {
+        temp[j] = s[i];
+        j++;
+        i++;
+    }
+
+    if (s[i] == '(') {
+        int index = i + 1;
+        /* 将[i+1, len-2]的字符，循环拷贝到temp中，其中s[i]是字符'(', 其中s[len-1]是字符')'*/
+        while(j < 8) {
+            temp[j++] = s[index++];
+            if (index == len - 1) index = i+1;
+        }
+    }
+
+    int ret = get_int_part(temp);
+    printf("%s, dot part:%d \n", s, ret);
+    return ret;
+}
+
+bool isRationalEqual(char * S, char * T){
+    int s_int = get_int_part(S);
+    int s_dot = get_dot_part(S);
+    int t_int = get_int_part(T);
+    int t_dot = get_dot_part(T);
+
+    if (is_9_repeat(S)) {
+        s_dot += 1;
+        if (s_dot > 99999999) {
+            s_dot = 0;
+            s_int +=1;
+        }
+    }
+
+    if (is_9_repeat(T)) {
+        t_dot += 1;
+        if (t_dot > 99999999) {
+            t_dot = 0;
+            t_int +=1;
+        }
+    }
+    return (s_int == t_int && s_dot == t_dot);
+}
