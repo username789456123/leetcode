@@ -1,0 +1,72 @@
+/* 哈希表定义。 */
+struct HashMapNode
+{
+    int key;
+    int counter;
+    UT_hash_handle hh;
+};
+
+int countTriplets(int *nums, int numsSize)
+{
+    /* 数值取值范围在[0, 65535]，即最多占低16位。 */
+    const int mask = 0xFFFF;
+    int x = 0, y = 0, key = 0, result = 0;
+    struct HashMapNode *hashTable = NULL, *node = NULL, *t = NULL;
+
+    /* 先双重循环，把所有二元组的与值存储到哈希表里面，并记录出现的次数。 */
+    while(numsSize > x)
+    {
+        y = 0;
+        while(numsSize > y)
+        {
+            key = nums[x] & nums[y];
+            HASH_FIND_INT(hashTable, &key, node);
+            /* 新出现的就新添记录，并计1次。 */
+            if(NULL == node)
+            {
+                node = (struct HashMapNode *)malloc(sizeof(struct HashMapNode));
+                node->key = key;
+                node->counter = 1;
+                HASH_ADD_INT(hashTable, key, node);
+            }
+            /* 否则累计次数。 */
+            else
+            {
+                node->counter++;
+            }
+            y++;
+        }
+        x++;
+    }
+
+    /* 再遍历每一个nums[x]，对于它的二进制表达中为1的那几位，去哈希表中查看，有哪些值在那几位是0。 */
+    x = 0;
+    while(numsSize > x)
+    {
+        /* nums[x]取反后再和mask进行与操作，得到的y，就表示低16中，那几位是0的一个掩码。 */
+        y = mask & ~nums[x];
+        /* 注意，这里的while循环，暂时没有计算0，因为计算了0的话，可能会出现死循环。 */
+        key = y;
+        while(0 != key)
+        {
+            HASH_FIND_INT(hashTable, &key, node);
+            if(NULL != node)
+            {
+                result += node->counter;
+            }
+            /* 减一后再和y进行与操作，可以使得key快速下降，跳开对应位不等于0的那些数值。 */
+            key = (key - 1) & y;
+        }
+        x++;
+    }
+
+    /* 上面没有计数key == 0的情况，则在最下面单独计数。每个二元组的与和为0的数值，和数组中任何一个值的与和，都是0。 */
+    key = 0;
+    HASH_FIND_INT(hashTable, &key, node);
+    if(NULL != node)
+    {
+        result += numsSize * node->counter;
+    }
+
+    return result;
+}
