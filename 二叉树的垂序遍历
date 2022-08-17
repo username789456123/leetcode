@@ -1,0 +1,65 @@
+typedef struct nums{//结构体
+    int left;//水平下标
+    int right;//垂直下标
+    int val;//树节点值
+}nums; 
+//递归遍历每一个树节点
+void dfs(struct TreeNode * root, int * inode, nums * ans, int left, int right)
+{
+    if(root == NULL)
+    {
+        return;
+    }
+    ans[(*inode)].val = root->val;//保存对应值和下标
+    ans[(*inode)].left = left;
+    ans[(*inode)].right = right;
+    (*inode)++;
+    dfs(root->left, inode, ans, left - 1, right + 1);//遍历左子节点
+    dfs(root->right, inode, ans, left + 1, right + 1);//遍历右子节点
+    return;
+}
+//用于结构体的三级排序
+int cmp(const nums* a, const nums* b) {
+    // 先排left，再排right，最后排val
+    if (a->left != b->left) {
+        return a->left - b->left;
+    } else if (a->right != b->right){
+        return a->right - b->right;
+    } else {
+        return a->val - b->val;
+    }
+}
+int** verticalTraversal(struct TreeNode* root, int* returnSize, int** returnColumnSizes){
+    nums ans[1001];//申请结构体数组
+    int inode = 0;//初始化结构体下标
+    dfs(root, &inode, ans, 0, 0);//更新结构体
+    qsort(ans,inode,sizeof(struct nums),cmp);//排序
+    int n = ans[inode-1].left - ans[0].left + 1;//确定垂序遍历序列的行数
+    int ** res = malloc(sizeof(int *) * n);//申请空间
+    *returnSize = n;
+    *returnColumnSizes = malloc(sizeof(int) * n);
+
+    int l = 0;
+    int inod = 0;
+    int i = 0;
+    ans[inode++].left = INT_MAX;//构造一个坏点，使最后一个元素可以被访问
+    for(i = 0; i < inode-1; i++)//遍历结构体数组
+    {
+        
+        if(ans[i].left == ans[i+1].left)//是同一水平下标
+        {
+            continue;
+        }
+        int max = i - l + 1;//不是同一水平下标了，存入垂序遍历序列
+        res[inod] = malloc(sizeof(int) * max);//初始化垂序遍历序列的列长
+        (*returnColumnSizes)[inod] = max;
+        int j = 0;
+        while(l <= i && j < max)//存入垂序遍历序列
+        {
+            res[inod][j++] = ans[l].val;//直接存就好了，因为快速排序的时候，已经对数组进行处理了
+            l++;
+        }
+        inod++;
+    }
+    return res;
+}
