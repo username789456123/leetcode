@@ -1,0 +1,17 @@
+int cmp(const void* _a, const void* _b) {
+    int *a = *(int**)_a, *b = *(int**)_b;
+    return a[0] * a[0] + a[1] * a[1] - b[0] * b[0] - b[1] * b[1];
+}
+
+int** kClosest(int** points, int pointsSize, int* pointsColSize, int k, int* returnSize, int** returnColumnSizes) {
+    qsort(points, pointsSize, sizeof(int*), cmp);
+    *returnSize = k;
+    *returnColumnSizes = malloc(sizeof(int) * k);
+    int** ret = malloc(sizeof(int*) * k);
+    for (int i = 0; i < k; i++) {
+        (*returnColumnSizes)[i] = 2;
+        ret[i] = malloc(sizeof(int) * 2);
+        ret[i][0] = points[i][0], ret[i][1] = points[i][1];
+    }
+    return ret;
+}
