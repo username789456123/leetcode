@@ -1,0 +1,32 @@
+#define MAX_LEN 8500
+char tmp1[MAX_LEN];
+char ans[MAX_LEN];
+void dfs(struct TreeNode *node, char *path, int idx)
+{
+    int i;
+    if (node == NULL) {
+        return;
+    }
+    path[idx++] = 'a' + node->val;
+    if (node->left == NULL && node->right == NULL) {
+        for (i = 0; i < idx; i++) {
+            tmp1[i] = path[idx - 1 - i];
+        }
+        tmp1[idx] = '\0';
+        //printf("tmp1 = %s\n", tmp1);
+        if (memcmp(tmp1, ans, strlen(ans)) <= 0 || strlen(ans) == 0) {
+            memcpy(ans, tmp1, strlen(tmp1));
+            ans[strlen(tmp1)]='\0';
+            //printf("ans = %s\n", ans);
+        }
+    }
+    dfs(node->left, path, idx);
+    dfs(node->right, path, idx);
+}
+
+char * smallestFromLeaf(struct TreeNode* root){
+    char path[MAX_LEN] = {0};
+    memset(ans, 0, sizeof(char) * MAX_LEN);
+    dfs(root, path, 0);
+    return ans;
+}
