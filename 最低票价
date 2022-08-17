@@ -1,0 +1,22 @@
+int mincostTickets(int* days, int daysSize, int* costs, int costsSize){
+    int n=days[daysSize-1];
+    int dp[n+1],i,first,second,third;
+    memset(dp,0,sizeof(int)*(n+1));
+    for(i=0;i<daysSize;i++) dp[days[i]]=-1;
+    for(i=1;i<=n;i++){
+        if(dp[i]==0) dp[i]=dp[i-1];
+        else{
+            first=dp[i-1]+costs[0];
+            if(i>=7){
+                second=dp[i-7]+costs[1];
+            }
+            else second=costs[1];
+            if(i>=30){
+                third=dp[i-30]+costs[2];
+            }
+            else third=costs[2];
+            dp[i]=fmin(first,fmin(second,third));
+        }
+    }
+    return dp[n];
+}
