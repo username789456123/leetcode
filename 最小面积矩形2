@@ -1,0 +1,110 @@
+/* 点坐标结构体。 */
+struct PointSet
+{
+    int x;
+    int y;
+};
+
+/* 哈希表记录。 */
+struct HashMapNode
+{
+    struct PointSet point;
+    UT_hash_handle hh;
+};
+
+double minAreaFreeRect(int **points, int pointsSize, int *pointsColSize)
+{
+    struct HashMapNode *hashTable = NULL, *node = NULL, *tn = NULL;
+    int x = 0, y = 0, z = 0;
+    double result = 0, square = 0, t = 0;
+    struct PointSet p;
+
+    /* 把各个点的坐标记录到哈希表里。 */
+    while(pointsSize > x)
+    {
+        p.x = points[x][0];
+        p.y = points[x][1];
+        node = (struct HashMapNode *)malloc(sizeof(struct HashMapNode));
+        node->point = p;
+        HASH_ADD(hh, hashTable, point, sizeof(struct PointSet), node);
+        x++;
+    }
+
+    /* 三重遍历。 */
+    x = 2;
+    while(pointsSize > x)
+    {
+        y = 1;
+        while(x > y)
+        {
+            z = 0;
+            while(y > z)
+            {
+                /* 以点x为基。 */
+                t = (points[y][0] - points[x][0]) * (points[z][0] - points[x][0]) + (points[y][1] - points[x][1]) * (points[z][1] - points[x][1]);
+                if(0 == t)
+                {
+                    p.x = points[y][0] + points[z][0] - points[x][0];
+                    p.y = points[y][1] + points[z][1] - points[x][1];
+                    HASH_FIND(hh, hashTable, &p, sizeof(struct PointSet), node);
+                    if(NULL != node)
+                    {
+                        t = ((double)(points[z][0] - points[x][0]) * (points[z][0] - points[x][0]) + (double)(points[z][1] - points[x][1]) * (points[z][1] - points[x][1])) * ((double)(points[y][0] - points[x][0]) * (points[y][0] - points[x][0]) + (double)(points[y][1] - points[x][1]) * (points[y][1] - points[x][1]));
+                        square = sqrt(t);
+                        if(0 == result || result > square)
+                        {
+                            result = square;
+                        }
+                    }
+                }
+
+                /* 以点y为基。 */
+                t = (points[x][0] - points[y][0]) * (points[z][0] - points[y][0]) + (points[x][1] - points[y][1]) * (points[z][1] - points[y][1]);
+                if(0 == t)
+                {
+                    p.x = points[x][0] + points[z][0] - points[y][0];
+                    p.y = points[x][1] + points[z][1] - points[y][1];
+                    HASH_FIND(hh, hashTable, &p, sizeof(struct PointSet), node);
+                    if(NULL != node)
+                    {
+                        t = ((double)(points[z][0] - points[y][0]) * (points[z][0] - points[y][0]) + (double)(points[z][1] - points[y][1]) * (points[z][1] - points[y][1])) * ((double)(points[x][0] - points[y][0]) * (points[x][0] - points[y][0]) + (double)(points[x][1] - points[y][1]) * (points[x][1] - points[y][1]));
+                        square = sqrt(t);
+                        if(0 == result || result > square)
+                        {
+                            result = square;
+                        }
+                    }
+                }
+
+                /* 以点z为基。 */
+                t = (points[y][0] - points[z][0]) * (points[x][0] - points[z][0]) + (points[y][1] - points[z][1]) * (points[x][1] - points[z][1]);
+                if(0 == t)
+                {
+                    p.x = points[y][0] + points[x][0] - points[z][0];
+                    p.y = points[y][1] + points[x][1] - points[z][1];
+                    HASH_FIND(hh, hashTable, &p, sizeof(struct PointSet), node);
+                    if(NULL != node)
+                    {
+                        t = ((double)(points[z][0] - points[x][0]) * (points[z][0] - points[x][0]) + (double)(points[z][1] - points[x][1]) * (points[z][1] - points[x][1])) * ((double)(points[y][0] - points[z][0]) * (points[y][0] - points[z][0]) + (double)(points[y][1] - points[z][1]) * (points[y][1] - points[z][1]));
+                        square = sqrt(t);
+                        if(0 == result || result > square)
+                        {
+                            result = square;
+                        }
+                    }
+                }
+
+                z++;
+            }
+            y++;
+        }
+        x++;
+    }
+
+    HASH_ITER(hh, hashTable, node, tn)
+    {
+        HASH_DEL(hashTable, node);
+        free(node);
+    }
+
+    return resul
