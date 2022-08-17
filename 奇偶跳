@@ -1,0 +1,75 @@
+/*
+思路如下：
+1、使用自定义map，通过qsort排序，遍历找到每个索引的奇数和偶数下一跳的位置
+2、倒序遍历计算每个索引是否能跳到最后
+*/
+
+struct my_num {
+    int index;
+    int value;
+};
+//寻找奇数跳下一跳位置，按照value由小到大排序，value相同按照index有小到大排序
+static int cmpfunc1(const void *a, const void *b) {
+    struct my_num numa = *(struct my_num *)a;
+    struct my_num numb = *(struct my_num *)b;
+    if (numa.value == numb.value)
+        return numa.index - numb.index;
+    else
+        return numa.value - numb.value;
+}
+//寻找奇数跳下一跳位置，按照value由大到小排序，value相同按照index有小到大排序
+static int cmpfunc2(const void *a, const void *b) {
+    struct my_num numa = *(struct my_num *)a;
+    struct my_num numb = *(struct my_num *)b;
+    if (numa.value == numb.value)
+        return numa.index - numb.index;
+    else
+        return numb.value - numa.value;
+}
+int oddEvenJumps(int* A, int ASize) {
+    struct my_num nums[ASize];
+    int i, j;
+    int odd_next[ASize], even_next[ASize];
+
+    for (i = 0; i < ASize; i++) {
+        nums[i].index = i;
+        nums[i].value = A[i];
+    }
+    //通过qsort找到A中每个数字奇数odd跳和偶数even跳下一跳的位置
+    memset(odd_next, 0, sizeof(odd_next));
+    qsort(nums, ASize, sizeof(struct my_num), cmpfunc1);
+    for (i = 0; i < ASize - 1; i++) {
+        j = i + 1;
+        while ((j < ASize) && (nums[i].index > nums[j].index))
+            j++;
+        if (j < ASize)
+            odd_next[nums[i].index] = nums[j].index;
+    }
+    memset(even_next, 0, sizeof(even_next));
+    qsort(nums, ASize, sizeof(struct my_num), cmpfunc2);
+    for (i = 0; i < ASize - 1; i++) {
+        j = i + 1;
+        while ((j < ASize) && (nums[i].index > nums[j].index))
+            j++;
+        if (j < ASize)    
+            even_next[nums[i].index] = nums[j].index;
+    }
+
+    int ans = 1; //从最后一个数字出发一定是ok的
+    bool odd_ok[ASize], even_ok[ASize]; //记录每个索引能否通过奇数或者偶数次跳到末尾
+
+    memset(odd_ok, false, sizeof(odd_ok));
+    memset(even_ok, false, sizeof(even_ok));
+    odd_ok[ASize - 1] = even_ok[ASize - 1] = true;
+    for (i = ASize - 2; i >= 0; i--) {
+        //若当前节点第一跳（奇数）的目标索引，可以通过偶数跳到末尾，那么更新ans
+        if (odd_next[i] && even_ok[odd_next[i]]) {
+            ans++;
+            odd_ok[i] = true;
+        }
+        //若当前节点偶数跳的目标索引，可以通过奇数跳到末尾，只更新even_ok用于后续遍历，不需要更新ans
+        if (even_next[i] && odd_ok[even_next[i]])
+            even_ok[i] = true;
+    }
+    return ans;
+}
