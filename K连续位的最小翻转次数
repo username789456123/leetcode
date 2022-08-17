@@ -1,0 +1,17 @@
+int minKBitFlips(int* nums, int numsSize, int k) {
+    int diff[numsSize + 1];
+    memset(diff, 0, sizeof(diff));
+    int ans = 0, revCnt = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        revCnt += diff[i];
+        if ((nums[i] + revCnt) % 2 == 0) {
+            if (i + k > numsSize) {
+                return -1;
+            }
+            ++ans;
+            ++revCnt;
+            --diff[i + k];
+        }
+    }
+    return ans;
+}
