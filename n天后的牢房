@@ -1,0 +1,78 @@
+#define CELL_CNT 8
+
+
+int map[256][2] = {0};
+int startcellindex;
+int cyc;
+
+int strToNum(int* cells)
+{
+    int res = 0;
+    for (int i = 0; i < CELL_CNT; i++) {
+        res = cells[i] + res * 2;
+    }
+    return res;
+}
+
+int* NumToStr(int Num)
+{
+    int tmp = Num;
+    int *res = (int*)malloc(sizeof(int) * CELL_CNT);
+    for (int i = CELL_CNT - 1; i >= 0; i--) {
+        res[i] = tmp % 2;
+        tmp = tmp / 2;
+    }
+    return res;
+}
+
+void dfs(int* cells, int cnt, int N)
+{
+    int Num = strToNum(cells);
+
+    if (cnt != N && map[Num][0] == 1) {
+        startcellindex = map[Num][1];
+        cyc = cnt - startcellindex;
+        return;
+    }
+    map[Num][0] = 1;
+    map[Num][1] = cnt;
+    printf("day %d    ", cnt);
+    for (int i = 0 ; i < CELL_CNT; i++) {
+        printf("%d ",cells[i]);
+    }
+    printf("\n");
+
+    int ans[CELL_CNT] = {0};
+    ans[0] = 0;
+    ans[CELL_CNT - 1] = 0;
+    for (int i = 1; i < CELL_CNT - 1; i++) {
+         if (cells[i - 1] == cells[i + 1]) {
+             ans[i] = 1;
+         }
+    }
+
+    dfs(ans, cnt + 1, N);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* prisonAfterNDays(int* cells, int cellsSize, int N, int* returnSize){
+
+    memset(map, -1, sizeof(int) * 256 * 2);
+    int *res;
+    int indx;
+    dfs(cells, 0, N);
+    *returnSize = 8;
+    if (N <= startcellindex) {
+        indx = N;
+    } else {
+        indx = (N - startcellindex) % cyc + startcellindex;
+    }
+    for (int i = 0; i < 256; i++) {
+        if (map[i][1]  == indx) {
+            res = NumToStr(i);
+        }
+    }
+    return res;
+}
