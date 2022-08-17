@@ -1,0 +1,41 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+int sum;
+
+int dfs(struct TreeNode* p)
+{
+    //递归函数的终止条件
+    if(p==NULL) return 0;
+    
+    //lnum保存p左孩子的过载量
+    int lnum = dfs(p->left);
+    //rnum保存p右孩子的过载量
+    int rnum = dfs(p->right);
+
+//不管过载量是正是负，移动的步数都是正，因此需要取|过载量|
+    int absl = abs(lnum);
+    int absr = abs(rnum);
+    
+    //需要移动的步数 sum += （左孩子移动步数 +  右孩子移动步数）
+    sum += (absl + absr);
+
+    //返回p的过载量=p硬币的总数 加上来的 减去移走的 -1 （-1是给自己留一枚）
+    return p->val + lnum + rnum -1;
+
+}
+
+int distributeCoins(struct TreeNode* root)
+{
+    sum = 0;
+    dfs(root);
+
+    return sum;
+
+}
