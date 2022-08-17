@@ -1,0 +1,47 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+bool isCompleteTree(struct TreeNode* root){
+    if(!root)   return true;
+    //1.初始化
+    struct TreeNode *p = NULL;
+    struct TreeNode** Queue = malloc(sizeof(struct TreeNode*)*190);
+    int front=-1,rear=-1;
+
+    //struct TreeNode* _null = malloc(sizeof(struct TreeNode));
+    //_null->val = INT_MAX;
+
+    Queue[++rear] = root;   //根节点进队
+    while(rear>front)   //层次遍历
+    {
+        p = Queue[++front];
+
+        if(p)
+        {       
+            Queue[++rear] = p->left;      
+            Queue[++rear] = p->right;           
+        }
+
+        else    //首次碰到空节点时,检查其后是否有空节点
+        {
+            while(rear>front)
+            {
+                p = Queue[++front];
+                if(p)
+                {
+                    return 0;
+                }     //若非空，则不是完全二叉树
+            }        
+        }
+    }
+
+    return 1;
+
+}
