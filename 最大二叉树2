@@ -1,0 +1,20 @@
+struct TreeNode* insertIntoMaxTree(struct TreeNode* root, int val){
+    if (!root) {
+        struct TreeNode *B = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+        B->val = val;
+        B->left = NULL;
+        B->right = NULL;
+        return B;
+    }
+
+    if (val > root->val) {
+        struct TreeNode *B = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+        B->val = val;
+        B->left = root;
+        B->right = NULL;
+        return B;
+    }
+
+    root->right = insertIntoMaxTree(root->right, val);
+    return root;
+}
