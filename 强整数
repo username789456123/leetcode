@@ -1,0 +1,40 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* powerfulIntegers(int x, int y, int bound, int* returnSize)
+{
+    int max_i = log(bound)/log(x);
+    int max_j = log(bound)/log(y);
+    if (x == 1) {
+        max_i = 0;
+    }
+    if (y == 1) {
+        max_j = 0;
+    }
+    printf("%d %d\n",max_i,max_j);
+    int* StrongInt = (int*)malloc((bound + 1) * sizeof(int));
+    memset(StrongInt,0,(bound + 1) * sizeof(int));
+    for (int i = 0; i <= max_i; i++) {
+        for (int j = 0; j <= max_j; j++) {
+            if (pow(x, i) + pow(y, j) <= bound) {
+                StrongInt[(long long)(pow(x, i) + pow(y, j))] = 1;
+            }
+            if (pow(x, i) + pow(y, j) > bound) {
+                break;
+            }
+        }
+    }
+    *returnSize = 0;
+    for (int i = 0; i < bound + 1; i++) {
+        *returnSize += StrongInt[i];
+    }
+    int* ans = (int*)malloc(*returnSize * sizeof(int));
+    int j = 0;
+    for (int i = 0; i < bound + 1; i++) {
+        if (StrongInt[i] == 1) {
+            ans[j] = i;
+            j++;
+        }
+    }
+    return ans;
+}
