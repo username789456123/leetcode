@@ -1,0 +1,118 @@
+int orangesRotting(int** grid, int gridSize, int* gridColSize)
+{
+
+	int maxRow = gridSize;
+	int maxCol = gridColSize[0];
+	//int Queue[maxRow*maxCol][2];
+	int Queue[101][2];
+	int  front = 0;
+	int  rear  = 0;
+	bool haveFresh = false;  //如果没有腐烂的情况下，需要这个变量进行判断 
+	for (int row = 0; row < maxRow; row++)
+	{
+		for (int col = 0; col < maxCol; col++)
+		{
+			if (grid[row][col] == 2)
+			{
+				Queue[front][0] = row;
+				Queue[front][1] = col;
+				front++;
+				//坏掉
+				grid[row][col] = 2;
+			}
+			else if (grid[row][col] == 1)
+			{
+				haveFresh = true;
+			}
+		}
+	}
+
+	if(front == 0)
+	{
+		//特殊情况 没有腐烂
+		//分为两种情况
+		//有新鲜的和没有新鲜的
+		if(haveFresh)
+			return -1;
+		else
+		 	return 0;
+	}
+	//因为刚开始的都是腐烂的，所以这里直接从-1开始
+	int time = -1;
+	while(rear < front)
+	{
+		int frontBAK = front;
+		while(rear < frontBAK)
+		{
+			int  row = Queue[rear][0];
+			int  col = Queue[rear][1];
+
+			//上下左右
+			if(row != 0)
+			{
+				if(grid[row - 1][col] == 1)
+				{
+					Queue[front][0] = row-1;
+					Queue[front][1] = col;
+					front++;
+
+					//坏掉
+					grid[row-1][col] = 2;
+				}
+			}
+
+			if(row != maxRow-  1)
+			{
+				if(grid[row + 1][col] == 1)
+				{
+					Queue[front][0] = row+1;
+					Queue[front][1] = col;
+					front++;
+
+					//坏掉
+					grid[row+1][col] = 2;
+				}
+			}
+
+			if(col != 0)
+			{
+				if(grid[row][col-1] == 1)
+				{
+					Queue[front][0] = row;
+					Queue[front][1] = col-1;
+					front++;
+
+					//坏掉
+					grid[row][col-1] = 2;
+				}
+			}
+
+			if(col != maxCol - 1)
+			{
+				if(grid[row][col+1] == 1)
+				{
+					Queue[front][0] = row;
+					Queue[front][1] = col+1;
+					front++;
+
+					//坏掉
+					grid[row][col+1] = 2;
+				}
+			}
+			rear++;
+		}
+		time++;
+	}
+
+	for (int row = 0; row < maxRow; row++)
+	{
+		for (int col = 0; col < maxCol; col++)
+		{
+			if (grid[row][col] == 1)
+			{
+				return -1;
+			}
+		}
+	}
+	return time;
+}
