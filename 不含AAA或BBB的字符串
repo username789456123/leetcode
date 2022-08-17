@@ -1,0 +1,21 @@
+char * strWithout3a3b(int a, int b){
+    char *res = malloc(a+b+1);
+    res[a+b] = 0;
+    int len = a+b;
+    for (int i=0; i<len; ++i) {
+        if (i >= 2 && res[i-2] == res[i-1]) {
+            res[i] = res[i-1] == 'a' ? 'b' : 'a';
+            if (res[i] == 'a') --a;
+            else --b;
+            continue;
+        }
+        if (a > b) {
+            res[i] = 'a';
+            --a;
+        } else {
+            res[i] = 'b';
+            --b;
+        }
+    }
+    return res;
+}
