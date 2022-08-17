@@ -1,0 +1,30 @@
+void dfs(int n, int k, int start, int *res, int* returnSize, int sum, int idx) {
+    if (start < 0 || start > 9) {
+        return;
+    }
+    /* 对满足条件的值进行累和 */
+    sum = sum * 10 + start;
+
+    /* 长度满足条件, 数值输出 */
+    if (idx == n - 1) {
+        res[(*returnSize)++] = sum;
+        return;
+    }
+    /* 数据分别加k, 减k */
+    if (k != 0) {
+        dfs(n, k, start + k, res, returnSize, sum, idx + 1);
+    }
+    dfs(n, k, start - k, res, returnSize, sum, idx + 1);
+
+}
+
+int* numsSameConsecDiff(int n, int k, int* returnSize){
+    int *res = (int*)malloc(sizeof(int) * 10000);
+    int i;
+    *returnSize = 0;
+    /* 起始从1-9开始 */
+    for (i = 1; i < 10; i++) {
+        dfs(n, k, i, res, returnSize, 0, 0);
+    }
+    return res;
+}
