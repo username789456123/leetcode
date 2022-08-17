@@ -1,0 +1,26 @@
+int numRookCaptures(char** board, int boardSize, int* boardColSize){
+    int sum=0;
+    int dx[4]={1,-1,0,0},dy[4]={0,0,1,-1};
+    for(int i=0;i<boardSize;i++){
+        for(int j=0;j<boardSize;j++){
+            if(board[i][j]=='R'){//先找到车的位置
+                for(int k=0;k<4;k++){//利用数组dx，dy实现四个方向的遍历
+                    int x=i,y=j;
+                    while(true){
+                        x+=dx[k];//横纵坐标步进
+                        y+=dy[k];
+                        if(x<0 || x>=boardSize || y<0 || y>=boardSize || board[x][y]=='B')
+                            break;
+                        if(board[x][y]=='p'){//一定要是小写p！
+                            sum++;
+                            break;
+                        }
+                    }
+                    
+                }
+                return sum;
+            }
+        }
+    }
+    return 0;
+}
