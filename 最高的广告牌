@@ -1,0 +1,27 @@
+#define fix(x) (x + HALF)
+#define max(a, b) a > b ? a : b
+int tallestBillboard(int* rods, int rodsSize)
+{
+    const int INF = 0x3f3f3f3f;
+    const int SUM = 10100;
+    const int HALF = 5010;
+    int dp[SUM], last[SUM];
+    for (int i = 0; i < SUM; i++)
+        dp[i] = -INF;
+
+    dp[fix(0)] = 0;
+    for (int i = 0; i < rodsSize; i++)
+    {
+        memcpy(last, dp, sizeof(dp));
+        for (int j = -HALF; j < HALF; j++)
+        {
+            if (last[fix(j)] != -INF)
+            {
+                dp[fix(j + rods[i])] = max(dp[fix(j + rods[i])], last[fix(j)] + rods[i]);
+                dp[fix(j - rods[i])] = max(dp[fix(j - rods[i])], last[fix(j)]);
+            }
+        }
+    }
+    //printf("%d", dp[fix(0)]);
+    return dp[fix(0)];
+}
