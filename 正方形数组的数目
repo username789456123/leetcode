@@ -1,0 +1,29 @@
+int sum,len;
+void dfs(int *nums,int list[],int dep,int used[]){
+    int i,j,k;
+    if(dep==len){
+        //for(i=0;i<dep;i++)printf("%d ",list[i]);printf("\n");
+        sum++; return;
+    }
+    for(i=0;i<len;i++){
+        if(used[i]==0){
+            if(i>0&&used[i-1]==0&&nums[i-1]==nums[i])continue;
+            if(dep>0){
+            int value=list[dep-1]+nums[i];
+            if(  value!=(int)sqrt(value)*(int)sqrt(value)    )continue;
+            }
+            list[dep]=nums[i]; used[i]=1;
+            dfs(nums,list,dep+1,used);
+            used[i]=0;
+        }
+    }
+}
+int cmp(const void *a,const void *b){
+    return *(int*)a-*(int*)b;
+}
+int numSquarefulPerms(int* nums, int numsSize){
+    sum=0; len=numsSize; int list[15]={0}; int used[15]={0};  qsort(nums,numsSize,sizeof(int),cmp);
+    dfs(nums,list,0,used);
+    int res=sum; return res; 
+    
+}
