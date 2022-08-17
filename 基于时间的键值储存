@@ -1,0 +1,67 @@
+typedef struct {
+    char key[100];
+    int valueLen;
+    int timestamp[120000];
+    char *value[120000];
+    UT_hash_handle hh;
+} TimeMap;
+
+/** Initialize your data structure here. */
+TimeMap *g_tm = NULL;
+TimeMap* timeMapCreate() {
+    TimeMap *temp;
+    temp = malloc(sizeof(TimeMap));
+    return temp;
+}
+
+void timeMapSet(TimeMap* obj, char * key, char * value, int timestamp) {
+    TimeMap *temp = NULL;
+    HASH_FIND_STR(g_tm, key, temp);
+    if (temp == NULL) {
+        temp = malloc(sizeof(TimeMap));
+        strcpy(temp->key, key);
+        temp->valueLen = 1;
+        temp->timestamp[0] = timestamp;
+        temp->value[0] = malloc(100);
+        strcpy(temp->value[0], value);
+        HASH_ADD_STR(g_tm, key, temp);
+    } else {
+        temp->timestamp[temp->valueLen] = timestamp;
+        temp->value[temp->valueLen] = malloc(100);
+        strcpy(temp->value[temp->valueLen], value);
+        temp->valueLen += 1;
+    }
+    
+}
+
+char * timeMapGet(TimeMap* obj, char * key, int timestamp) {
+    int i;
+    TimeMap *temp = NULL;
+    HASH_FIND_STR(g_tm, key, temp);
+    if (temp == NULL) {
+        return "";
+    } else {
+        for (i = temp->valueLen - 1; i >= 0; i--) {
+            if (temp->timestamp[i] <= timestamp) {
+                
+                return temp->value[i];
+            }
+        }
+    }
+    return "";
+}
+
+void timeMapFree(TimeMap* obj) {
+    TimeMap *temp1 = NULL;
+    TimeMap *temp2 = NULL;
+    int i;
+    HASH_ITER(hh, g_tm, temp1, temp2) {
+        if (temp1 != NULL) {
+            HASH_DEL(g_tm, temp1);
+            for (i = 0; i < temp1->valueLen; i++) {
+                free(temp1->value[i]);
+            }
+            free(temp1);
+        }
+    }
+}
