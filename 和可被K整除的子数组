@@ -1,0 +1,32 @@
+typedef struct{
+    int key;
+    int val;
+    UT_hash_handle hh;
+}HashTab;
+
+int subarraysDivByK(int* nums, int numsSize, int k){
+    int ret = 0;
+    HashTab* head = NULL;
+    HashTab* p = NULL;
+    p = malloc(sizeof(HashTab));
+    p->key = 0;
+    p->val = 1;
+    HASH_ADD_INT(head, key, p);
+    int sum = 0;
+    for (int i = 0; i < numsSize; ++i){
+        sum += nums[i];//(a+b)%k等于(a%k+b%k)%k，所以哈希表中只需要存储取余后的值即可
+        //注意 C++ 取模的特殊性，当被除数为负数时取模结果为负数，需要纠正
+        int need = (sum % k + k) % k;
+        HASH_FIND_INT(head, &need, p);
+        if (p != NULL){
+            ret += p->val;
+            ++p->val;
+        }else {
+            p = malloc(sizeof(HashTab));
+            p->key = need;
+            p->val = 1;
+            HASH_ADD_INT(head, key, p);
+        }
+    }
+    return ret;
+}
