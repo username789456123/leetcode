@@ -1,0 +1,31 @@
+struct HashItem {
+    int key;
+    UT_hash_handle hh;
+};
+
+void freeHash(struct HashItem **obj) {
+    struct HashItem *curr, *tmp;
+    HASH_ITER(hh, *obj, curr, tmp) {
+        HASH_DEL(*obj, curr);  
+        free(curr);        
+    }
+}
+
+int repeatedNTimes(int* nums, int numsSize){
+    struct HashItem *found = NULL;
+    for (int i = 0; i < numsSize; i++) {
+        struct HashItem *pEntry = NULL;
+        HASH_FIND_INT(found, &nums[i], pEntry);
+        if (pEntry != NULL) {
+            freeHash(&found);
+            return nums[i];
+        } else {
+            pEntry = (struct HashItem *)malloc(sizeof(struct HashItem));
+            pEntry->key = nums[i];
+            HASH_ADD_INT(found, key, pEntry);
+        }
+    }
+    // 不可能的情况
+    freeHash(&found);
+    return -1;
+}
