@@ -1,0 +1,26 @@
+bool canThreePartsEqualSum(int* arr, int arrSize){
+    int sum=0;
+    for(int i=0;i<arrSize;i++)
+    {
+        sum=sum+arr[i];
+    }
+    if(sum%3!=0)//总和不可分为3份
+    {
+        return false;
+    }
+    int sum1=0,target=sum/3,count=0;
+    for(int i=0;i<arrSize;i++)//直接一次遍历解决
+    {
+        sum1=sum1+arr[i];
+        if(sum1==target)
+        {
+            count++;
+            sum1=0;
+        }
+        if(count==2&&i<arrSize-1)
+        {
+            return true;
+        }
+    }
+    return false;
+}
