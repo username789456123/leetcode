@@ -1,0 +1,10 @@
+int maxScoreSightseeingPair(int* values, int valuesSize){
+    int ans[valuesSize+1];
+    int max=0;
+    ans[0]=values[0];
+    for(int i=1;i<valuesSize;i++){
+        ans[i]=fmax(ans[i-1],values[i]+i);
+        max=fmax(max,ans[i-1]+values[i]-i);
+    }
+    return max;
+}
