@@ -1,0 +1,44 @@
+void translate(char *det,char N); //转二进制
+bool queryString(char * S, int N){
+    char det[50];
+    for(int m = 1; m<=N; m++) {
+        translate(det,m);
+        int l1 = strlen(S);     //S长度
+        int l2 = strlen(det);           //det长度
+        int i = 0;
+        int temp = 0;       //标兵，标志是否子串
+        for(int j = 0; j<=l1-l2; j++) {   //判断是否子串
+            if(det[0] == S[j]) {                        //一下是实现strstr函数
+                while('\0'!=det[i]&&det[i]==S[j+i]) {
+                    i++;
+                }
+                if('\0'==det[i]) {
+                    temp = 1;
+                    break;
+                }
+                i = 0;
+            }
+            if(1==temp) {
+                break; 
+            };
+        }
+        if(0==temp)return 0;
+    }
+    return 1;
+}
+void translate(char *det,char N) {
+    int t=0,i=0;
+    while (N!=0) {                  //取模后写入数组
+        t = N%2;
+        det[i] = t+'0';
+        N /= 2;
+        i++;
+    }
+    det[i] = '\0';
+    char temp = '0';
+    for(int j = 0; j<=(i-1)/2; j++) {           //数组倒序
+        temp = det[j];
+        det[j] = det[i-j-1];
+        det[i-j-1] = temp;
+    }
+}
