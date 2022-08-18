@@ -1,0 +1,37 @@
+#define BIT_COUNT 32
+unsigned int g_book[BIT_COUNT + 1] = { 0 }; //定义n个bit能显示的最大数
+unsigned int g_powTwoN[BIT_COUNT] = { 0 };  //pow(2,n)
+void BookInit()//初始化，初始化上面的两个全局数组
+{
+    for (int i = 1; i <= BIT_COUNT; i++) {
+        g_book[i] = g_book[i - 1] + (i % 2) * pow(2, i - 1);
+        g_powTwoN[i - 1] = pow(2, i - 1);
+    }
+}
+int GetBitLen(int n)//遍历找到第一个>=n的，这时的i就是表示这个n需要的最小位数
+{
+    for (int i = 1; i <= BIT_COUNT; i++) {
+        if (g_book[i] >= n) {
+            return i;
+        }
+    }
+    return 0;
+}
+char * baseNeg2(int n){
+    BookInit();
+    int bitLen = GetBitLen(n);
+    char *res = (char *)malloc(sizeof(char) * (bitLen + 1));
+    for (int i = 0; i < bitLen; i++) {
+        res[i] = ((bitLen - i - 1) % 2 == 0) ? '1' : '0';
+    }
+    res[bitLen] = '\0';//初始化res，位数为偶数的（pow为整数）的设为1，其余为0，此时为能表示的最大值
+    n = g_book[bitLen] - n;//获得最大值与目标值的差值
+    /*然后从大到小减去合适的（pow（2，n）*/
+    for (int i = bitLen - 1; i >= 0; i--) {
+        if (n >= g_powTwoN[i]) {
+            n = n - g_powTwoN[i];
+            res[bitLen - 1 - i] = (res[bitLen - 1 - i] == '0') ? '1' : '0';
+        }
+    }
+    return res;
+}
