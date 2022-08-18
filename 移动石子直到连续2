@@ -1,0 +1,27 @@
+int Comp(const void *a, const void *b) {
+    return *(int*)a - *(int*)b;
+}
+
+int* numMovesStonesII(int* stones, int stonesSize, int* returnSize){
+    int *ans = (int*)malloc(2 * sizeof(int));
+    memset(ans, 0, 2 * sizeof(int));
+    *returnSize = 2;
+    int minMove = stonesSize;
+    qsort(stones, stonesSize, sizeof(int), Comp);
+    for(int left = 0, right = 0; right < stonesSize; right++) {
+        // 窗口内的可以放的石头个数
+        while(stones[right] - stones[left] + 1 > stonesSize) {
+            left++;
+        }
+        // 窗口内已经放的石头个数
+        int already_stone = right - left + 1;
+        if(stones[right] - stones[left] + 1 == stonesSize - 1 && already_stone == stonesSize - 1) {
+            minMove = fmin(minMove, 2);
+        } else {
+            minMove = fmin(minMove, stonesSize - already_stone);
+        }
+    }
+    ans[0] = minMove;
+    ans[1] = fmax(stones[stonesSize-1]-stones[1]-stonesSize + 2, stones[stonesSize - 2]-stones[0]-stonesSize + 2);
+    return ans;
+}
