@@ -1,0 +1,27 @@
+int clumsy(int n) {
+    int stk[n], top = 0;
+    stk[top++] = n;
+    n--;
+
+    int index = 0; // 用于控制乘、除、加、减
+    while (n > 0) {
+        if (index % 4 == 0) {
+            stk[top - 1] *= n;
+        } else if (index % 4 == 1) {
+            stk[top - 1] /= n;
+        } else if (index % 4 == 2) {
+            stk[top++] = n;
+        } else {
+            stk[top++] = -n;
+        }
+        index++;
+        n--;
+    }
+
+    // 把栈中所有的数字依次弹出求和
+    int sum = 0;
+    while (top) {
+        sum += stk[--top];
+    }
+    return sum;
+}
