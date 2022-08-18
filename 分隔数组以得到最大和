@@ -1,0 +1,18 @@
+int maxSumAfterPartitioning(int* arr, int arrSize, int k){
+    if (arr == NULL || arrSize <= 0 || k <= 0) {
+        return 0;
+    }
+
+    int d[arrSize + 1];
+    memset(d, 0, sizeof(d));
+    for (int i = 1; i < arrSize + 1; i++) {
+        int max = arr[i - 1];
+        d[i] = d[i - 1] + arr[i - 1];
+        for (int j = i - 1; i - j < k && j > 0; j--) {
+            max = fmax(max, arr[j - 1]);
+            d[i] = fmax(d[i], d[j - 1] + (i - j + 1) * max);
+        }
+    }
+
+    return d[arrSize];
+}
