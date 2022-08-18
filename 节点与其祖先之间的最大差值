@@ -1,0 +1,26 @@
+void kirk_hament(struct TreeNode* root, int t, int *max_n){
+    if(!root){
+        return;
+    }
+    *max_n = fmax(*max_n, abs(root->val - t));
+    kirk_hament(root->left, t, max_n);
+    kirk_hament(root->right, t, max_n);
+    return;
+}
+
+int maxAncestorDiff(struct TreeNode* root){
+    struct TreeNode* arr[5005];
+    int head = 0, tail = 0, max_n = 0;
+    arr[tail++] = root;
+    while(head != tail){
+        struct TreeNode* node = arr[head++];
+        kirk_hament(node, node->val, &max_n);
+        if(node->left){
+            arr[tail++] = node->left;
+        }
+        if(node->right){
+            arr[tail++] = node->right;
+        }
+    }
+    return max_n;
+}
