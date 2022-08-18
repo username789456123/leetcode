@@ -1,0 +1,65 @@
+// 题解一：暴力
+int cmp(const void* str1, const void* str2)
+{
+    const char *a1 = *(const char**)str1;
+    const char *a2 = *(const char**)str2;
+    return strlen(a1) - strlen(a2);
+}
+
+// 判断是否是字符链
+int IsWords(char *str1, char *str2)
+{
+    int len1 = strlen(str1);
+    int len2 = strlen(str2);
+    // str2 长度小于等于str1长度，肯定不是一个组合
+    if (len2 <= len1) {
+        return -1;
+    }
+    int count = 0;
+    int size = 0;
+    for (int i = 0; i < len2; i++) {
+        size++;
+        if (str2[i] == str1[count]) {
+            count++;
+            size = 0;
+            continue;
+        }
+        // 中间间隔2个字符不符合要求直接退出
+        if (size > 1) {
+            return -1;
+        }
+    }
+    // str2 不完全包含 str1 不符合要求
+    if (count != len1) {
+        return -1;
+    }
+    return 1;
+}
+
+int longestStrChain(char ** words, int wordsSize){
+    int ret = 1;
+    if (wordsSize == 1) {
+        return ret;
+    }
+    //对原始字符数组进行排序
+    qsort(words, wordsSize, sizeof(char*), cmp);
+
+    int *buf = (int*)malloc(sizeof(int) * wordsSize);
+    for (int i = 0; i < wordsSize; i++) {
+        buf[i] = 1;
+    }
+
+    for (int i = 0; i < wordsSize - 1; i++) {
+        for (int j = i + 1; j < wordsSize; j++) {
+            if (IsWords(words[i], words[j]) > 0) {
+                buf[j] = buf[j] > buf[i] + 1 ? buf[j] : buf[i] + 1;
+            }
+        }
+    
+    }
+
+    for (int i = 0; i < wordsSize; i++) {
+        ret = ret > buf[i] ? ret : buf[i];
+    }
+    return ret;
+}
