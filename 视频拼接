@@ -1,0 +1,13 @@
+int videoStitching(int** clips, int clipsSize, int* clipsColSize, int time) {
+    int dp[time + 1];
+    memset(dp, 0x3f, sizeof(dp));
+    dp[0] = 0;
+    for (int i = 1; i <= time; i++) {
+        for (int j = 0; j < clipsSize; j++) {
+            if (clips[j][0] < i && i <= clips[j][1]) {
+                dp[i] = fmin(dp[i], dp[clips[j][0]] + 1);
+            }
+        }
+    }
+    return dp[time] == 0x3f3f3f3f ? -1 : dp[time];
+}
