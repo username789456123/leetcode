@@ -1,0 +1,64 @@
+struct trieNode {
+    int flag;
+    int ch[26];
+};
+
+typedef struct {
+    struct trieNode tree[100001];
+    int len;
+    char buff[40001];
+    int count;
+} StreamChecker;
+
+void insert(StreamChecker *obj, char *s)
+{
+    int addr = 0;
+    for(int i = strlen(s) - 1; i >= 0; i-- )
+    {
+        int k = s[i] - 'a';
+        if(obj->tree[addr].ch[k] == 0)
+        {
+            obj->len++;
+            obj->tree[addr].ch[k] = obj->len - 1;
+        }
+        addr = obj->tree[addr].ch[k];
+    }
+    obj->tree[addr].flag = true;
+}
+
+bool findWord(StreamChecker *obj)
+{
+    int addr = 0;
+    for(int i = obj->count - 1; i >= 0; i--)
+    {
+        int k = obj->buff[i] - 'a';
+        if(obj->tree[addr].ch[k] == 0)
+            return false;
+        else
+        {
+            addr = obj->tree[addr].ch[k];
+            if(obj->tree[addr].flag == true)
+                return true;
+        }
+    }
+
+    return obj->tree[addr].flag;
+}
+
+StreamChecker* streamCheckerCreate(char ** words, int wordsSize) {
+    StreamChecker *obj = (StreamChecker *)calloc(1, sizeof(StreamChecker));
+    obj->len = 1;
+
+    for(int i = 0; i < wordsSize; i++)
+        insert(obj, words[i]);
+    return obj;
+}
+
+bool streamCheckerQuery(StreamChecker* obj, char letter) {
+    obj->buff[obj->count++] = letter;
+    return findWord(obj);
+}
+
+void streamCheckerFree(StreamChecker* obj) {
+    free(obj);  
+}
