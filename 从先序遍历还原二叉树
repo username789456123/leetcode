@@ -1,0 +1,33 @@
+int count_(char *s,char **end){
+    int count=0;
+    while(*s=='-'){
+        count++;
+        s++;
+    }
+    *end=s;
+    return count;
+}
+struct TreeNode* recoverFromPreorder(char * S){
+    struct TreeNode *stack[1001];
+    struct TreeNode *root=malloc(sizeof(struct TreeNode));
+    char **end=malloc(sizeof(char *));
+    root->val=strtol(S,end,10);
+    root->left=root->right=NULL;
+    stack[0]=root;
+    int pre=0,cur;
+    struct TreeNode *p=root;
+    while(**end){
+        cur=count_(*end,end);
+        if(cur==pre+1)
+            p=p->left=malloc(sizeof(struct TreeNode));
+        else{
+            p=stack[cur-1];
+            p=p->right=malloc(sizeof(struct TreeNode));
+        }
+        p->val=strtol(*end,end,10);
+        p->left=p->right=NULL;
+        stack[cur]=p;
+        pre=cur;
+    }
+    return root;
+}
