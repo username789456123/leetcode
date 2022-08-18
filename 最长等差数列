@@ -1,0 +1,21 @@
+int longestArithSeqLength(int* A, int ASize){
+    int max = 0;
+    int *dp[ASize];
+    for (int i = 0; i < ASize; i++) {
+        dp[i] = malloc(sizeof(int) * 20001);
+        memset(dp[i], 0, sizeof(int) * 20001);
+    }
+
+    for (int i = 1; i < ASize; i++) {
+        for (int j = 0; j < i; j++) {
+            int diff = A[i] - A[j];
+            dp[i][diff + 10000] = dp[j][diff + 10000] + 1;
+            max = fmax(max, dp[i][diff + 10000]);
+        }
+    }
+
+    for (int i = 0; i < ASize; i++) {
+        free(dp[i]);
+    }
+    return max + 1;
+}
