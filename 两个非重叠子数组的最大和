@@ -1,0 +1,24 @@
+#define max(a, b) ((a) > (b) ? (a) : (b))
+int maxSumTwoNoOverlap(int* A, int ASize, int L, int M){
+    int *s;
+    int prevMaxSum, sum, i, t;
+
+    s = malloc((ASize + 1) * sizeof(int));
+    s[0] = sum = 0;
+    for(i = 1; i <= ASize; i++) s[i] = s[i - 1] + A[i - 1];
+
+    for(t = 0; t < 2; t++) /* L、M前后关系的两种情况 */
+    {
+        prevMaxSum = 0;
+        for(i = L; i + M <= ASize; i++)
+        {
+            prevMaxSum = max(prevMaxSum, s[i] - s[i - L]);
+            sum = max(sum, prevMaxSum + s[i + M] - s[i]);
+        }
+        /* 借用prevMaxSum来交换一下L和M */
+        prevMaxSum = L; L = M; M = prevMaxSum;
+    }
+
+    free(s);
+    return sum;
+}
