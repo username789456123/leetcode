@@ -1,0 +1,127 @@
+// 在包围圈中
+#define  BLOCKED -1
+// 不在包围圈中
+#define VALID  0
+// 无论在不在包围圈中，但在 n(n-1)/2 步搜索的过程中经过了 target
+#define FOUND  1
+
+#define BOUNDARY 1000000
+
+int dirs[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+#define HashCode(x, y) ((long long)(x) << 20 | (y))
+
+struct Pair{
+    int x;
+    int y;
+};
+
+struct HashEntry {
+    long long key;                  
+    long long val;
+    UT_hash_handle hh;         
+};
+
+void hashAddItem(struct HashEntry **obj, long long key) {
+    struct HashEntry *pEntry;
+    pEntry = malloc(sizeof(struct HashEntry));
+    pEntry->key = key;
+    pEntry->val = 1;
+    HASH_ADD(hh, *obj, key, sizeof(long long), pEntry);
+} 
+
+struct HashEntry *hashFindItem(struct HashEntry **obj, long long key)
+{
+    struct HashEntry *pEntry = NULL;
+    HASH_FIND(hh, *obj, &key, sizeof(long long), pEntry);
+    return pEntry;
+}
+
+void hashEraseItem(struct HashEntry **obj, long long key)
+{   
+    struct HashEntry *pEntry = NULL;
+    HASH_FIND(hh, *obj, &key, sizeof(long long), pEntry);
+    if (NULL != pEntry) {
+        HASH_DEL(*obj, pEntry);
+        free(pEntry);
+    } 
+}
+
+void hashFreeAll(struct HashEntry **obj)
+{
+    struct HashEntry *curr, *next;
+    HASH_ITER(hh, *obj, curr, next)
+    {
+        HASH_DEL(*obj, curr);  
+        free(curr);      
+    }
+}
+
+int check(int** blocked, int blockedSize, const int* start, const int* finish, struct HashEntry ** hashBlocked) {
+    int sx = start[0], sy = start[1];
+    int fx = finish[0], fy = finish[1];
+    int countdown = blockedSize * (blockedSize - 1) / 2;
+
+    int head = 0;
+    int tail = 0;
+    struct Pair * queue = (struct Pair *)malloc(sizeof(struct Pair) * countdown * 4);
+    queue[tail].x = sx;
+    queue[tail].y = sy;
+    tail++;
+    struct HashEntry * visited = NULL;
+    hashAddItem(&visited, HashCode(sx, sy));
+
+    while(head != tail && countdown > 0) {
+        int x = queue[head].x;
+        int y = queue[head].y;
+        head++;
+        for (int d = 0; d < 4; d++) {
+            int nx = x + dirs[d][0], ny = y + dirs[d][1];
+            if (nx >= 0 && nx < BOUNDARY && ny >= 0 && ny < BOUNDARY && 
+                !hashFindItem(hashBlocked, HashCode(nx, ny)) && 
+                !hashFindItem(&visited, HashCode(nx, ny))) {
+                if (nx == fx && ny == fy) {
+                    hashFreeAll(&visited);
+                    free(queue);
+                    return FOUND;
+                }
+                countdown--;
+                queue[tail].x = nx;
+                queue[tail].y = ny;
+                tail++;
+                hashAddItem(&visited, HashCode(nx, ny));
+            }
+        }
+    }
+    if (countdown > 0) {
+        hashFreeAll(&visited);
+        free(queue);
+        return BLOCKED;
+    }
+    hashFreeAll(&visited);
+    free(queue);
+    return VALID;
+}
+
+bool isEscapePossible(int** blocked, int blockedSize, int* blockedColSize, int* source, int sourceSize, int* target, int targetSize){
+    if (blockedSize < 2) {
+        return true;
+    }
+
+    struct HashEntry * hashBlocked = NULL;
+    for (int i = 0; i < blockedSize; i++) {
+        hashAddItem(&hashBlocked, HashCode(blocked[i][0], blocked[i][1]));
+    }
+    int result = check(blocked, blockedSize, source, target, &hashBlocked);
+    if (result == FOUND) {
+        hashFreeAll(&hashBlocked);
+        return true;
+    } else if (result == BLOCKED) {
+        hashFreeAll(&hashBlocked);
+        return false;
+    } else {
+        result = check(blocked, blockedSize, target, source, &hashBlocked);
+        hashFreeAll(&hashBlocked);
+        return result != BLOCKED;
+    }
+}
