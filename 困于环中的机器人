@@ -1,0 +1,5 @@
+bool isRobotBounded(char *t){
+int d = 0, i, x = 0, y = 0;
+do for( i=0 ; t[i] ; ++i) (t[i] ^ 'L' ) || ++d,(t[i] ^ 'R' ) || --d,(t[i] ^ 'G' ) || ( (x += d & 1 ? ((d & 3) - 2) : 0) ^ (y += d & 1 ? 0: ((d & 3) - 1)));while(d & 3);
+return!(x||y);
+}
