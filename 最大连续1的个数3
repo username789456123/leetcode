@@ -1,0 +1,27 @@
+int binarySearch(int* P, int len, int target) {
+    int low = 0, high = len - 1;
+    while (low < high) {
+        int mid = (high - low) / 2 + low;
+        if (P[mid] < target) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    return low;
+}
+
+int longestOnes(int* nums, int numsSize, int k) {
+    int P[numsSize + 1];
+    P[0] = 0;
+    for (int i = 1; i <= numsSize; ++i) {
+        P[i] = P[i - 1] + (1 - nums[i - 1]);
+    }
+
+    int ans = 0;
+    for (int right = 0; right < numsSize; ++right) {
+        int left = binarySearch(P, numsSize + 1, P[right + 1] - k);
+        ans = fmax(ans, right - left + 1);
+    }
+    return ans;
+}
