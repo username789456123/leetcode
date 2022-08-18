@@ -1,0 +1,100 @@
+/* Pa(m,n)表示排列组合P(m,n) = m!/n!。 */
+static inline int Pa(int m, int n)
+{
+    int i = 0;
+    int result = 1;
+
+    while(i < n)
+    {
+        result *= (m - i);
+        i++;
+    }
+
+    return result;
+}
+
+/* 先找出不大于N的所有数当中，含有不重复数字的个数，然后减一下即可。 */
+int numDupDigitsAtMostN(int N)
+{
+    /* base[i]表示i位数以内，一共有多少个不重复数字的个数。最高位必须不等于0，而后面的数可以是0，所以计算时注意第一个被乘数必然是9。
+    例：个位数有9个，二位数以内有9*9+9=90个，三位数以内有9*9*8+90=738个，四位数以内有9*9*8*7+738=5274个，以此类推。
+    int类型一共到十位数，故base[]数组长度取10足够。 */
+    int base[10] = {9,90,738,5274,32490,168570,712890,2345850,5611770,8877690};
+    /* int类型最多10位数，digits[]数组从低位到高位，存储输入参数N的各个位数字。 */
+    int digits[10] = {0};
+    /* 输入参数N的位数。 */
+    int digitsCount = 0;
+    /* mask[]数组用来标记0～9这10个数字，是否被使用过，如果使用过，后面的数字，就不能再重复使用了。 */
+    int mask[10] = {0};
+    int val = N;
+    int i = 0;
+    int j = 0;
+    int result = 0;
+    /* lowerBase表示位数低于digitsCount的所有含有不重复数字的个数。 */
+    int lowerBase = 0;
+    /* sameBase表示和入参N具有相同的位数digitsCount，但是最高位小于N的含有不重复数字的个数。
+    因为最高位不能为0，所以和后面的位数分开考虑。 */
+    int sameBase = 0;
+    /* ifself表示输入参数N自己是否含有相同数字。 */
+    int itself = 0;
+
+    /* 计算N的位数和每一位数字。用临时变量val计算，因为N在函数最后还要使用，不能先改掉了。 */
+    while(val)
+    {
+        digits[digitsCount] = val % 10;
+        val /= 10;
+        digitsCount++;
+    }
+    /* 注意digits[]数组是从低位到高位排列的，所以在循环查找时，从后面开始。 */
+    i = digitsCount - 1;
+
+    if(1 < digitsCount)
+    {
+        lowerBase = base[digitsCount - 2];
+    }
+
+    /* sameBase只要确定好最高位（在1～digits[i]-1之中任选一个），剩下的几位就是 9*8*7*6...... 这样的排列组合。 */
+    if(1 < digits[i])
+    {
+        sameBase = (digits[i] - 1) * Pa(9, i);
+    }
+
+    /* 计算和N具有相同位数，且最高位也相等的，含有不重复数字的个数。 */
+    mask[digits[i]] = 1;
+    i--;
+    while(0 <= i)
+    {
+        /* 除了最高位以外，后面的位数，可以使用0。
+        所以，这一位在剩下的数字里面随机选择一个数。
+        当这一位的数，比N的这一位小的时候，再后面的数就是排列组合，否则继续往下面一位查找。 */
+        j = 0;
+        val = 0;
+        /* 小于digits[i]的，直接算排列组合。但是记得跳过mask[]被标记的数字。 */
+        while(j < digits[i])
+        {
+            if(0 == mask[j])
+            {
+                val++;
+            }
+            j++;
+        }
+        /* 除去前面几位，后面的排列组合不能从9开始了，得从 10 - digitsCount + i 开始。 */
+        result += val * Pa(10 - digitsCount + i, i);
+
+        /* 等于digits[i]的情况，只要把mask[digits[i]]标记一下，继续下一轮循环即可。
+        但是，如果mask[digits[i]]已经被标记过了，表示取这个数字必然产生重复数字，则不能继续下一轮循环，到此结束。 */
+        mask[digits[i]]++;
+        if(1 < mask[digits[i]])
+        {
+            itself = 1;
+            break;
+        }
+        i--;
+    }
+
+    /* 用总数减去含有不重复数字的个数，剩下就是至少含有两个重复数字的个数。
+    前面lowerBase，SameBase，和while循环计算的result值，都是小于N的值，不包括N本身，所以最后计算时，要把itself的值算上。 */
+    result = N - (result + sameBase + lowerBase) - 1 + itself;
+
+    return result;
+}
