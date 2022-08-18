@@ -1,0 +1,31 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* numMovesStones(int a, int b, int c, int* returnSize){
+  int max,min,meidum;
+  if(a>b){
+     max=a>c?a:c;
+     min=b>c?c:b;
+  }
+  else{
+     max=b>c?b:c;
+     min=a>c?c:a;
+  }
+  meidum=a+b+c-max-min;
+  a=min;
+  b=meidum;
+  c=max;
+  int * ans=(int*)malloc(sizeof(int)*2);
+  if(c-b==1&&b-a==1){
+      ans[0]=0;
+  }
+  else if(c-b==1||b-a==1){
+      ans[0]=1;
+  }
+  else{
+      ans[0]=fmin(c-b-1,b-a-1)>2?2:fmin(c-b-1,b-a-1);
+  }
+  ans[1]=c-b-1+b-a-1;
+  *returnSize=2;
+  return ans;
+}
