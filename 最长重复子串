@@ -1,0 +1,67 @@
+struct my_struct{
+    int now; // 有几个在这里碰撞了
+    int id[10]; // 为起始地址 长度为假设的同一点最多发生的碰撞次数
+    unsigned long long hash; // 键值 这个是要被查找的
+    UT_hash_handle hh;
+};
+typedef struct my_struct MS;
+
+int check(char* s, int mid){
+    // 判断mid长是否存在重复子串 若存在返回较后的字串的起始下标（不为0），否则返回0
+    MS* users = NULL, *us;
+    unsigned long long hash = 0;
+    unsigned long long power = 1;
+    int n = strlen(s);
+    int k = 31, i, j; // k进制数
+    for(i = 0;i < mid;i++) hash = hash * k + s[i] - 'a'; // 首加上 mid - 1 到尾
+    for(i = 1;i < mid;i++) power *= k; // 进制的（长度-1）次方
+    us = (MS*)malloc(sizeof(MS));
+    us->id[0] = 0;
+    us->now = 1;
+    us->hash = hash;
+    HASH_ADD_INT(users, hash, us);
+    // 第二个参数是键值变量的名字
+    for(i = 1;i <= n - mid;i++){
+        hash = (hash - power * (s[i - 1] - 'a')) * k + s[i + mid - 1] - 'a';
+        HASH_FIND_INT(users, &hash, us);
+        // 搜索键值 要加取地址
+        if(us){
+            for(j = 0;j < us->now;j++){
+                if(!strncmp(s + us->id[j], s + i, mid)) return i;
+                // int strncmp(const char *str1, const char *str2, size_t n) 最多比较n个字符
+            }
+            us->id[us->now] = i;
+            us->now++;
+        }
+        else{
+            us = (MS*)malloc(sizeof(MS));
+            us->id[0] = i;
+            us->hash = hash;
+            us->now = 1;
+            HASH_ADD_INT(users, hash, us);
+        }
+    }
+    return 0;
+}
+
+char * longestDupSubstring(char * s){
+    int n = strlen(s);
+    int left = 1, right = n - 1; // 长度下界与上界
+    int mid;
+    int max = 0, now, max_now = 0; // 符合题意的最大长度 当前得到的符合题意的起始下标 最大长度对应的起始下标
+    while(left <= right){
+        mid = (left + right) / 2;
+        if(now = check(s, mid)){
+            max = mid;
+            max_now = now;
+            left = mid + 1;
+        }
+        else right = mid - 1;
+    }
+    char* ans = (char*)malloc(sizeof(char) * (max + 1));
+    // 不存在时 max 与 max_now均因为初始化的原因为0 返回数组正好为'\0'。
+    strncpy(ans, s + max_now, max);
+    // 最多复制max个字符
+    ans[max] = '\0';
+    return ans;
+}
