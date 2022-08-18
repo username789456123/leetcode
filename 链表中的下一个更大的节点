@@ -1,0 +1,51 @@
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* nextLargerNodes(struct ListNode* head, int* returnSize){
+    struct ListNode * p = head;
+    *returnSize = 0;
+    int length = 0;
+    while(p){
+        length++;
+        p = p->next;
+    }
+    p = head;
+    if(length == 0){
+        return 0;
+    }
+    //输出结果数组
+    int* res = (int*)malloc(sizeof(int)*length);
+    //存储链表数据的数组
+    int text[length];
+    //res的初始化赋值不可或缺
+    for(int i=0;i<length;i++){
+        res[i]=0;
+        text[(*returnSize)++]=p->val;
+        p =p->next;
+    }
+    //对单调栈的使用开始
+    int stack[length];
+    int top = -1;
+    //如何将单调栈的应用表示出来？
+   for(int i =0;i<length;i++)
+   {
+     while(top!=-1 && text[stack[top]]<text[i]){
+      res[stack[top]] = text[i];
+      top--;
+     }
+     top++;
+     stack[top] = i;
+    }
+   res[length-1]=0;
+   return res ;
+   free(res);
+}
