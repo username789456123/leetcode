@@ -1,0 +1,45 @@
+struct HashTable {
+    int key, val;
+    UT_hash_handle hh;
+};
+
+int subarraySum(int* nums, int numsSize, int k) {
+    struct HashTable* hashTable = NULL;
+    struct HashTable* tmp = malloc(sizeof(struct HashTable));
+    tmp->key = 0, tmp->val = 1;
+    HASH_ADD_INT(hashTable, key, tmp);
+    int count = 0, pre = 0;
+    for (int i = 0; i < numsSize; i++) {
+        pre += nums[i];
+        int x = pre - k;
+        HASH_FIND_INT(hashTable, &x, tmp);
+        if (tmp != NULL) {
+            count += tmp->val;
+        }
+        HASH_FIND_INT(hashTable, &pre, tmp);
+        if (tmp != NULL) {
+            tmp->val++;
+        } else {
+            tmp = malloc(sizeof(struct HashTable));
+            tmp->key = pre, tmp->val = 1;
+            HASH_ADD_INT(hashTable, key, tmp);
+        }
+    }
+    return count;
+}
+
+int numSubmatrixSumTarget(int** matrix, int matrixSize, int* matrixColSize, int target) {
+    int ans = 0;
+    int m = matrixSize, n = matrixColSize[0];
+    for (int i = 0; i < m; ++i) {  // 枚举上边界
+        int sum[n];
+        memset(sum, 0, sizeof(sum));
+        for (int j = i; j < m; ++j) {  // 枚举下边界
+            for (int c = 0; c < n; ++c) {
+                sum[c] += matrix[j][c];  // 更新每列的元素和
+            }
+            ans += subarraySum(sum, n, target);
+        }
+    }
+    return ans;
+}
