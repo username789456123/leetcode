@@ -1,0 +1,75 @@
+typedef struct {
+    int val;
+    int label;
+}Node;
+
+typedef struct {
+    int size;
+    Node *nums;
+}Priority;
+
+Priority *creat(int k){
+    Priority *obj = malloc(sizeof(Priority));
+    obj->size = 0;
+    obj->nums = malloc(sizeof(Node)*(k+1));
+    memset(obj->nums,0,sizeof(Node)*(k+1));
+    obj->nums[0].val = 0x3fffffff;
+    return obj;
+}
+
+int parent(int i){
+    return i/2;
+}
+int leftchild(int i){
+    return i*2;
+}
+void pushSwim(Priority *obj, Node it){
+    int i = ++obj->size;
+    while(obj->nums[parent(i)].val < it.val){
+        obj->nums[i] = obj->nums[parent(i)];
+        i = parent(i);
+    }
+    obj->nums[i] = it;
+}
+
+void popSink(Priority *obj){
+    Node item = obj->nums[obj->size--];
+    int i = 1;
+    while(leftchild(i) <= obj->size){
+        int child = leftchild(i);
+        if(child < obj->size && obj->nums[child].val < obj->nums[child+1].val){
+            child++;
+        }
+        if(item.val > obj->nums[child].val){
+            break;
+        }
+        obj->nums[i] = obj->nums[child];
+        i = child;
+    }
+    obj->nums[i] = item;
+    return ;
+}
+int largestValsFromLabels(int* values, int valuesSize, int* labels, int labelsSize, int numWanted, int useLimit){
+    int cnt = 0;
+    Priority *obj = creat(valuesSize);
+    Node *res = malloc(sizeof(Node)*valuesSize);
+    memset(res,0,sizeof(Node)*valuesSize);
+    for(int i = 0; i < valuesSize; i++){
+        res[i].val = values[i];
+        res[i].label = labels[i];
+        pushSwim(obj,res[i]);
+    }
+    int *count = malloc(sizeof(int)*20001);
+    for(int i = 0; i < 20001; i++){
+        count[i] = useLimit;
+    }
+    while(obj->size > 0 && numWanted > 0){
+        if(count[obj->nums[1].label] > 0){
+            cnt += obj->nums[1].val;
+            numWanted--;
+            count[obj->nums[1].label]--;
+        }
+        popSink(obj);
+    }
+    return cnt;
+}
