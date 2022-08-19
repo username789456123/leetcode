@@ -1,0 +1,34 @@
+char ** findOcurrences(char * text, char * first, char * second, int* returnSize){
+    int s = 0, e = 0, len = strlen(text);
+    char **words = (char **)malloc(sizeof(char *) * len);
+    memset(words, 0, sizeof(char *) * len);
+    int nwords = 0;
+    while (true) {
+        while (s < len && text[s] == ' ') {
+            s++;
+        }
+        if (s >= len) {
+            break;
+        }
+        e = s + 1;
+        while (e < len && text[e] != ' ') {
+            e++;
+        }
+        words[nwords++] = strndup(text + s, e - s);
+        s = e + 1;
+    }
+    char **ret = (char **)malloc(sizeof(char *) * (nwords + 1));
+    memset(ret, 0, sizeof(char *) * (nwords + 1));
+    int nret = 0;
+    for (int i = 2; i < nwords; i++) {
+        if (strcmp(words[i - 2], first) == 0 && strcmp(words[i - 1], second) == 0) {
+            ret[nret++] = strdup(words[i]);
+        }
+    }
+    for (int i = 0; i < nwords; i++) {
+        free(words[i]);
+    }
+    free(words);
+    *returnSize = nret;
+    return ret;
+}
