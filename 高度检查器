@@ -1,0 +1,17 @@
+static inline cmp(const void *pa, const void *pb) {
+    return *(int *)pa - *(int *)pb;
+}
+
+int heightChecker(int* heights, int heightsSize) {
+    int *expected = (int *)malloc(sizeof(int) * heightsSize);
+    memcpy(expected, heights, sizeof(int) * heightsSize);
+    qsort(expected, heightsSize, sizeof(int), cmp);
+    int ans = 0;
+    for (int i = 0; i < heightsSize; ++i) {
+        if (heights[i] != expected[i]) {
+            ++ans;
+        }
+    }
+    free(expected);
+    return ans;
+}
