@@ -1,0 +1,16 @@
+char *gcdOfStrings(char *str1, char *str2)
+{
+    //if (strstr(str1, str2) == NULL && strstr(str2, str1) == NULL) 原答案
+    if (!(strstr(str1, str2) == str1 || strstr(str2, str1) == str2))
+        return "";
+    int p_a = 0, p_b = 0, cmp = 0;
+    do
+    {
+        cmp = strcmp(str1 + p_a, str2 + p_b);
+        cmp > 0 ? (p_a += strlen(str2 + p_b)) : (p_b += strlen(str1 + p_a));
+        //if (strstr(str1 + p_a, str2 + p_b) == NULL && strstr(str2 + p_b, str1 + p_a) == NULL)
+        if (!(strstr(str1 + p_a, str2 + p_b) == (str1 + p_a) || strstr(str2 + p_b, str1 + p_a) == (str2 + p_b)))
+            return "";
+    } while (cmp);
+    return str1 + p_a;
+}
