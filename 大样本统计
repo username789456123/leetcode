@@ -1,0 +1,51 @@
+double* sampleStats(int* count, int countSize, int* returnSize){
+    double* ans = (double*)malloc(sizeof(double)*5);
+    double sum = 0;
+    int cot = 0;
+    int mid_count= 0;
+    memset(ans, 0, sizeof(double)*5);
+    ans[0] = 1000000008;
+    ans[1] = -1;
+    //printf("%f\n", ans[0]);
+    for(int i = 0; i < countSize; ++i){
+        if(count[i] != 0){
+            mid_count += count[i];
+            if(cot < count[i]){
+                cot = count[i];
+                ans[4] = i;
+            }
+            double f = (double)i;
+            sum += f * count[i];
+            ans[0] = fmin(ans[0], f);
+            ans[1] = fmax(ans[1], f);
+        } 
+    }
+    ans[2] = sum / mid_count;
+    int median = mid_count/2;
+    int all = mid_count;
+    mid_count = 0;
+    for(int i = 0; i < countSize; ++i){
+        if(count[i] != 0){
+            mid_count += count[i];
+            if(mid_count == median){
+                if(all & 1){
+                    while(i+1 < countSize && count[i+1] == 0) ++i;
+                    ans[3] = i+1;
+                    break;
+                } 
+                else{
+                    int c= i;
+                    while(i+1 < countSize && count[i+1] == 0) ++i;
+                    ans[3] = (double)(c+i+1)/2;
+                    break;
+                } 
+            }
+            if(mid_count > median){
+                ans[3] = i;
+                break;
+            }
+        }
+    }
+    *returnSize = 5;
+    return ans;
+}
