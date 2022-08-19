@@ -1,0 +1,12 @@
+struct TreeNode* sufficientSub(struct TreeNode* root, int limit,int sum){
+    if (!root) return NULL;
+    if (root->left == root->right)
+        return root->val + sum < limit ? NULL : root;
+    root->left=sufficientSub(root->left,limit,root->val + sum);
+    root->right=sufficientSub(root->right,limit,root->val + sum);
+    return root->left == root->right ? NULL : root;
+}
+
+struct TreeNode* sufficientSubset(struct TreeNode* root, int limit){
+    return sufficientSub(root,limit,0);
+}
