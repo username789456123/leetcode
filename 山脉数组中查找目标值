@@ -1,0 +1,41 @@
+int findInMountainArray(int target, MountainArray* mountainArr) {
+	int len = length(mountainArr);
+    int l = 0;
+    int r = len - 1;
+    int m, peak;
+    /* 求山脉数组的峰值点 */
+    while (l < r) {
+        m = (r - l) / 2 + l;
+        if (get(mountainArr, m) > get(mountainArr, m + 1)) {
+            r = m;
+        } else {
+            l = m + 1;
+        }
+    }
+    peak = l;
+    l    = 0;
+    /* 在左边升序数组, 查找tar */
+    while (l < r) {
+        m = (r - l) / 2 + l;
+        if (get(mountainArr, m) >= target) { /* 寻找区间>=tar */
+            r = m;
+        } else { /* 小于tar的区间需要排除 */
+            l = m + 1;
+        }
+    }
+    /* 在右边降序数组, 查找tar */
+    if (get(mountainArr, l) == target) {
+        return l;
+    }
+    l = peak + 1;
+    r = len - 1;
+    while (l < r) {
+        m = (r - l) / 2 + l;
+        if (get(mountainArr, m) <= target) { /* 寻找区间<=tar */
+            r = m;
+        } else { /* 大于tar的区间需要排除 */
+            l = m + 1;
+        }
+    }
+    return get(mountainArr, l) == target ? l : -1;
+}
