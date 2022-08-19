@@ -1,0 +1,33 @@
+int* addNegabinary(int* arr1, int arr1Size, int* arr2, int arr2Size, int* returnSize){
+    int k=arr1Size+arr1Size+10;
+    int len=k;
+    int *res=malloc(sizeof(int)*k);
+    *returnSize=0;
+    memset(res,0,sizeof(int)*k);
+    int i=arr1Size-1;
+    int j=arr2Size-1;
+    int carry=0;
+    while(i>=0||j>=0){
+        int sum=0;
+        if(i>=0)
+            sum+=arr1[i--];
+        if(j>=0)
+            sum+=arr2[j--];
+        sum+=res[--k];
+        carry=sum/2;
+        res[k]=sum%2;
+        if(carry==1){//进位化的数放到res数组对应的位置上，两个加数数组可能不够长
+            res[k-1]++;
+            res[k-2]++;
+        }
+        else if(carry==2)
+            res[k-2]++;
+    }
+    if(res[k-1]==2&&k+1<len&&res[k-2]==1){
+        res[k-1]=res[k-2]=0;
+    }
+    i=0;
+    while(i<len-1&&res[i]==0)i++;
+    *returnSize=len-i;
+    return res+i;
+}
