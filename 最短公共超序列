@@ -1,0 +1,58 @@
+char * shortestCommonSupersequence(char * str1, char * str2){
+    //最长公共子序列
+    int m = strlen(str1);
+    int n = strlen(str2);
+    int dp[m + 1][n + 1];
+    for (int i = 0; i <= m; i++) {
+        memset(dp[i], 0 ,sizeof(dp[i]));
+    }
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <=n; j++) {
+            if (str1[i - 1] == str2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            }
+            else {
+                dp[i][j] = fmax(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+    int i = m;
+    int j = n;
+    char tmp[m + n - dp[i][j]];
+    int index = 0;
+    while (dp[i][j] > 0) {
+        if (str1[i - 1] == str2[j - 1]) {
+            tmp[index] = str1[i - 1];
+            i--;
+            j--;
+            index++;
+        }
+        else if(dp[i - 1][j] >= dp[i][j - 1]){
+            tmp[index] = str1[i - 1];
+            i--;
+            index++;
+        }
+        else {
+            tmp[index] = str2[j - 1];
+            j--;
+            index++;
+        }
+    }
+    if (i > 0) {
+        for (int k = i; k > 0; k--) {
+            tmp[index++] = str1[k - 1];
+        }
+    }
+    if (j > 0) {
+        for (int k = j; k > 0; k--) {
+            tmp[index++] = str2[k - 1];
+        }
+    }
+    char *res = malloc(m + n - dp[m][n] + 1);
+    int lastIndex = 0;
+    for(int k = m + n - dp[m][n] - 1; k >= 0; k--) {
+        res[lastIndex++] = tmp[k];
+    }
+    res[lastIndex] = '\0';
+    return res;
+}
