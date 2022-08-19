@@ -1,0 +1,16 @@
+bool carPooling(int** trips, int tripsSize, int* tripsColSize, int capacity){
+    int* arr = malloc(sizeof(int) * 1001);
+    memset(arr, 0, sizeof(int) * 1001);
+    for (int i = 0; i < tripsSize; ++i){
+        arr[trips[i][1]] += trips[i][0];
+        arr[trips[i][2]] -= trips[i][0];
+    }
+    int cur = 0;
+    for (int i = 0; i < 1001; ++i){
+        cur += arr[i];
+        if (cur > capacity){
+            return false;
+        }
+    }
+    return true;
+}
