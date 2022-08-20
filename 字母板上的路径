@@ -1,0 +1,99 @@
+char * alphabetBoardPath(char * target){
+    char *res=malloc(sizeof(char)*1000);
+    char temp[7][5];
+    int count=0,k=0,i,j,len=strlen(target);;
+    memset(temp,'\0',sizeof(temp));
+    for(i=0;i<5;i++){
+        for(j=0;j<5;j++){
+            temp[i][j]='a'+count;
+            count++;
+        }
+    }
+    temp[5][0]='z';
+    int row=0,col=0,u,d,l,r,left,right;
+    for(i=0;i<len;i++){
+        if(target[i]==temp[row][col]){
+            res[k++]='!';
+        }
+        else if(target[i]=='z'){
+            d=5-row;
+            l=col;
+            while(l--){
+                res[k++]='L';
+            }
+            while(d--){
+                res[k++]='D';
+            }
+            res[k++]='!';
+            row=5;
+            col=0;
+        }
+        else if(target[i]<temp[row][col]){
+            if(temp[row][col]=='z'){
+                left=row-(target[i]-'a')/5;
+                right=col-(target[i]-'a')%5;
+                while(left--){
+                    res[k++]='U';
+                }
+                right=abs(right);
+                while(right--){
+                    res[k++]='R';
+                }
+                res[k++]='!';
+                row=(target[i]-'a')/5;
+                col=(target[i]-'a')%5;
+            }
+            else{
+            left=row-(target[i]-'a')/5;
+            right=col-(target[i]-'a')%5;
+            if(right>=0){
+                while(left--){
+                    res[k++]='U';
+                }
+                while(right--){
+                    res[k++]='L';
+                }
+                res[k++]='!';
+            }else{
+                right=abs(right);
+                while(left--){
+                    res[k++]='U';
+                }
+                while(right--){
+                    res[k++]='R';
+                }
+                res[k++]='!';
+            }
+            row=(target[i]-'a')/5;
+            col=(target[i]-'a')%5;
+            }
+        }
+        else{
+            left=(target[i]-'a')/5-row;
+            right=(target[i]-'a')%5-col;
+            if(right>=0){
+                while(left--){
+                    res[k++]='D';
+                }
+                while(right--){
+                    res[k++]='R';
+                }
+                res[k++]='!';
+            }else{
+                right=abs(right);
+                while(left--){
+                    res[k++]='D';
+                }
+                while(right--){
+                    res[k++]='L';
+                }
+                res[k++]='!';
+            }
+            row=(target[i]-'a')/5;
+            col=(target[i]-'a')%5;
+        }
+        // printf("%d %d\n",row,col);
+    }
+    res[k]='\0';
+    return res;
+}
