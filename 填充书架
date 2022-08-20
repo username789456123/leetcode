@@ -1,0 +1,50 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+#include <limits.h>
+
+#define MMAX(a, b)        ((a) > (b)? (a) : (b))
+#define MMIN(a, b)        ((a) < (b)? (a) : (b))
+
+int *memo;
+
+int helper(int** books, int booksSize, int shelf_width, int id) {
+    //结束处理
+    if(id == booksSize) {
+        return 0;
+    }
+
+    if(memo[id] != 0) {
+        return memo[id] - 1;
+    }
+
+    //依次将本层放置不同的图书
+    int cur_width = 0;
+    int min_height = INT_MAX;
+    int cur_height = 0;
+    for(int i = id; i < booksSize; i++) {
+        cur_width += books[i][0];
+        if(cur_width > shelf_width) {
+            break;
+        }
+        cur_height = MMAX(cur_height, books[i][1]);
+
+        int tmp = helper(books, booksSize, shelf_width, i + 1);
+        min_height = MMIN(min_height, cur_height + tmp);
+    }
+
+    memo[id] = min_height + 1;
+    return min_height;
+}
+
+//【算法思路】DFS+memo。
+// memo[i]表示第i本书作为一层的开始，最低可以放置多高
+int minHeightShelves(int** books, int booksSize, int* booksColSize, int shelf_width){
+    memo = (int *)calloc(booksSize, sizeof(int));
+
+    int ret = helper(books, booksSize, shelf_width, 0);
+
+    return ret;
+}
