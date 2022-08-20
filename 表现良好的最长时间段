@@ -1,0 +1,25 @@
+int longestWPI(int* hours, int hoursSize){
+    int ans = 0;
+    int sum[hoursSize+1];
+    memset(sum , 0 , sizeof(int)*(hoursSize+1));
+    int ff[hoursSize+1];
+    memset(ff , 0 , sizeof(int)*(hoursSize+1));
+    int flag = 0;
+
+    for(int i = 0 ; i < hoursSize ; ++i ){
+        //1、-1前项和处理
+        sum[i+1] = sum[i]+( hours[i] <= 8  ? -1 : 1);
+
+        //单调栈判断
+        if(sum[i+1] < -flag){
+            ff[++flag] = i+1 ;
+        }else if(sum[i+1] > -flag){
+            if(sum[i+1] > 0 ){
+                ans = (int)fmax(ans , i+1);
+            }else{
+                ans = (int)fmax(ans , i+1 - ff[-(sum[i+1]-1)]);
+            }
+        }
+    }
+    return ans;
+}
