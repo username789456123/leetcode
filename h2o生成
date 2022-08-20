@@ -1,0 +1,42 @@
+typedef struct {
+    // User defined data may be declared here.
+    pthread_mutex_t mutex_1;
+    pthread_mutex_t mutex_2;
+    int count;
+} H2O;
+
+H2O* h2oCreate() {
+    H2O* obj = (H2O*) malloc(sizeof(H2O));
+    pthread_mutex_init(&obj->mutex_1, NULL);
+    pthread_mutex_init(&obj->mutex_2, NULL);
+    // Initialize user defined data here.
+    //pthread_mutex_lock(&obj->mutex_1);
+    //pthread_mutex_lock(&obj->mutex_2);
+    obj->count = 0;
+    return obj;
+}
+
+void hydrogen(H2O* obj) {
+    pthread_mutex_lock(&obj->mutex_1);
+    obj->count++;
+    // releaseHydrogen() outputs "H". Do not change or remove this line.
+    releaseHydrogen();
+    if(obj->count % 2 == 0) {
+        pthread_mutex_unlock(&obj->mutex_2);
+    } else {
+        pthread_mutex_unlock(&obj->mutex_1);
+    }
+}
+
+void oxygen(H2O* obj) {
+    pthread_mutex_lock(&obj->mutex_2);
+    // releaseOxygen() outputs "O". Do not change or remove this line.
+    releaseOxygen();
+    pthread_mutex_unlock(&obj->mutex_1);
+}
+
+void h2oFree(H2O* obj) {
+    // User defined data may be cleaned up here.
+    free(obj);
+    
+}
