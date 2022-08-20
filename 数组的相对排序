@@ -1,0 +1,39 @@
+struct hashTable {
+    int key;
+    int val;
+    UT_hash_handle hh;
+};
+
+struct hashTable* hashtable;
+
+struct hashTable* find(int ikey) {
+    struct hashTable* tmp;
+    HASH_FIND_INT(hashtable, &ikey, tmp);
+    return tmp;
+}
+
+void insert(int ikey, int ival) {
+    struct hashTable* tmp = malloc(sizeof(struct hashTable));
+    tmp->key = ikey, tmp->val = ival;
+    HASH_ADD_INT(hashtable, key, tmp);
+}
+
+int cmp(void* _a, void* _b) {
+    int a = *((int*)_a), b = *((int*)_b);
+    struct hashTable *fa = find(a), *fb = find(b);
+    if (fa == NULL) {
+        return fb == NULL ? a - b : 1;
+    } else {
+        return fb == NULL ? -1 : fa->val - fb->val;
+    }
+}
+
+int* relativeSortArray(int* arr1, int arr1Size, int* arr2, int arr2Size, int* returnSize) {
+    hashtable = NULL;
+    for (int i = 0; i < arr2Size; ++i) {
+        insert(arr2[i], i);
+    }
+    qsort(arr1, arr1Size, sizeof(int), cmp);
+    *returnSize = arr1Size;
+    return arr1;
+}
