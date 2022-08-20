@@ -1,0 +1,93 @@
+
+typedef struct {
+    int key;
+    int value;
+    UT_hash_handle hh;
+}HashNode;
+
+typedef struct {
+    int snapTimes;
+    HashNode *table;
+} SnapshotArray;
+
+SnapshotArray g_snapArray = {0};
+HashNode *g_table = NULL;
+
+void HashAdd(HashNode **table, int key, int value)
+{
+    HashNode *node = (HashNode *)malloc(sizeof(HashNode));
+    node->key = key;
+    node->value = value;
+    HASH_ADD_INT(*table, key, node);
+}
+
+HashNode *HashFind(HashNode **table, int key)
+{
+    HashNode *node = NULL;    
+    HASH_FIND_INT(*table, &key, node);
+    return node;
+}
+
+void HashDel(HashNode **table, HashNode *node)
+{     
+    HASH_DEL(*table, node);
+    free(node);
+}
+
+void HashClear(HashNode **table)
+{    
+    HashNode *node = NULL;   
+    HashNode *tmp = NULL;  
+    HASH_ITER(hh, *table, node, tmp) {
+        HashDel(table, node);
+    }      
+    return;
+}
+
+SnapshotArray* snapshotArrayCreate(int length) {  
+    g_snapArray.snapTimes = 0;
+    g_snapArray.table = g_table;
+    return (&g_snapArray);
+}
+
+void snapshotArraySet(SnapshotArray* obj, int index, int val) {
+    int key;
+    HashNode *node = NULL;
+
+    key = (obj->snapTimes << 16) + index;    
+    node = HashFind(&(obj->table), key);
+    if (node != NULL) {
+        node->value = val;
+    } else {
+        HashAdd(&(obj->table), key, val);
+    }    
+    return;
+}
+
+int snapshotArraySnap(SnapshotArray* obj) {
+    obj->snapTimes++;
+    return (obj->snapTimes - 1);
+}
+
+int snapshotArrayGet(SnapshotArray* obj, int index, int snap_id) {
+    int i;    
+    int value = 0;   
+    int key;
+    HashNode *node = NULL;  
+    
+    for (i = snap_id; i >= 0; i--) {
+        key = (i << 16) + index;
+        node = HashFind(&(obj->table), key);
+        if (node != NULL) {
+            value = node->value;
+            break;
+        } 
+    }
+    return value;
+}
+
+void snapshotArrayFree(SnapshotArray* obj) {  
+    HashClear(&(obj->table));
+    obj->snapTimes = 0;
+    return;
+}
