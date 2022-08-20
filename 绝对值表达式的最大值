@@ -1,0 +1,21 @@
+int maxAbsValExpr(int* arr1, int arr1Size, int* arr2, int arr2Size){
+    /* 这题就比较数学了，将绝对值展开，共分8种情况，由于i/j可以互换，因此精简为4种情况 */
+    int dx[] = {1, 1, 1, 1};
+    int dy[] = {1, 1, -1, -1};
+    int dz[] = {1, -1, 1, -1};
+    int ans = 0;
+    int i, j;
+    int max = INT_MIN;
+    int min = INT_MAX;
+    for (i = 0; i < sizeof(dx)/sizeof(int); i++) {
+        for (j = 0; j < arr1Size; j++) {
+            /* 这里分别计算出四种情况每种情况下的最大值&最小值，直接减即可，差值的最大值即为答案 */
+            max = fmax(max, arr1[j] * dx[i] + arr2[j] * dy[i] + j * dz[i]);
+            min = fmin(min, arr1[j] * dx[i] + arr2[j] * dy[i] + j * dz[i]);
+        }
+        ans = fmax(ans,max - min);
+        max = INT_MIN;
+        min = INT_MAX;
+    }
+    return ans;
+}
