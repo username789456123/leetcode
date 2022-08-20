@@ -1,0 +1,33 @@
+int count = 0;
+void Postorder(struct TreeNode* parent, struct TreeNode* root, struct TreeNode** ret, int flag, int* hash){
+    if(root == NULL) return;
+
+    Postorder(root, root->left, ret, true, hash);
+    Postorder(root, root->right, ret, false, hash);
+    
+    if(hash[root->val]){
+        if(parent){
+            if(flag) parent->left = NULL;
+            else parent->right = NULL;
+        }
+        if(root->left) ret[count++] = root->left;
+        if(root->right) ret[count++] = root->right;
+    }
+
+}
+struct TreeNode** delNodes(struct TreeNode* root, int* to_delete, int to_deleteSize, int* returnSize){
+    if(root == NULL) return;
+    int hash[1001];
+    struct TreeNode** ans = (struct TreeNode**)malloc(sizeof(struct TreeNode*)*1001);
+    memset(hash, 0, sizeof(hash));
+    
+    for(int i = 0; i < to_deleteSize; ++i){
+        hash[to_delete[i]] = 1;
+    }
+    count = 0;
+    Postorder(NULL, root, ans, false, hash);
+    
+    if(hash[root->val] == 0) ans[count++] = root;
+    * returnSize = count;
+    return ans;
+}
