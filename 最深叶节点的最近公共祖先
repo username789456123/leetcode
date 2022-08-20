@@ -1,0 +1,19 @@
+int getDepth(struct TreeNode* root){
+    if(!root)return 0;
+    return fmax(getDepth(root->left),getDepth(root->right))+1;
+}
+
+struct TreeNode* lcaDeepestLeaves(struct TreeNode* root){
+    struct TreeNode* res=root,*cur=root;
+    while(cur){
+        int left=getDepth(cur->left);
+        int right=getDepth(cur->right);
+        if(left==right){
+            res=cur;
+            break;
+        }else if(left>right){
+            cur=cur->left;
+        }else cur=cur->right;
+    }
+    return res;
+}
