@@ -1,0 +1,39 @@
+void swap(int* a, int* b) {
+    int t = *a;
+    *a = *b, *b = t;
+}
+
+void reverse(int* arr, int left, int right) {
+    while (left < right) {
+        swap(&arr[left], &arr[right]);
+        left++, right--;
+    }
+}
+
+int getReverse(int label, int row) {
+    return (1 << row - 1) + (1 << row) - 1 - label;
+}
+
+int* pathInZigZagTree(int label, int* returnSize) {
+    int row = 1, rowStart = 1;
+    while (rowStart * 2 <= label) {
+        row++;
+        rowStart *= 2;
+    }
+    if (row % 2 == 0) {
+        label = getReverse(label, row);
+    }
+    int* path = malloc(sizeof(int) * 20);
+    *returnSize = 0;
+    while (row > 0) {
+        if (row % 2 == 0) {
+            path[(*returnSize)++] = getReverse(label, row);
+        } else {
+            path[(*returnSize)++] = label;
+        }
+        row--;
+        label >>= 1;
+    }
+    reverse(path, 0, *returnSize - 1);
+    return path;
+}
