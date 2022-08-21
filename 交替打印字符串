@@ -1,0 +1,86 @@
+typedef struct {
+    int n;
+    int i;
+    sem_t num_sem;
+    sem_t fizz_sem;
+    sem_t buzz_sem;
+    sem_t fizzbuzz_sem;
+} FizzBuzz;
+
+FizzBuzz* fizzBuzzCreate(int n) {
+    FizzBuzz* obj = (FizzBuzz*) malloc(sizeof(FizzBuzz));
+    obj->n = n;
+    obj->i = 1;
+    sem_init(&obj->num_sem, 0, 0);
+    sem_init(&obj->fizz_sem, 0, 0);
+    sem_init(&obj->buzz_sem, 0, 0);
+    sem_init(&obj->fizzbuzz_sem, 0, 0);
+    return obj;
+}
+
+// printFizz() outputs "fizz".
+void fizz(FizzBuzz* obj) {
+    while (1) {
+        sem_wait(&obj->fizz_sem);
+        if(obj->i>obj->n)
+            break;
+        printFizz();
+        sem_post(&obj->num_sem);
+    }
+}
+
+// printBuzz() outputs "buzz".
+void buzz(FizzBuzz* obj) {
+    while (1) {
+        sem_wait(&obj->buzz_sem);
+        if(obj->i>obj->n)
+            break;
+        printBuzz();
+        sem_post(&obj->num_sem);
+    }
+}
+
+// printFizzBuzz() outputs "fizzbuzz".
+void fizzbuzz(FizzBuzz* obj) {
+    while (1) {
+        sem_wait(&obj->fizzbuzz_sem);
+        if(obj->i>obj->n)
+            break;
+        printFizzBuzz();
+        sem_post(&obj->num_sem);
+    }
+}
+
+// You may call global function `void printNumber(int x)`
+// to output "x", where x is an integer.
+void number(FizzBuzz* obj) {
+    for(obj->i;obj->i<obj->n+1;obj->i++){
+        if(obj->i%3==0&&obj->i%5>0){
+        sem_post(&obj->fizz_sem);
+        sem_wait(&obj->num_sem);
+        }
+        else if(obj->i%5==0&&obj->i%3>0){
+        sem_post(&obj->buzz_sem);
+        sem_wait(&obj->num_sem);
+        }
+        else  if(obj->i%5==0&&obj->i%3==0){
+        sem_post(&obj->fizzbuzz_sem);
+        sem_wait(&obj->num_sem);
+        }   
+        else{  
+        printNumber(obj->i);
+        }    
+    }
+    sem_post(&obj->fizz_sem);
+    sem_post(&obj->buzz_sem);
+    sem_post(&obj->fizzbuzz_sem);
+
+}
+
+void fizzBuzzFree(FizzBuzz* obj) {
+    sem_destroy(&obj->num_sem);
+    sem_destroy(&obj->fizz_sem);
+    sem_destroy(&obj->buzz_sem);
+    sem_destroy(&obj->fizzbuzz_sem);
+    free(obj);
+}
