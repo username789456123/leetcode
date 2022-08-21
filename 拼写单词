@@ -1,0 +1,43 @@
+#define NUM 26
+
+bool isMatch(char *words, int len_words, char *chars, int len_chars)
+{
+    int cnt_words[NUM] = {0};
+    int cnt_chars[NUM] = {0};
+
+    int i;
+    for (i = 0; i < len_words; i++) {
+        cnt_words[words[i] - 'a']++;
+    }
+
+    for (i = 0; i < len_chars; i++) {
+        cnt_chars[chars[i] - 'a']++;
+    }
+
+    for (i = 0; i < NUM; i++) {
+        if (cnt_words[i] > cnt_chars[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int countCharacters(char **words, int wordsSize, char *chars)
+{
+    if (words == NULL || wordsSize == 0 || chars == NULL) {
+        return 0;
+    }
+
+    int ret = 0;
+    int len_chars = strlen(chars);
+    int i;
+    for (i = 0; i < wordsSize; i++) {
+        int len_words = strlen(words[i]);
+        if(isMatch(words[i], len_words, chars, len_chars)) {
+            ret += len_words;
+        }
+    }
+
+    return ret;
+}
