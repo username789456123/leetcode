@@ -1,0 +1,24 @@
+char * lastSubstring(char * s){
+    int n = strlen(s);
+
+    //最小表示法
+    int k = 0, i = 0, j = 1;
+    while (k < n && i+k < n && j+k < n) {
+        if (s[i + k] == s[j + k]) {
+            k++;
+        } else {
+            if(s[i + k] >= s[j + k])
+            {
+                j = j + k + 1;
+            }else
+            {
+                i = i + k + 1;
+            }
+            if (i == j) i++;
+                k = 0;
+        }
+    }
+    i = fmin(i, j);
+
+    return s+i;
+}
