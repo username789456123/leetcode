@@ -1,0 +1,29 @@
+#define MAX_NODE_SIZE 10000
+
+void dfs(struct TreeNode *node, int level, int *sum, int *sumSize) {
+    if (level == *sumSize) {
+        sum[*sumSize] = node->val;
+        (*sumSize)++;
+    } else {
+        sum[level] += node->val;
+    }
+    if (node->left) {
+        dfs(node->left, level + 1, sum, sumSize);
+    }
+    if (node->right) {
+        dfs(node->right, level + 1, sum, sumSize);
+    }
+}
+
+int maxLevelSum(struct TreeNode* root) {
+    int *sum = (int *)malloc(sizeof(int) * MAX_NODE_SIZE);
+    int sumSize = 0;
+    dfs(root, 0, sum, &sumSize);
+    int ans = 0;
+    for (int i = 0; i < sumSize; ++i) {
+        if (sum[i] > sum[ans]) {
+            ans = i;
+        }
+    }
+    return ans + 1; // 层号从 1 开始
+}
