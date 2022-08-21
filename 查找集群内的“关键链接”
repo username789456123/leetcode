@@ -1,0 +1,74 @@
+#define N_Max 100002           //总服务器节点数  从2开始数 浪费两个2个数据所以+2
+// for char                    //定义下面几个变量创建路径表
+int Head[N_Max],var[N_Max*2],Next[N_Max*2],tot;   // N_max*2 是因为双向图 0-1  以为 1-0
+// for Marjan                 // marjan 算法参数 
+int LOW[N_Max],DFN[N_Max],num;
+int bridge[N_Max*2];         //保存桥的变量
+
+void add(int x,int y)       //添加x到y路径表
+{
+    var[++tot]=y;
+    Next[tot]=Head[x];
+    Head[x]=tot;
+}
+void tarjan(int x,int last_tot)  //marjan x是单前节点  last_tot 上一个tot
+{
+    LOW[x]=DFN[x]=++num;    // 编号，初始化LOW, DFN
+    for(int tot=Head[x];tot;tot = Next[tot])   
+    {
+        int y=var[tot];
+      //  printf("\n%d-%d : tot=%d next_tot=%d",x,y,tot,Next[tot]);  //故意留下来坚持创建路径表对不对
+        if(!DFN[y])  //no visit at the y server  DFN不是0意味着它没有被访问过
+        {
+            tarjan(y, tot);            // 递归：深度优先检索
+            LOW[x]=fmin(LOW[x],LOW[y]);        //更新LOW
+            if(DFN[x]<LOW[y])   //x-y  bridge x到y是不是桥的判断就是根据DFN[x]<LOW[y] 
+            {
+                bridge[tot]=bridge[tot^1]=true; //此处利用一个性质 0-1 的tot 2 则 1-0 的tot就是3
+            }                                   // 利用3^1=2; 2^1=3; 两个都标记为桥 
+        }
+        else if(tot!=(last_tot^1))       //y被访问了，且上一次不是y到x 通过tot相邻判断的
+        {
+            LOW[x]=fmin(LOW[x],DFN[y]);    //到头更新LOW   
+        }
+
+    }
+}
+int** criticalConnections(int n, int** connections, int connectionsSize, int* connectionsColSize, int* returnSize, int** returnColumnSizes){
+    memset(Head,0,sizeof(Head));
+    memset(var,0,sizeof(var));
+    memset(Next,0,sizeof(Next));
+    memset(LOW,0,sizeof(LOW));
+    memset(DFN,0,sizeof(DFN));
+    memset(bridge,0,sizeof(bridge));  //初始化0
+    tot=1;   //tot=1保证 tot从2开始
+    for(int i=0;i<connectionsSize;i++)
+    {
+        add(connections[i][0],connections[i][1]);   //x-y路径
+        add(connections[i][1],connections[i][0]);   //y-x路径
+    }
+    for(int i=0;i<n;i++)
+        if(!DFN[i])   //DFN不是0意味着它没有被访问过
+            tarjan(i,0);       //marjan算法    
+    int **rz=malloc(sizeof(int *)*n);   //输出结果
+    int *ColumnSizes = malloc(sizeof(int)*n);  
+    int index=0;
+    for(int i=2;i<tot;i+=2)
+        if(bridge[i])
+        {
+            rz[index]=malloc(sizeof(int )*2);
+            rz[index][0]=var[i ^ 1];
+            rz[index][1]=var[i];
+            ColumnSizes[index]=2;
+            index++;
+       //     printf("\n Brige:%d %d", var[i ^ 1], var[i]);
+        }
+    if (index == 0) {
+		*returnSize = 0;
+		*returnColumnSizes = NULL;
+		return NULL;
+	}
+    *returnSize = index;
+    *returnColumnSizes = ColumnSizes;
+    return rz;
+}
