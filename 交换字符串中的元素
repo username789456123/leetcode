@@ -1,0 +1,88 @@
+struct HashTable {
+    int key;
+    int len;
+    int* vec;
+    UT_hash_handle hh;
+};
+
+int cmp(int* a, int* b) {
+    return *b - *a;
+}
+
+void swap(int* a, int* b) {
+    int tmp = *a;
+    *a = *b, *b = tmp;
+}
+
+struct DisjointSetUnion {
+    int *f, *rank;
+    int n;
+};
+
+void init(struct DisjointSetUnion* obj, int _n) {
+    obj->n = _n;
+    obj->rank = malloc(sizeof(int) * obj->n);
+    memset(obj->rank, 0, sizeof(int) * obj->n);
+    obj->f = malloc(sizeof(int) * obj->n);
+    for (int i = 0; i < obj->n; i++) {
+        obj->f[i] = i;
+    }
+}
+
+int find(struct DisjointSetUnion* obj, int x) {
+    return obj->f[x] == x ? x : (obj->f[x] = find(obj, obj->f[x]));
+}
+
+void unionSet(struct DisjointSetUnion* obj, int x, int y) {
+    int fx = find(obj, x), fy = find(obj, y);
+    if (fx == fy) {
+        return;
+    }
+    if (obj->rank[fx] < obj->rank[fy]) {
+        swap(&fx, &fy);
+    }
+    obj->rank[fx] += obj->rank[fy];
+    obj->f[fy] = fx;
+}
+
+char* smallestStringWithSwaps(char* s, int** pairs, int pairsSize, int* pairsColSize) {
+    int n = strlen(s);
+    struct DisjointSetUnion* dsu = malloc(sizeof(struct DisjointSetUnion));
+    init(dsu, n);
+    for (int i = 0; i < pairsSize; i++) {
+        unionSet(dsu, pairs[i][0], pairs[i][1]);
+    }
+    struct HashTable *mp = NULL, *iter, *tmp;
+    for (int i = 0; i < n; i++) {
+        int ikey = find(dsu, i);
+        HASH_FIND_INT(mp, &ikey, tmp);
+        if (tmp == NULL) {
+            tmp = malloc(sizeof(struct HashTable));
+            tmp->key = ikey;
+            tmp->len = 1;
+            tmp->vec = NULL;
+            HASH_ADD_INT(mp, key, tmp);
+        } else {
+            tmp->len++;
+        }
+    }
+    HASH_ITER(hh, mp, iter, tmp) {
+        iter->vec = malloc(sizeof(int) * iter->len);
+        iter->len = 0;
+    }
+    for (int i = 0; i < n; i++) {
+        int ikey = find(dsu, i);
+        HASH_FIND_INT(mp, &ikey, tmp);
+        tmp->vec[tmp->len++] = s[i];
+    }
+    HASH_ITER(hh, mp, iter, tmp) {
+        qsort(iter->vec, iter->len, sizeof(int), cmp);
+    }
+
+    for (int i = 0; i < n; i++) {
+        int ikey = find(dsu, i);
+        HASH_FIND_INT(mp, &ikey, tmp);
+        s[i] = tmp->vec[--tmp->len];
+    }
+    return s;
+}
