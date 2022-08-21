@@ -1,0 +1,51 @@
+#define ARR_SIZE    20001
+#define ARR_VAL_MAX 20001
+
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+
+typedef struct {
+    int arr[ARR_SIZE];
+} MajorityChecker;
+
+int g_maxThres;
+
+MajorityChecker* majorityCheckerCreate(int* arr, int arrSize) {
+    g_maxThres = 0;
+    MajorityChecker *obj = calloc(sizeof(MajorityChecker), 1);
+
+    for (int i = 0; i < arrSize; i++) {
+        obj->arr[i] = arr[i];
+    }
+
+    // 最大阈值
+    int hash[ARR_VAL_MAX] = {0};
+    for (int i = 0 ; i < arrSize; i++) {
+        hash[arr[i]]++;
+        g_maxThres = MAX(g_maxThres, hash[arr[i]]);
+    }
+
+    return obj;
+}
+
+int majorityCheckerQuery(MajorityChecker* obj, int left, int right, int threshold) {
+    int hash[ARR_VAL_MAX] = {0};
+
+    // 剪枝
+    if (threshold > g_maxThres) {
+        return -1;
+    }
+    
+    for (int i = left; i <= right; i++) {
+        int val = obj->arr[i];
+        hash[val]++;
+        if (hash[val] == threshold) {
+            return val;
+        }
+    }
+
+    return -1;
+}
+
+void majorityCheckerFree(MajorityChecker* obj) {
+    free(obj);
+}
