@@ -1,0 +1,37 @@
+struct unordered_set {
+    int key;
+    UT_hash_handle hh;
+};
+
+struct unordered_map {
+    int key;
+    int val;
+    UT_hash_handle hh;
+};
+
+bool uniqueOccurrences(int* arr, int arrSize) {
+    struct unordered_map* occur = NULL;
+    for (int i = 0; i < arrSize; i++) {
+        struct unordered_map* tmp = NULL;
+        HASH_FIND_INT(occur, &arr[i], tmp);
+        if (tmp == NULL) {
+            tmp = malloc(sizeof(struct unordered_map));
+            tmp->key = arr[i], tmp->val = 1;
+            HASH_ADD_INT(occur, key, tmp);
+        } else {
+            (tmp->val)++;
+        }
+    }
+    struct unordered_set* times = NULL;
+    struct unordered_map *cur, *cur_tmp;
+    HASH_ITER(hh, occur, cur, cur_tmp) {
+        struct unordered_set* tmp = NULL;
+        HASH_FIND_INT(times, &(cur->val), tmp);
+        if (tmp == NULL) {
+            tmp = malloc(sizeof(struct unordered_set));
+            tmp->key = cur->val;
+            HASH_ADD_INT(times, key, tmp);
+        }
+    }
+    return HASH_COUNT(occur) == HASH_COUNT(times);
+}
