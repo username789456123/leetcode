@@ -1,0 +1,133 @@
+int* topSort(int* returnSize, int* deg, int** graph, int* graphColSize, int* items, int itemsSize) {
+    *returnSize = 0;
+    int Q[itemsSize];
+    int left = 0, right = 0;
+    for (int i = 0; i < itemsSize; i++) {
+        if (deg[items[i]] == 0) {
+            Q[right++] = items[i];
+        }
+    }
+    int* res = malloc(sizeof(int) * itemsSize);
+    while (left < right) {
+        int u = Q[left++];
+        res[(*returnSize)++] = u;
+        for (int i = 0; i < graphColSize[u]; i++) {
+            int v = graph[u][i];
+            if (--deg[v] == 0) {
+                Q[right++] = v;
+            }
+        }
+    }
+    if (*returnSize == itemsSize) {
+        return res;
+    }
+    *returnSize = 0;
+    return NULL;
+}
+
+int* sortItems(int n, int m, int* group, int groupSize, int** beforeItems, int beforeItemsSize, int* beforeItemsColSize, int* returnSize) {
+    int* groupItem[n + m];
+    int groupItemColSize[n + m];
+    int groupItemColCapacity[n + m];
+    for (int i = 0; i < n + m; i++) {
+        groupItem[i] = malloc(sizeof(int));
+        groupItemColSize[i] = 0;
+        groupItemColCapacity[i] = 0;
+    }
+
+    // 组间和组内依赖图
+    int* groupGraph[n + m];
+    int groupGraphColSize[n + m];
+    int groupGraphColCapacity[n + m];
+    for (int i = 0; i < n + m; i++) {
+        groupGraph[i] = malloc(sizeof(int));
+        groupGraphColSize[i] = 0;
+        groupGraphColCapacity[i] = 0;
+    }
+    int* itemGraph[n];
+    int itemGraphColSize[n];
+    int itemGraphColCapacity[n];
+    for (int i = 0; i < n; i++) {
+        itemGraph[i] = malloc(sizeof(int));
+        itemGraphColSize[i] = 0;
+        itemGraphColCapacity[i] = 0;
+    }
+
+    // 组间和组内入度数组
+    int groupDegree[n + m];
+    memset(groupDegree, 0, sizeof(groupDegree));
+    int itemDegree[n];
+    memset(itemDegree, 0, sizeof(itemDegree));
+
+    int id[n + m];
+    for (int i = 0; i < n + m; ++i) {
+        id[i] = i;
+    }
+
+    int leftId = m;
+    // 给未分配的 item 分配一个 groupId
+    for (int i = 0; i < n; ++i) {
+        if (group[i] == -1) {
+            group[i] = leftId++;
+        }
+        if (groupItemColSize[group[i]] == groupItemColCapacity[group[i]]) {
+            int* x = &groupItemColCapacity[group[i]];
+            *x = (*x) ? (*x) * 2 : 1;
+            groupItem[group[i]] = realloc(groupItem[group[i]], sizeof(int) * (*x));
+        }
+        groupItem[group[i]][groupItemColSize[group[i]]++] = i;
+    }
+    // 依赖关系建图
+    for (int i = 0; i < n; ++i) {
+        int curGroupId = group[i];
+        for (int j = 0; j < beforeItemsColSize[i]; j++) {
+            int item = beforeItems[i][j];
+            int beforeGroupId = group[item];
+            if (beforeGroupId == curGroupId) {
+                itemDegree[i]++;
+                if (itemGraphColSize[item] == itemGraphColCapacity[item]) {
+                    int* x = &itemGraphColCapacity[item];
+                    (*x) = (*x) ? (*x) * 2 : 1;
+                    itemGraph[item] = realloc(itemGraph[item], sizeof(int) * (*x));
+                }
+                itemGraph[item][itemGraphColSize[item]++] = i;
+            } else {
+                groupDegree[curGroupId]++;
+                if (groupGraphColSize[beforeGroupId] == groupGraphColCapacity[beforeGroupId]) {
+                    int* x = &groupGraphColCapacity[beforeGroupId];
+                    (*x) = (*x) ? (*x) * 2 : 1;
+                    groupGraph[beforeGroupId] = realloc(groupGraph[beforeGroupId], sizeof(int) * (*x));
+                }
+                groupGraph[beforeGroupId][groupGraphColSize[beforeGroupId]++] = curGroupId;
+            }
+        }
+    }
+
+    // 组间拓扑关系排序
+    int groupTopSortSize;
+    int* groupTopSort = topSort(&groupTopSortSize, groupDegree, groupGraph, groupGraphColSize, id, n + m);
+    if (groupTopSortSize == 0) {
+        *returnSize = 0;
+        return NULL;
+    }
+    int* ans = malloc(sizeof(int) * groupTopSortSize);
+    *returnSize = 0;
+    // 组内拓扑关系排序
+    for (int i = 0; i < groupTopSortSize; i++) {
+        int curGroupId = groupTopSort[i];
+        int size = groupItemColSize[curGroupId];
+        if (size == 0) {
+            continue;
+        }
+        int resSize;
+        int* res = topSort(&resSize, itemDegree, itemGraph, itemGraphColSize, groupItem[curGroupId], groupItemColSize[curGroupId]);
+        if (resSize == 0) {
+            *returnSize = 0;
+            return NULL;
+        }
+        for (int j = 0; j < resSize; j++) {
+            ans[(*returnSize)++] = res[j];
+        }
+    }
+    return ans;
+}
