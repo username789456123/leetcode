@@ -1,0 +1,37 @@
+long gcd(int a,int b)
+{
+    return b? gcd(b,a % b) : a;
+}
+
+long long lcm(int a, int b)
+{
+    return a / gcd(a,b) * b;
+}
+
+int MIN(long long a, long long b)
+{
+    return a < b? a: b;
+}
+
+int nthUglyNumber(int n, int a, int b, int c)
+{
+    long long lcm1 = lcm(a,b);
+    long long lcm2 = lcm(b,c);
+    long long lcm3 = lcm(a,c);
+    long long lcm0 = lcm(lcm1 ,lcm(lcm2,lcm3));
+    int min = MIN(a,MIN(b,c));
+    long long i = min;
+    long long j = min * n;
+    long long mid = 0;
+    while(i < j)//找到第一个满足条件的还不够，还要找到第一个满足条件的丑数
+    {
+        mid = (i + j) / 2;
+        int sum = mid / a + mid / b + mid / c - mid / lcm1 - mid / lcm2 -mid / lcm3 + mid / lcm0;
+        if(sum >= n)
+            j = mid;
+        else if(sum < n)
+            i = mid + 1 ;
+    }
+    return j;
+     
+}
