@@ -1,0 +1,47 @@
+#define N 26
+
+bool check(int* a, int* cnt)
+{
+    int rst[N][2] = {0};
+    int index = 0;
+    for (int i = 0; i < N; i++) {
+        if (a[i]) {
+            rst[index][0] = a[i]; /* 字符个数 */
+            rst[index][1] = i; /* 字符序列 */
+            index++;
+        }
+    }
+    if (index > 2) {
+        return false;
+    } else if (index == 2) {
+        if (rst[0][0] == 1 && cnt[rst[1][1]] > rst[1][0] || rst[1][0] == 1 && cnt[rst[0][1]] > rst[0][0]) {
+            return true;
+        }
+        return false;
+    }
+
+    return true;
+}
+
+int maxRepOpt1(char * text){
+    /* 滑动窗口  窗口中的字符有两种可能： 1.全部是同一个字符=》直接统计  2.有两种字符啊a和b，a只有一个，且b的总个数大于当前窗口中的b的个数 */
+    int len = strlen(text);
+    int cnt[N] = {0}; /* 存储每个字符的个数 */
+    for (int i = 0; i < len; i++) {
+        cnt[text[i] - 'a']++;
+    }
+
+    int cur[N] = {0};
+    int left = 0;
+    int right = left;
+    int ans = 1;
+    while (right < len) {
+        cur[text[right++] - 'a']++;
+        while (left <= right && !check(cur, cnt)) {
+            cur[text[left++] - 'a']--;
+        }
+        ans = fmax(ans, right - left);
+    }
+
+    return ans;
+}
