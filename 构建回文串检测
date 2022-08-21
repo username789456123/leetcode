@@ -1,0 +1,55 @@
+
+struct map_s
+{
+    int table[26];
+};
+
+
+bool* canMakePaliQueries(char * s, int** queries, int queriesSize, int* queriesColSize, int* returnSize)
+{
+    int len = strlen(s);
+    struct map_s *map = 0;
+    int i;
+    int j;
+    int curChar;
+    int count;
+
+    int left;
+    int right;
+    int k = 0;
+    bool *ret = 0;
+
+    map = malloc((len + 1) * sizeof(struct map_s));
+    memset(map, 0, (len + 1) * sizeof(struct map_s));
+    /*计算每个字符串在当前位置之前一共有多少个相同的字符*/
+    // 当前这个不计数，在下一个位置记录
+    for (i = 0; i < len; i++){
+        curChar = s[i] - 'a';
+        memcpy(map[i + 1].table, map[i].table, sizeof(struct map_s));
+        map[i + 1].table[curChar]++;
+    }
+
+    ret = malloc(sizeof(bool) * queriesSize);
+
+    
+    for (i = 0; i < queriesSize; i++) {
+        count = 0;
+        left = queries[i][0];
+        right = queries[i][1];
+        k = queries[i][2];
+        for (j = 0; j < 26; j++) {
+            if ((map[right + 1].table[j] - map[left].table[j]) % 2 == 1) {
+                count++;
+            }
+        }
+        
+        if (count > (2 * k + ((right - left + 1) % 2))) {
+            ret[i] = 0;
+        } else {
+            ret[i] = 1;
+        }
+    }
+
+    *returnSize = queriesSize;
+    return ret;
+}
