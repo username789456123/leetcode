@@ -1,0 +1,69 @@
+struct unordered_map {
+    int key, val;
+    UT_hash_handle hh;
+};
+
+int* findNumOfValidWords(char** words, int wordsSize, char** puzzles, int puzzlesSize, int* returnSize) {
+    struct unordered_map* frequency = NULL;
+
+    for (int i = 0; i < wordsSize; i++) {
+        int n = strlen(words[i]);
+        int mask = 0;
+        for (int j = 0; j < n; j++) {
+            mask |= (1 << (words[i][j] - 'a'));
+        }
+        if (__builtin_popcount(mask) <= 7) {
+            struct unordered_map* tmp;
+            HASH_FIND_INT(frequency, &mask, tmp);
+            if (tmp == NULL) {
+                tmp = malloc(sizeof(struct unordered_map));
+                tmp->key = mask;
+                tmp->val = 1;
+                HASH_ADD_INT(frequency, key, tmp);
+            } else {
+                tmp->val++;
+            }
+        }
+    }
+
+    int* ans = malloc(sizeof(int) * puzzlesSize);
+    *returnSize = 0;
+
+    for (int i = 0; i < puzzlesSize; i++) {
+        int total = 0;
+
+        // 枚举子集方法一
+        // for (int choose = 0; choose < (1 << 6); ++choose) {
+        //     int mask = 0;
+        //     for (int j = 0; j < 6; ++j) {
+        //         if (choose & (1 << j)) {
+        //             mask |= (1 << (puzzles[i][j + 1] - 'a'));
+        //         }
+        //     }
+        //     mask |= (1 << (puzzles[i][0] - 'a'));
+        //     struct unordered_map* tmp;
+        //     HASH_FIND_INT(frequency, &mask, tmp);
+        //     if (tmp != NULL) {
+        //         total += tmp->val;
+        //     }
+        // }
+
+        // 枚举子集方法二
+        int mask = 0;
+        for (int j = 1; j < 7; ++j) {
+            mask |= (1 << (puzzles[i][j] - 'a'));
+        }
+        int subset = mask;
+        do {
+            int s = subset | (1 << (puzzles[i][0] - 'a'));
+            struct unordered_map* tmp;
+            HASH_FIND_INT(frequency, &s, tmp);
+            if (tmp != NULL) {
+                total += tmp->val;
+            }
+            subset = (subset - 1) & mask;
+        } while (subset != mask);
+        ans[(*returnSize)++] = total;
+    }
+    return ans;
+}
