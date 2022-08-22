@@ -1,0 +1,16 @@
+int numberOfSubarrays(int* nums, int numsSize, int k){
+    int l = 0, r = -1, cnt = 0;
+    int ans = 0;
+    int k_cnt_right_begin;
+    while (r + 1 < numsSize) {
+        while (r + 1 < numsSize && cnt < k) cnt += nums[++r] & 1;
+        if (r >= numsSize) break;
+        k_cnt_right_begin = r;
+        while (r + 1 < numsSize && (nums[r + 1] & 1) == 0) ++r;
+        while (l <= r && cnt == k) {
+            ans += r - k_cnt_right_begin + 1;
+            cnt -= nums[l++] & 1;
+        }
+    }
+    return ans;
+}
