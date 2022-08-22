@@ -1,0 +1,62 @@
+int covered[20][20];
+int MIN;
+int min(int a,int b)
+{   
+    if(a<=b) 
+        return a;
+    return b;
+}
+void cover(int n,int m,int s)
+{
+    if(s>=MIN) return;
+    int i,j,k,row,col;
+    row=-1;
+    col=-1;
+    for(i=1;i<=n;i++)
+    {   
+        for(j=1;j<=m;j++)
+            if(!covered[i][j])
+            {
+                row=i;
+                col=j;
+                break;
+            }
+        if(row>=0) break;
+    }
+    if(row==-1&&col==-1) 
+    {
+        MIN=min(MIN,s);
+        return;
+    }
+    for(k=m-col;k>=0;k--)
+    {
+        if(row+k>n) continue;
+        int flag=0;
+        for(i=row;i<=row+k;i++)
+        {
+            for(j=col;j<=col+k;j++)
+            if(covered[i][j]) 
+            {
+                flag=1;
+                break;
+            }
+            if(flag) break;
+        }
+        if(flag) continue;
+        for(i=row;i<=row+k;i++)
+            for(j=col;j<=col+k;j++)
+                covered[i][j]=1; 
+        cover(n,m,s+1);
+        for(i=row;i<=row+k;i++)
+            for(j=col;j<=col+k;j++)
+                covered[i][j]=0;
+    }
+}
+ 
+int tilingRectangle(int n, int m)
+{
+    if(n==m) return 1;
+    MIN=169;
+    cover(n,m,0);
+    return MIN;
+}
