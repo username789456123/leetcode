@@ -1,0 +1,55 @@
+int SumCandy(int* getCandy, int statusSize) { // 每个箱子获得糖果数求和
+    int sum = 0;
+    for (int i = 0; i < statusSize; i++) {
+        sum += getCandy[i];
+    }
+    return sum;
+}
+
+int FindOpenValidBox(int* visited, int* status, int* get, int statusSize) { // 找出获得并还能开的箱子
+    for (int i = 0; i < statusSize; i++) {
+        if (visited[i] == 0 && status[i] == 1 && get[i] == 1) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void GetKey(int** keys, int openBox, int numOfKeys, int *status) { // 拿钥匙，解锁相应箱子的status
+    int unLockKey;
+    for (int i = 0; i < numOfKeys; i++) {
+        unLockKey = keys[openBox][i];
+        status[unLockKey] = 1;
+    }
+}
+
+void GetBoxes(int* get, int* initialBoxes, int initialBoxesSize) { // 获得初始盒子
+    for (int i = 0; i < initialBoxesSize; i++) {
+        get[initialBoxes[i]] = 1;
+    }
+}
+
+int maxCandies(int* status, int statusSize, int* candies, int candiesSize, int** keys, int keysSize, int* keysColSize, int** containedBoxes, int containedBoxesSize, int* containedBoxesColSize, int* initialBoxes, int initialBoxesSize){
+    int *visited = (int *)malloc(statusSize * sizeof(int)); // 记录盒子是否被访问过
+    int *get = (int *)malloc(statusSize * sizeof(int)); // 记录盒子是否已经获得
+    int *key = (int *)malloc(statusSize * sizeof(int)); // 记录盒子是否取得钥匙
+    int *getCandy = (int *)malloc(statusSize * sizeof(int)); // 记录已获得糖果数
+    int i;
+    for (i = 0; i < statusSize; i++) { // 初始化
+        visited[i] = 0;
+        get[i] = 0;
+        key[i] = 0;
+        getCandy[i] = 0;
+    }
+    // 开始找
+    GetBoxes(get, initialBoxes, initialBoxesSize);
+    int openBox = FindOpenValidBox(visited, status, get, statusSize);
+    while (openBox != -1) {
+        getCandy[openBox] = candies[openBox]; // 拿糖
+        GetKey(keys, openBox, keysColSize[openBox], status); // 如果有钥匙，拿钥匙解锁箱子
+        GetBoxes(get, containedBoxes[openBox], containedBoxesColSize[openBox]); // 获得盒子
+        visited[openBox] = 1; // 标记盒子已开过
+        openBox = FindOpenValidBox(visited, status, get, statusSize); // 找下一个能开的箱子
+    }
+    return SumCandy(getCandy, statusSize);
+}
