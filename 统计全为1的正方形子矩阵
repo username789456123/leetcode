@@ -1,0 +1,46 @@
+int my_min(int a, int b)
+{
+    return a < b ? a : b;
+}
+
+int countSquares(int **matrix, int matrixSize, int *matrixColSize)
+{
+    if (matrix == NULL || matrixSize == 0 || (*matrixColSize) == 0) {
+        return 0;
+    }
+
+    int row = matrixSize;
+    int col = (*matrixColSize);
+
+    int **dp = (int **)malloc(sizeof(int *) * row);  // 定义dp[i][j]: 以(i, j)为右下角的仅含1的正方形的最大边长，同时也表示以(i, j)为右下角的正方形的数量
+    if (dp == NULL) {
+        return 0;
+    }
+
+    int i;
+    for (i = 0; i < row; i++) {
+        dp[i] = (int *)malloc(sizeof(int) * col);
+        if (dp[i] == NULL) {
+            return 0;
+        }
+    }
+
+    int cnt = 0;
+    int j;
+
+    for (i = 0; i < row; i++) {
+        for (j = 0; j < col; j++) {
+            dp[i][j] = 0;  // 先初始化为0
+            if (matrix[i][j] == 1) {
+                if (i == 0 || j == 0) {
+                    dp[i][j] = 1;
+                } else {
+                    dp[i][j] = my_min(my_min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]) + 1;
+                }
+                cnt += dp[i][j];
+            }
+        }
+    }
+
+    return cnt;
+}
