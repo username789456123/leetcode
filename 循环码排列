@@ -1,0 +1,75 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+ //可以使用格雷编码的办法，编好码之后找到数组中的start构建一个新的数组即可。
+int* circularPermutation(int n, int start, int* returnSize){
+    *returnSize = pow(2,n);
+    int *result = (int*)malloc(sizeof(int)*(*returnSize));
+    memset(result,0,*returnSize);
+
+    result[0] = 0;
+    result[1] = 1;
+    if(n==1)
+    {
+        if(start==1)
+        {
+            result[0] = 1;
+            result[1] = 0;
+        }
+        return result;
+    }
+    else{
+        for(int i=2;i<=n;i++)
+        {
+            int begin = pow(2,i-1);
+            int end = pow(2,i);
+            for(int j=begin;j<end;j++)
+            {
+                result[j] = result[j-begin]+begin;
+            }
+
+            for(int h =begin;h<(begin+end)/2;h++)
+            {
+                int temp = result[h];
+                result[h] = result[end+begin-h-1];
+                result[end+begin-h-1] = temp;
+            }
+
+        }
+        int iindex;
+        for(int i=0;i<*returnSize;i++)
+        {
+            if(start==result[i])
+            {
+                iindex = i;
+            }
+        }
+
+        // for(int i=0;i<=iindex/2;i++)
+        // {
+        //     int temp = result[i];
+        //     result[i] = result[iindex-i];
+        //     result[iindex-i] = temp;
+        // }
+        int temp[*returnSize];
+        memset(temp,0,sizeof(temp));
+        for(int i=0;i<*returnSize;i++)
+        {
+            temp[i] = result[i];
+        }
+
+        for(int i=iindex;i<*returnSize;i++)
+        {
+            result[i-iindex] = temp[i];
+        }
+        for(int i=0;i<iindex;i++)
+        {
+            result[*returnSize-iindex+i] = temp[i];
+        }
+
+
+
+        return result;
+
+}
+}
