@@ -1,0 +1,23 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h> 
+int minTimeToVisitAllPoints(int** points, int pointsSize, int* pointsColSize){
+	int timeSum = 0;
+	for(int i = 0;i<pointsSize-1;i++){
+		int nowx = points[i][0] ;
+		int nowy = points[i][1] ;
+		
+		int nexx = points[i+1][0];
+		int nexy = points[i+1][1];
+		
+		int x_ray = abs(nowx - nexx);
+		int y_ray = abs(nowy - nexy);
+		
+		if(x_ray > y_ray){
+			timeSum += x_ray;
+		}else{
+			timeSum += y_ray;
+		}
+ 	}
+	return timeSum;
+}
