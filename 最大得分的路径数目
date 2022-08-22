@@ -1,0 +1,35 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* pathsWithMaxScore(char ** board, int boardSize, int* returnSize){
+    int i,j,n=strlen(board[0]),m=boardSize;
+    long long dp[m+1][n+1][2];memset(dp,0,sizeof(dp)); 
+    for(i=0;i<=m;i++){
+        dp[m][i][0]=INT_MIN;
+        dp[i][n][0]=INT_MIN;
+    }
+    dp[m][n][1]=1;dp[m][n][0]=0;
+    board[m-1][n-1]='0'; board[0][0]='0'; int *res=(int*)malloc(sizeof(int)*2); *returnSize=2;
+    for(i=m-1;i>=0;i--){
+        for(j=n-1;j>=0;j--){
+            if(board[i][j]=='X'){
+                dp[i][j][0]=INT_MIN; dp[i][j][1]=INT_MIN;
+            }else{
+                int max=fmax(dp[i][j+1][0],dp[i+1][j][0]);
+                max=fmax(dp[i+1][j+1][0],max);
+                dp[i][j][0]=max+board[i][j]-'0';
+                if(dp[i][j+1][0]==max)dp[i][j][1]+=dp[i][j+1][1];
+                if(dp[i+1][j+1][0]==max)dp[i][j][1]+=dp[i+1][j+1][1];
+                if(dp[i+1][j][0]==max)dp[i][j][1]+=dp[i+1][j][1];
+                dp[i][j][1]%=1000000007;
+            }
+        }
+
+    }
+    if(dp[0][0][0]<0){
+        res[0]=0; res[1]=0; return res;
+    }
+    res[0]=dp[0][0][0];
+    res[1]=(dp[0][0][1]%1000000007);
+    return res;
+}
