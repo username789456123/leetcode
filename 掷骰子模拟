@@ -1,0 +1,63 @@
+int dieSimulator(int n, int *rollMax, int rollMaxSize)
+{
+    const int modulo = 1000000007;
+    int x = 0, y = 0, z = 0, previous = 0, current = 1;
+    int sum[2];
+    int subSum[2][6];
+    int *records[2][6];
+
+    /* 第0轮，总和是6。 */
+    sum[previous] = 6;
+    while(6 > x)
+    {
+        /* 根据实际长度申请数组。这里用calloc代替malloc，暗含了初始化为0的步骤。 */
+        records[previous][x] = (int *)calloc(rollMax[x] + 1, sizeof(int));
+        records[current][x] = (int *)calloc(rollMax[x] + 1, sizeof(int));
+        /* 第0轮，只有连续出现1次的可能。 */
+        records[previous][x][1] = 1;
+        subSum[previous][x] = 1;
+        x++;
+    }
+
+    /* 上面第0轮已经初始化完毕，然后从第1轮开始。 */
+    x = 1;
+    while(n > x)
+    {
+        /* 当前轮次的总和初始化为0。 */
+        sum[current] = 0;
+        /* 依次查看每个面值。 */
+        y = 0;
+        while(6 > y)
+        {
+            /* 注意，减法取模的结果可能是负数，所以加上模再取模，确保得到非负数。 */
+            records[current][y][1] = (sum[previous] - subSum[previous][y] + modulo) % modulo;
+            subSum[current][y] = records[current][y][1];
+            sum[current] = (sum[current] + records[current][y][1]) % modulo;
+            /* 连续出现次数大于1次的情况，就只和前一轮同面值的次数有关。 */
+            z = 2;
+            while(rollMax[y] >= z)
+            {
+                records[current][y][z] = records[previous][y][z - 1];
+                subSum[current][y] = (subSum[current][y] + records[current][y][z]) % modulo;
+                sum[current] = (sum[current] + records[current][y][z]) % modulo;
+                z++;
+            }
+            y++;
+        }
+        /* 当前轮次就是下一轮的前一轮，两个下标交替使用。 */
+        previous = current;
+        current = 1 - previous;
+        x++;
+    }
+
+    /* 释放临时数组。 */
+    x = 0;
+    while(6 > x)
+    {
+        free(records[previous][x]);
+        free(records[current][x]);
+        x++;
+    }
+
+    return sum[previous];
+}
