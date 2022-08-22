@@ -1,0 +1,20 @@
+static bool GetRes(int *arr, int arrSize, int index, bool *vist)
+{
+    if ((index >= arrSize) || (index < 0) || vist[index] == true) {
+        return false;
+    }
+
+    if (arr[index] == 0) {
+        return true;
+    }
+    vist[index] = true;
+    return (GetRes(arr, arrSize, index - arr[index], vist) || GetRes(arr, arrSize, index + arr[index], vist));
+}
+
+
+bool canReach(int* arr, int arrSize, int start)
+{
+    bool vist[arrSize];
+    memset(vist, 0, sizeof(bool) * arrSize);
+    return GetRes(arr, arrSize, start, vist);
+}
