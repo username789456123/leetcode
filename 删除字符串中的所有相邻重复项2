@@ -1,0 +1,23 @@
+char * removeDuplicates(char * s, int k){
+    int len = strlen(s);
+    char* result = (char*)malloc(sizeof(char) * (len + 1));
+    int i, j;
+    int top = -1;
+
+    for (i = 0; i < len; i++) {
+        result[++top] = s[i];
+        if (top < k - 1) {
+            continue;
+        }
+        for (j = top - (k - 1); j < top; j++) {
+            if (result[top] != result[j]) {
+                break;
+            }
+        }
+        if (j == top) {
+            top = top - k;  
+        } 
+    }
+    result[++top] = '\0';
+    return result;
+}
