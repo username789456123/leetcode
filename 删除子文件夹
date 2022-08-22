@@ -1,0 +1,18 @@
+int cmp(const void *a, const void *b) {
+    return strcmp(*(char **)a, *(char **)b);
+}
+
+char ** removeSubfolders(char ** folder, int n, int* returnSize){
+    // 1、按字符串字典序升序，这样前缀一定跑到最前面（文件夹名都是唯一）且子文件定在其后相邻位置
+    qsort(folder, n, sizeof(*folder), cmp);
+    char **ans = (char **)malloc(sizeof(char *) * n);  // 最多全是
+    *returnSize = 0;
+    for (int i = 0, len, j; i < n; ) {
+        ans[returnSize[0]++] = folder[i];
+        len = strlen(folder[i]);  // 前缀的长度
+        // 过滤 folder[i]/??? 的形式: /a,/aa
+        for (j = i + 1; j < n && (0 == strncmp(folder[i], folder[j], len) && '/' == folder[j][len]); ++j);
+        i = j;
+    }
+    return ans;
+}
