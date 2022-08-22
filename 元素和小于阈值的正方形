@@ -1,0 +1,29 @@
+int getSum(int **mat, int x, int y, int len)
+{
+    int sum = 0;
+    for(int i = x; i < (x + len); i++) {
+        for(int j = y; j < (y + len); j++) {
+            sum += mat[i][j];
+        }
+    }
+    return sum;
+}
+
+int maxSideLength(int** mat, int matSize, int* matColSize, int threshold)
+{
+    int maxlen = 0;
+    for(int i = 0; i < matSize; i++) {
+        if(i + maxlen > matSize) {
+            break;
+        }
+        for(int j = 0; j < matColSize[0]; j++){
+            if(j + maxlen > matColSize[0]) {
+                break;
+            }
+            while(j + maxlen <= matColSize[0] && i + maxlen <= matSize && getSum(mat, i, j, maxlen) <= threshold){
+                maxlen++;
+            }
+        }
+    }
+    return maxlen-1;
+}
