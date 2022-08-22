@@ -1,0 +1,22 @@
+#define maxsize 1000
+int** findSolution(int (*customFunction)(int, int), int z, int* returnSize, int** returnColumnSizes) {
+	//初始化返回信息 
+	int **ans=(int**)malloc(sizeof(int*)*maxsize);
+	*returnColumnSizes=(int*)malloc(sizeof(int)*maxsize);
+	*returnSize=0;
+	int y=maxsize;
+	for(int x=1;x<=maxsize;x++){
+		while(y){
+			if(customFunction(x,y)==z){
+				ans[(*returnSize)]=(int*)malloc(sizeof(int)*2);
+				ans[(*returnSize)][0]=x,ans[(*returnSize)][1]=y;
+				(*returnColumnSizes)[(*returnSize)++]=2;
+				break;
+			}
+			else if(customFunction(x,y)<z)
+				break;
+			y--;
+		}
+	}
+    return ans;
+}
