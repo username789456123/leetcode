@@ -1,0 +1,13 @@
+int* numOfBurgers(int tomatoSlices, int cheeseSlices, int* returnSize){
+    if(cheeseSlices*4 < tomatoSlices || cheeseSlices*2 > tomatoSlices || tomatoSlices%2){
+        *returnSize = 0;
+        return NULL;
+    }
+
+    int *res = (int*)malloc(sizeof(int)*2);
+    res[0] = (tomatoSlices - 2*cheeseSlices)/2;
+    res[1] = cheeseSlices-res[0];
+
+    *returnSize = 2;
+    return res;
+}
