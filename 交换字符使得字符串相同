@@ -1,0 +1,31 @@
+int minimumSwap(char *s1, char *s2)
+{
+    int strlenS1 = strlen(s1);
+    if (s1 == NULL || s2 == NULL || strlen(s1) != strlen(s2)) {
+        return -1;
+    }
+
+    int xyCnt = 0;
+    int yxCnt = 0;
+
+    while (*s1 != '\0') {
+        if (*s1 == 'x' && *s2 == 'y') {
+            xyCnt++;
+        } else if (*s1 == 'y' && *s2 == 'x') {
+            yxCnt++;
+        } else {
+            ;
+        }
+        s1++;
+        s2++;
+    }
+    if ((xyCnt + yxCnt) % 2 != 0) {
+        return -1;
+    }
+    /* xyCnt + yxCnt 是一个偶数，且xyCnt与yxCnt都不是0，那么可能有“奇数+奇数”和“偶数+偶数”两种情况 */
+    if (xyCnt % 2 != 0) {
+        return xyCnt / 2 + yxCnt / 2 + 2;
+    } else {
+        return xyCnt / 2 + yxCnt / 2;
+    }
+}
