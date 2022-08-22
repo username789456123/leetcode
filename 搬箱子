@@ -1,0 +1,138 @@
+#define LIST_MAX 2000
+
+typedef struct {
+    int x;
+    int y;
+} POS;
+POS terminal;
+POS box;
+POS play;
+int res;
+
+POS list[LIST_MAX];
+int flag[LIST_MAX];
+int dir[][2] = {
+    {0, 1},
+    {1, 0},
+    {0, -1},
+    {-1 ,0}
+};
+
+bool canReachBox(char** grid, int gridSize, int *gridColSize, POS boxS, POS play, POS boxNOW)
+{
+    if (boxS.x == play.x && boxS.y == play.y) {
+        return true;
+    }
+    memset(flag, 0, sizeof(int) * LIST_MAX);
+    int l = 0;
+    int r = 0;
+    list[r++] = play;
+    while (l < r) {
+        int r_now = r;
+        for (int i = l; i < r; ++i) {
+            int posTmp = list[i].x * gridColSize[0] + list[i].y;
+            for (int j = 0; j < 4; ++j) {
+                if ((flag[posTmp] & (1 << j)) != 0) {
+                    continue;
+                }
+                int tmpX = list[i].x + dir[j][0];
+                int tmpY = list[i].y + dir[j][1];
+                if (tmpX < 0 || tmpX >= gridSize || tmpY < 0 || tmpY >=gridColSize[0]) {
+                    continue;
+                }
+                if (tmpX == boxNOW.x && tmpY == boxNOW.y) {
+                    continue;
+                }
+                if (grid[tmpX][tmpY] == '#') {
+                    continue;
+                }
+                if (tmpX == boxS.x && tmpY == boxS.y) {
+                    return true;
+                }
+                flag[posTmp] = (flag[posTmp] | 1 << j);
+                list[r_now].x = tmpX;
+                list[r_now].y = tmpY;
+                ++r_now;
+            }
+        }
+        l = r;
+        r = r_now;
+    }
+    printf("%d\n", r);
+    return false;
+}
+
+typedef struct {
+    POS box;
+    POS play;
+} POSALL;
+
+POSALL listAll[LIST_MAX];
+
+int flagDir[LIST_MAX];
+
+bool canReachGoal(char** grid, int gridSize, int *gridColSize)
+{
+    memset(flagDir, 0, sizeof(int) * LIST_MAX);
+    int l = 0;
+    int r = 0;
+    listAll[r].box = box;
+    listAll[r].play = play;
+    ++r;
+    while (l < r) {
+        int r_now = r;
+        ++res;
+        for (int i = l; i < r; ++i) {
+            int tmp = listAll[i].box.x * gridColSize[0] + listAll[i].box.y;
+            for (int j = 0; j < 4; ++j) {
+                if ((flagDir[tmp] & (1 << j)) != 0) {
+                    continue;
+                }
+                
+                POS tmp1 = {listAll[i].box.x + dir[j][0], listAll[i].box.y + dir[j][1]};
+                POS tmp2 = {listAll[i].box.x - dir[j][0], listAll[i].box.y - dir[j][1]};
+                if (tmp1.x < 0 || tmp1.x >= gridSize || tmp1.y < 0 || tmp1.y >=gridColSize[0]) {
+                    continue;
+                }
+                if (tmp2.x < 0 || tmp2.x >= gridSize || tmp2.y < 0 || tmp2.y >=gridColSize[0]) {
+                    continue;
+                }
+                if (grid[tmp1.x][tmp1.y] == '#' || grid[tmp2.x][tmp2.y] == '#' ||
+                    !canReachBox(grid, gridSize, gridColSize, tmp1, listAll[i].play, listAll[i].box)) {
+                    continue;
+                }
+                flagDir[tmp] = (flagDir[tmp] | 1 << j);
+
+                if (grid[tmp2.x][tmp2.y] == 'T') {
+                    return true;
+                }
+                
+                listAll[r_now].box = tmp2;
+                listAll[r_now].play = listAll[i].box;
+                ++r_now;
+            }
+        }
+        l = r;
+        r = r_now;
+    }
+    return false;
+}
+
+int minPushBox(char** grid, int gridSize, int* gridColSize){
+    for (int i = 0; i < gridSize; ++i) {
+        for (int j = 0; j < gridColSize[i]; ++j) {
+            if (grid[i][j] == 'T') {
+                terminal.x = i;
+                terminal.y = j;
+            } else if (grid[i][j] == 'B') {
+                box.x = i;
+                box.y = j;
+            } else if (grid[i][j] == 'S') {
+                play.x = i;
+                play.y = j;
+            }
+        }
+    }
+    res = 0;
+    return (canReachGoal(grid, gridSize, gridColSize) ? res : -1);
+}
