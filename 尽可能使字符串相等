@@ -1,0 +1,27 @@
+int binarySearch(int* accDiff, int endIndex, int target) {
+    int low = 0, high = endIndex;
+    while (low < high) {
+        int mid = (high - low) / 2 + low;
+        if (accDiff[mid] < target) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    return low;
+}
+
+int equalSubstring(char* s, char* t, int maxCost) {
+    int n = strlen(s);
+    int accDiff[n + 1];
+    memset(accDiff, 0, sizeof(accDiff));
+    for (int i = 0; i < n; i++) {
+        accDiff[i + 1] = accDiff[i] + fabs(s[i] - t[i]);
+    }
+    int maxLength = 0;
+    for (int i = 1; i <= n; i++) {
+        int start = binarySearch(accDiff, i, accDiff[i] - maxCost);
+        maxLength = fmax(maxLength, i - start);
+    }
+    return maxLength;
+}
