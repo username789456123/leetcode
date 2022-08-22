@@ -1,0 +1,35 @@
+int iswin(int **table){
+    if ((table[0][0] == table[0][1] && table[0][1] == table[0][2]) ||
+        (table[1][0] == table[1][1] && table[1][1] == table[1][2]) ||
+        (table[2][0] == table[2][1] && table[2][1] == table[2][2]) ||
+        (table[0][0] == table[1][1] && table[1][1] == table[2][2]) ||
+        (table[0][2] == table[1][1] && table[1][1] == table[2][0]) ||
+        (table[0][0] == table[1][0] && table[1][0] == table[2][0]) ||
+        (table[0][1] == table[1][1] && table[1][1] == table[2][1]) ||
+        (table[0][2] == table[1][2] && table[1][2] == table[2][2]))
+        return 1;
+    return 0;
+}
+
+char * tictactoe(int** moves, int movesSize, int* movesColSize){
+    if (movesSize <= 4) return "Pending"; //少于四轮必没下完且没胜负
+    int i, j, pos = 3;
+    int **table = (int **)calloc(3, sizeof(int *));
+    for(i = 0; i < 3; i++) table[i] = (int *)calloc(3, sizeof(int));
+    for(i = 0; i < 3; i++){
+        for(j = 0; j < 3; j++){
+            table[i][j] = pos++; //初始化棋盘，每个数值不同便于上面判断函数执行
+        }
+    }
+
+    for(i = 0; i < movesSize; i++){
+        if (i % 2 == 0)table[moves[i][0]][moves[i][1]] = 1; //单数轮为A
+        else table[moves[i][0]][moves[i][1]] = 2; //双数轮为B
+        if (iswin(table)){
+            if (i % 2 == 0) return "A";
+            else return "B";
+        }
+    }
+    if (i == 9) return "Draw"; //如果没胜负并且轮数达到九轮则必平局
+    return "Pending"; //如果没胜负并且轮数未达到九轮则未结束
+}
