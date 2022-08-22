@@ -1,0 +1,40 @@
+const int x[4]={-1,1,0,0};
+const int y[4]={0,0,-1,1};
+int n,m;
+void DFSTtaverse(int** grid,int i,int j){
+    if(grid[i][j]==1)
+        return;
+    else
+       grid[i][j]=1;
+
+    for(int k=0;k<4;k++){
+        int dx=x[k]+i,dy=y[k]+j;
+        if(dx>=1 && dx<n-1 && dy>=1 && dy<m-1)
+            DFSTtaverse(grid,dx,dy);
+    }
+}
+int closedIsland(int** grid, int gridSize, int* gridColSize){
+    int sum=0;
+    n=gridSize,m=gridColSize[0];
+
+    for(int i=0,j=0;j<m;j++)
+        if(grid[i][j]==0)
+            DFSTtaverse(grid,i,j);  //这边很重要，边界上是0，则上下左右也是0的是不能构成一个封闭岛的
+    for(int i=n-1,j=0;j<m;j++)
+        if(grid[i][j]==0)
+            DFSTtaverse(grid,i,j);
+    for(int i=0,j=0;i<n;i++)
+        if(grid[i][j]==0)
+            DFSTtaverse(grid,i,j);
+    for(int i=0,j=m-1;i<n;i++)
+        if(grid[i][j]==0)
+            DFSTtaverse(grid,i,j);
+            
+    for(int i=1;i<n-1;i++)
+        for(int j=1;j<m-1;j++)
+            if(grid[i][j]==0){
+                DFSTtaverse(grid,i,j);
+                sum++;
+            }
+    return sum;
+}
