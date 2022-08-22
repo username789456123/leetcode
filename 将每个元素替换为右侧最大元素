@@ -1,0 +1,22 @@
+#include<stdio.h>
+#include<string.h> 
+#include<stdlib.h>
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* replaceElements(int* arr, int arrSize, int* returnSize){
+	int *arr_r = (int *)malloc(sizeof(int )*arrSize);
+	*returnSize = arrSize;
+	int max = 0;
+
+	for(int i = arrSize-1;i>0;i--){
+		if(max < arr[i]){
+			max = arr[i];
+		}
+		arr_r[i-1] = max;
+	}
+
+	arr_r[arrSize-1] = -1;
+	return arr_r;
+}   
