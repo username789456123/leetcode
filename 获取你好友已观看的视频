@@ -1,0 +1,144 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+#define MAX_VIEDO_NAME_LEN 101
+#define MAX_FRIEND_LEN 101
+
+typedef struct {
+    int index;
+    UT_hash_handle hh;
+} FriendsHashTable;
+FriendsHashTable *g_friendsHashTable = NULL;
+
+typedef struct {
+    char name[MAX_VIEDO_NAME_LEN];
+    int cnt;
+    UT_hash_handle hh;
+} VideosHashTable;
+VideosHashTable *g_videosHashTable = NULL;
+
+void LevelFriends(int** friends, int friendsSize, int* friendsColSize, int id, int level)
+{
+    HASH_CLEAR(hh, g_friendsHashTable);
+    FriendsHashTable *tmp;
+    FriendsHashTable *cur;
+    int id1;
+    tmp = malloc(sizeof(FriendsHashTable));
+    tmp->index = id;
+    HASH_ADD_INT(g_friendsHashTable, index, tmp);
+    int cntPreLevel = 1;
+    int cntCurLevel;
+    int levelFriends[MAX_FRIEND_LEN][MAX_FRIEND_LEN] = {0};
+    int levelFriendsNum[MAX_FRIEND_LEN] = {0};
+    levelFriendsNum[0] = 1;
+    levelFriends[0][0] = id;
+
+    for (int i = 0; i < level; i++) {
+        cntCurLevel = 0;
+        HASH_ITER(hh, g_friendsHashTable, cur, tmp) {
+            int tmpId = cur->index;
+            for (int j = 0; j < friendsColSize[tmpId]; j++) {
+                FriendsHashTable *tmp1;
+                HASH_FIND_INT(g_friendsHashTable, &friends[tmpId][j], tmp1);
+                if (NULL == tmp1) {
+                    cntCurLevel++;
+                    tmp1 = malloc(sizeof(FriendsHashTable));
+                    tmp1->index = friends[tmpId][j];
+                    HASH_ADD_INT(g_friendsHashTable, index, tmp1);
+                    levelFriends[level + 1][levelFriendsNum[level + 1]] = friends[tmpId][j];
+                    levelFriendsNum[level + 1]++;
+                }
+            }
+        }
+#if 0
+        printf("\nwei shan chu de tian jia\n");
+        HASH_ITER(hh, g_friendsHashTable, cur, tmp) {
+            printf("%d ", cur->index);
+        }
+        printf("\n");
+#endif
+        int delCnt = 0;
+        HASH_ITER(hh, g_friendsHashTable, cur, tmp) {
+            //printf("%d ", cur->index);
+            HASH_DEL(g_friendsHashTable, cur);
+            free(cur);
+            delCnt++;
+            if (delCnt == cntPreLevel) {
+                break;
+            }
+        }
+        //printf("\nshan chu hou de tian jia\n");
+        for (int cnt = 0; level > 1 && cnt < levelFriendsNum[level - 2]; cnt++) {
+            FriendsHashTable *tmp2;
+            HASH_FIND_INT(g_friendsHashTable, &levelFriends[level - 2][cnt], tmp2);
+            printf("%d ", levelFriends[level - 2][cnt]);
+            if (NULL != tmp2) {
+                HASH_DEL(g_friendsHashTable, tmp2);
+                free(tmp2);
+            }
+        }
+#if 0
+        printf("\n");
+        HASH_ITER(hh, g_friendsHashTable, cur, tmp) {
+            printf("%d ", cur->index);
+        }
+        printf("\n");
+#endif
+        cntPreLevel = cntCurLevel;
+    }
+}
+
+int MyCompare(VideosHashTable *a1, VideosHashTable *a2)
+{
+    if (a1->cnt == a2->cnt) {
+        return strcmp(a1->name, a2->name);
+    }
+    return a1->cnt - a2->cnt;
+}
+
+char ** VideosList(char *** watchedVideos, int watchedVideosSize, int* watchedVideosColSize, int* returnSize)
+{
+    HASH_CLEAR(hh, g_videosHashTable);
+    FriendsHashTable *tmpFri;
+    FriendsHashTable *curFri;
+    VideosHashTable *tmpVid;
+    VideosHashTable *curVid;
+    HASH_ITER(hh, g_friendsHashTable, curFri, tmpFri) {
+        int id = curFri->index;
+        for (int i = 0; i < watchedVideosColSize[id]; i++) {
+            HASH_FIND_STR(g_videosHashTable, watchedVideos[id][i], tmpVid);
+            if (NULL != tmpVid) {
+                tmpVid->cnt++;
+            } else {
+                int len = strlen(watchedVideos[id][i]);
+                tmpVid = malloc(sizeof(VideosHashTable));
+                tmpVid->cnt = 1;
+                strncpy(tmpVid->name, watchedVideos[id][i], len);
+                tmpVid->name[len] = '\0';
+                HASH_ADD_STR(g_videosHashTable, name, tmpVid);
+            }
+        }
+    }
+    HASH_SORT(g_videosHashTable, MyCompare);
+
+    *returnSize = HASH_COUNT(g_videosHashTable);
+    char **retArr = malloc(sizeof(char *) * (*returnSize));
+    int i = 0;
+    int len;
+    HASH_ITER(hh, g_videosHashTable, curVid, tmpVid) {
+        len = strlen(curVid->name);
+        retArr[i] = malloc(sizeof(char) * (len + 1));
+        strncpy(retArr[i], curVid->name, len);
+        retArr[i][len] = '\0';
+        i++;
+    }
+    return retArr;
+}
+
+
+char ** watchedVideosByFriends(char *** watchedVideos, int watchedVideosSize, int* watchedVideosColSize, int** friends, int friendsSize, int* friendsColSize, int id, int level, int* returnSize){
+    char **ret;
+    LevelFriends(friends, friendsSize, friendsColSize, id, level);
+    ret = VideosList(watchedVideos, watchedVideosSize, watchedVideosColSize, returnSize);
+    return ret;
+}
