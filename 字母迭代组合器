@@ -1,0 +1,76 @@
+#define MAX_SIZE 6435
+
+char ** ans ;
+char * buf;
+int key , ans_len;
+
+
+typedef struct {
+
+    int index , len , combinationLength;
+    char ** ans;
+
+} CombinationIterator;
+
+
+void baktrack( char * characters , int len , int index , int str_len , int curr ) {
+
+    /* 结束条件 */
+    if( index == len ) {
+
+        ans[ ans_len ] = ( char * )malloc( sizeof( char ) * ( len + 1 ) );
+
+        strcpy( ans[ ans_len++ ] , buf );
+
+        return ;
+
+    }
+
+    /* 遍历可操作列表 */
+    for( int i = curr ; i < str_len ; ++i ) {
+
+        /* 做选择 */
+        buf[ index ] = characters[ i ];
+        baktrack( characters , len , index + 1 , str_len , i + 1 );
+        /* 撤销选择 */
+        //buf[ index ] = '0'
+
+    }
+
+}
+
+CombinationIterator * combinationIteratorCreate( char * characters , int combinationLength ) {
+
+    int len = strlen( characters );
+    CombinationIterator * obj = ( CombinationIterator * )malloc( sizeof( CombinationIterator ) * 1 );
+    ans = ( char ** )malloc( sizeof( char * ) * MAX_SIZE );
+    buf = ( char * )malloc( sizeof( char ) * ( combinationLength + 1 ) );
+
+    buf[ combinationLength ] = '\0';
+    obj -> index = key = ans_len = 0;
+    obj -> combinationLength = combinationLength;
+    baktrack( characters , combinationLength , 0 , len , 0 );
+    obj -> len = ans_len;
+    obj -> ans = ans;
+    free( buf );
+    return obj;
+
+}
+
+char * combinationIteratorNext( CombinationIterator * obj ) {
+
+    return obj -> index == obj -> len ? NULL: obj -> ans[ ( obj -> index )++ ] ;
+  
+}
+
+bool combinationIteratorHasNext( CombinationIterator * obj ) {
+
+    return obj -> index < obj -> len;
+  
+}
+
+void combinationIteratorFree( CombinationIterator * obj ) {
+
+    free( obj );
+
+}
