@@ -1,0 +1,18 @@
+int* sumZero(int n, int* returnSize){
+    int *res=malloc(sizeof(int)*n);
+     *returnSize=0;
+    if(n%2==0){
+        for(int a=1;a<=n/2;a++){
+            res[(*returnSize)++]=a;
+            res[(*returnSize)++]=-a;
+        }
+    }else{
+        (*returnSize)=1;
+        res[0]=0;
+        for(int a=1;a<=n/2;a++){
+            res[(*returnSize)++]=a;
+            res[(*returnSize)++]=-a;
+        }
+    }
+    return res;
+}
