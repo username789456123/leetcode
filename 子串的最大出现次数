@@ -1,0 +1,66 @@
+#define MAX_SIZE  26
+typedef struct {
+    char str[MAX_SIZE];
+    int count;
+    UT_hash_handle hh;
+} HashNode;
+
+void HashNodeAddStr(HashNode **tbl, char *str)
+{
+    HashNode *node = NULL;
+    HASH_FIND_STR(*tbl, str, node);
+    if (node == NULL) {
+        node = (HashNode *)malloc(sizeof(HashNode));
+        strcpy(node->str, str);
+        node->count = 1;
+        HASH_ADD_STR(*tbl, str, node);
+    } else {
+        node->count++;
+    }
+    return;
+}
+
+int CmpCount(HashNode *p1, HashNode *p2)
+{
+    return (p2->count - p1->count);
+}
+
+bool IsStrMatch(char *str, int maxLetters)
+{
+    int num = 0;
+    int cnt[MAX_SIZE] = {0};
+    for (int i = 0; i < strlen(str); i++) {
+        if (cnt[str[i] - 'a'] == 0) {
+            num++;
+        }
+        cnt[str[i] - 'a']++;
+    }
+
+    if (num > maxLetters) {
+        return false;
+    }
+    return true;
+}
+
+int maxFreq(char * s, int maxLetters, int minSize, int maxSize){
+    HashNode *tbl = NULL;
+    char str[minSize + 1];
+    for (int i = 0; i < (strlen(s) - minSize + 1); i++) {
+        strncpy(str, s + i, minSize);
+        str[minSize] = '\0';
+        HashNodeAddStr(&tbl, str);
+    }
+
+    HASH_SORT(tbl, CmpCount);
+
+    HashNode *node = NULL;
+    HashNode *temp = NULL;
+    int res = 0;
+    HASH_ITER(hh, tbl, node, temp) {
+        if (!IsStrMatch(node->str, maxLetters)) {
+            continue;
+        }
+        return node->count;
+    }
+    return 0;
+}
