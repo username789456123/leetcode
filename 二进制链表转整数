@@ -1,0 +1,13 @@
+int getDecimalValue(struct ListNode* head)
+{
+    struct ListNode* nodeIt = head;
+    int sum = 0;
+    while (nodeIt != NULL)
+    {
+        sum   += nodeIt->val;
+        nodeIt = nodeIt->next;
+        if(nodeIt != NULL)
+            sum <<= 1;
+    }
+    return sum;
+}
