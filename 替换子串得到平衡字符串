@@ -1,0 +1,29 @@
+int balancedString(char * s){
+    int slow = 0;
+    int fast = 0;
+    int len = strlen(s);
+    int avr = len >> 2;
+    int res = len;
+    int cnt[26] = {0};
+
+    for (int i = 0; i < len; i++) {
+        cnt[s[i] - 'A']++;
+    }
+
+    if (cnt['Q' - 'A'] == avr && cnt['W' - 'A'] == avr && cnt['E' - 'A'] == avr && cnt['R' - 'A'] == avr) {
+        return 0;
+    }
+
+    for ( ; fast < len; fast++) {
+        cnt[s[fast] - 'A']--;
+        for ( ; slow <= fast; slow++) {
+            if (cnt['Q' - 'A'] <= avr && cnt['W' - 'A'] <= avr && cnt['E' - 'A'] <= avr && cnt['R' - 'A'] <= avr) {
+                res = res < (fast - slow + 1) ? res : (fast - slow + 1);
+                cnt[s[slow] - 'A']++;
+            } else if (cnt['Q' - 'A'] > avr || cnt['W' - 'A'] > avr || cnt['E' - 'A'] > avr || cnt['R' - 'A'] > avr) {
+                break;
+            }
+        }
+    }
+    return res;
+}
