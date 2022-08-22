@@ -1,0 +1,12 @@
+int gcd(int a, int b){
+    return b == 0 ? a : gcd(b, a % b);
+}
+
+bool isGoodArray(int* nums, int numsSize){
+    int ret = nums[0];
+    for (int i = 1; i < numsSize; i++) {
+        ret = gcd(ret, nums[i]);
+    }
+
+    return (ret == 1);
+}
