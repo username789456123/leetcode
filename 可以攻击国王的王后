@@ -1,0 +1,105 @@
+struct Hash {
+    int key;
+    int index;
+    int distance;
+    UT_hash_handle hh;
+};
+
+struct Hash *hash;
+
+struct Hash *find(int key) {
+    struct Hash *temp;
+    HASH_FIND_INT(hash, &key, temp);
+    return temp;
+}
+
+void insert(int key, int index, int distance) {
+    struct Hash *it = find(key);
+    if (it == NULL) {
+        struct Hash *temp = malloc(sizeof(struct Hash));
+        temp->key = key;
+        temp->index = index;
+        temp->distance = distance;
+        HASH_ADD_INT(hash, key, temp);
+    } else {
+        if (it->distance > distance) {
+            it->distance = distance;
+            it->index = index;
+        }
+    }
+}
+
+int determineKey(int *queen, int *king, int *distance) {
+    int *arr = malloc(sizeof(int) * 2);
+    arr[0] = queen[0] - king[0];
+    arr[1] = queen[1] - king[1];
+    // 0: [-1,1]
+    if (arr[0] + arr[1] == 0 && arr[0] < 0) {
+        *distance = abs(arr[0]);
+        return 0;
+    }
+    // 1: [0,1]
+    if (arr[0] == 0 && arr[1] > 0) {
+        *distance = abs(arr[1]);
+        return 1;
+    }
+    // 2: [1,1]
+    if (arr[0] == arr[1] && arr[0] > 0) {
+        *distance = abs(arr[0]);
+        return 2;
+    }
+    // 3: [1,0]
+    if (arr[1] == 0 && arr[0] > 0) {
+        *distance = abs(arr[0]);
+        return 3;
+    }
+    // 4: [1,-1]
+    if (arr[0] + arr[1] == 0 && arr[0] > 0) {
+        *distance = abs(arr[0]);
+        return 4;
+    }
+    // 5: [0,-1]
+    if (arr[0] == 0 && arr[1] < 0) {
+        *distance = abs(arr[1]);
+        return 5;
+    }
+    // 6: [-1,-1]
+    if (arr[0] == arr[1] && arr[0] < 0) {
+        *distance = abs(arr[0]);
+        return 6;
+    }
+    // 7:[-1, 0]
+    if (arr[1] == 0 && arr[0] < 0) {
+        *distance = abs(arr[0]);
+        return 7;
+    }
+    *distance = -1;
+    return -1;
+}
+
+int** queensAttacktheKing(int** queens, int queensSize, int* queensColSize, int* king, int kingSize, int* returnSize, int** returnColumnSizes){
+    hash = NULL;
+    for (int i = 0; i < queensSize; i++) {
+        int distance;
+        int key = determineKey(queens[i], king, &distance);
+        if (key != -1) {
+            insert(key, i, distance);
+        }
+    }
+
+    int **ret = (int **)malloc(sizeof(int *) * HASH_COUNT(hash));
+    *returnSize = HASH_COUNT(hash);
+    *returnColumnSizes = (int *)malloc(sizeof(int) * HASH_COUNT(hash));
+    for (int i = 0; i < HASH_COUNT(hash); i++) {
+        ret[i] = (int *)malloc(sizeof(int) * 2);
+        (*returnColumnSizes)[i] = 2;
+    }
+
+    int index = 0;
+    struct Hash *res, *temp;
+    HASH_ITER(hh, hash, res, temp) {
+        ret[index++] = queens[res->index];
+    }
+
+    return ret;
+}
