@@ -1,0 +1,79 @@
+#define MAX(a, b) (a > b ? a : b)
+
+struct Node {
+    int startValue;
+    int endValue;
+    int profitValue;
+};
+
+int compare(const void* n1, const void* n2)
+{
+    if (((struct Node*)n1)->startValue == ((struct Node*)n2)->startValue) {
+        return ((struct Node*)n1)->endValue - ((struct Node*)n2)->endValue;
+    }
+    return ((struct Node*)n1)->startValue - ((struct Node*)n2)->startValue;
+}
+
+int compareInt(const void* n1, const void* n2)
+{
+    return *((int*)n1) - *((int*)n2);
+}
+
+int query(int* temp, int pos)
+{
+    int ans = 0;
+    while(pos > 0) {
+        ans = MAX(ans, temp[pos]);
+        pos -= (pos & (-pos));
+    }
+    return ans;
+}
+
+void update(int* temp, int pos, int size, int value)
+{
+    while(pos <= size && temp[pos] < value) {
+        temp[pos] = value;
+        pos += (pos & (-pos));
+    }
+}
+
+int lower_bound(int* sortNums, int left, int right, int target)
+{
+    while(left < right) {
+        int mid = (left + right) >> 1;
+        if (sortNums[mid] == target) {
+            right = mid;;
+        } else if (sortNums[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid;
+        }
+    }
+    return left;
+}
+
+int jobScheduling(int* startTime, int startTimeSize, int* endTime, int endTimeSize, int* profit, int profitSize)
+{
+    struct Node arrNode[50000];
+    for (int i = 0; i < startTimeSize; ++i) {
+        arrNode[i].startValue = startTime[i];
+        arrNode[i].endValue = endTime[i];
+        arrNode[i].profitValue = profit[i];
+    }
+    qsort(arrNode, startTimeSize, sizeof(struct Node), compare);
+    int ans[100001] = {0};
+    int arr[100000] = {0};
+    for (int i = 0; i < startTimeSize; ++i) {
+       arr[i] = arrNode[i].startValue;
+       arr[i + startTimeSize] = arrNode[i].endValue;
+    }
+    qsort(arr, 2 * startTimeSize, sizeof(int), compareInt);
+    for (int i = 0; i <startTimeSize; ++i) {
+        int pos1 = lower_bound(arr, 0, 2 * startTimeSize, arrNode[i].startValue) + 1;
+        int pos2 = lower_bound(arr, 0, 2 * startTimeSize, arrNode[i].endValue) + 1;
+        int temp1 = query(ans, pos1);
+        int temp2 = query(ans, pos2);
+        update(ans, pos2, startTimeSize * 2, temp1 + arrNode[i].profitValue);
+    }
+    return ans[startTimeSize * 2];    
+}
