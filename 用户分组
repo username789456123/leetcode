@@ -1,0 +1,53 @@
+typedef struct Array {
+    int *arr;
+    int pos;
+    int size;
+} Array;
+
+Array* creatArray(int size) {
+    Array *obj = (Array *)malloc(sizeof(Array));
+    obj->arr = (int *)malloc(sizeof(int) * size);
+    obj->size = size;
+    obj->pos = 0;
+    return obj;
+}
+
+void freeArray(Array *obj) {
+    free(obj->arr);
+    free(obj);
+}
+
+int** groupThePeople(int* groupSizes, int groupSizesSize, int* returnSize, int** returnColumnSizes){
+    Array **groups = (Array **)malloc(sizeof(Array *) * (groupSizesSize + 1));
+    for (int i = 0; i <= groupSizesSize; i++) {
+        groups[i] = creatArray(groupSizesSize);
+    }
+    for (int i = 0; i < groupSizesSize; i++) {
+        int size = groupSizes[i];
+        groups[size]->arr[groups[size]->pos++] = i;
+    }
+    int **groupList = (int **)malloc(sizeof(int *) * groupSizesSize);
+    *returnColumnSizes = (int *)malloc(sizeof(int) * groupSizesSize);
+    int pos = 0;
+    for (int k = 0; k <= groupSizesSize; k++) {
+        if (groups[k]->pos == 0) {
+            continue;
+        }
+        int size = k;
+        int groupCount = groups[k]->pos / size;
+        for (int i = 0; i < groupCount; i++) {
+            int *group = (int *)malloc(sizeof(int) * size);
+            int start = i * size, index = 0;
+            for (int j = 0; j < size; j++) {
+                group[index++] = groups[k]->arr[start + j];
+            }
+            (*returnColumnSizes)[pos] = size;
+            groupList[pos++] = group;
+        }
+    }
+    *returnSize = pos;
+    for (int i = 0; i <= groupSizesSize; i++) {
+        freeArray(groups[i]);
+    }
+    return groupList;
+}
