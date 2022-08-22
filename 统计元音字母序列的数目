@@ -1,0 +1,39 @@
+void mul(long* o1, long* o2, long size_o2);
+
+const int MOD = (int)1e9 + 7;
+long *gMatrix, *gRes;
+int countVowelPermutation(int n)
+{
+	long matrix[][5] = {
+		{ 0, 1, 0, 0, 0 },
+		{ 1, 0, 1, 0, 0 },
+		{ 1, 1, 0, 1, 1 },
+		{ 0, 0, 1, 0, 1 },
+		{ 1, 0, 0, 0, 0 }
+	};
+	long res[] = { 1, 1, 1, 1, 1 };
+	gMatrix = matrix[0];
+	gRes = res;
+
+	int x = n - 1;
+	while (x != 0) {
+		if ((x & 1) != 0) mul(matrix[0], res, 1);
+		mul(matrix[0], matrix[0], 5);
+		x >>= 1;
+	}
+	long sum = 0;
+	for (int i = 0; i < 5; i++) sum += res[i];
+	return (int)(sum % MOD);
+}
+
+void mul(long* o1, long* o2, long size_o2)
+{
+	long matrix[25] = { 0 };
+	for (int row = 0; row < 5; row++)
+		for (int col = 0; col < size_o2; col++)
+			for (int i = 0; i < 5; i++) {
+				matrix[row * size_o2 + col] += o1[row * 5 + i] * o2[size_o2 * i + col];
+				matrix[row * size_o2 + col] %= MOD;
+			}
+	memcpy(size_o2 == 1 ? gRes : gMatrix, matrix, sizeof *matrix * size_o2 * 5);
+}
