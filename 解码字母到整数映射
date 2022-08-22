@@ -1,0 +1,38 @@
+char* freqAlphabets(char* s)
+{
+    int indexLeft  = 0;
+    int indexRight = 0;
+    int len = strlen(s);
+    char* returnStr = (char*)malloc(sizeof(char) * (len + 1));
+    int returnIndex = 0;
+    while (indexRight < len)
+    {
+        if ((indexRight - indexLeft + 1) == 3)
+        {
+            if (s[indexRight] == '#')
+            {
+                int sum = 0;
+                sum += (s[indexLeft] - '0') * 10;
+                sum += (s[indexLeft + 1] - '0');
+                returnStr[returnIndex++] = (sum - 1) + 'a';
+                indexRight++;
+                indexLeft = indexRight;
+            }
+            else
+            {
+                returnStr[returnIndex++] = (s[indexLeft]- '0' - 1) + 'a';
+                indexLeft++;
+                indexRight++;
+            }
+        }
+        else
+        {
+            indexRight++;
+        }
+    }
+    while (indexLeft < len)
+    {
+        returnStr[returnIndex++] = (s[indexLeft++] - '0' - 1) + 'a';
+    }
+    returnStr[returnIndex] = '\0';
+    return retu
