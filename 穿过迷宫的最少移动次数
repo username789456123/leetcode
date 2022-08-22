@@ -1,0 +1,141 @@
+typedef struct {
+    int x;
+    int y;
+} DOT;
+
+typedef struct {
+    DOT head;
+    int stat;   // 当前状态：0，水平； 1, 竖直；
+} MYQUE;
+
+#define MAX_LEN 20000
+
+MYQUE g_Que[MAX_LEN];
+
+#define CheckValid(x, y, limit) ((x) < 0 || (x) >= (limit) || (y) < 0 || (y) >= (limit))
+
+/*  */
+int minimumMoves(int** grid, int gridSize, int* gridColSize){
+    int begin = 0;
+    int end = 0;
+    int step = 0;
+    DOT nextDot;
+    MYQUE *pstCurNode;
+    int *visited[2];    // visited[0]: 水平访问该点的集合；visited[1]: 竖直访问集合
+
+    (void)memset(g_Que, 0, sizeof(g_Que));
+    visited[0] = (int *)malloc(gridSize * gridSize * sizeof(int));
+    visited[1] = (int *)malloc(gridSize * gridSize * sizeof(int));
+    (void)memset(visited[0], 0, gridSize * gridSize * sizeof(int));
+    (void)memset(visited[1], 0, gridSize * gridSize * sizeof(int));
+
+    g_Que[end].head.x = 0;
+    g_Que[end].head.y = 1;
+    g_Que[end].stat = 0;
+    end++;
+    visited[0][0 * gridSize + 1] = 1;
+
+    while (begin < end) {
+        int len = end - begin;
+        while (len--) {
+            pstCurNode = &g_Que[begin];
+            begin++;
+            //printf("step:%d, len: %d, curnode:(%d, %d, %d)\n", step, len, pstCurNode->head.x, pstCurNode->head.y, pstCurNode->stat);
+
+            if (pstCurNode->head.x == gridSize - 1 && 
+                pstCurNode->head.y == gridSize - 1 &&
+                pstCurNode->stat == 0) {
+                return step;
+            }
+
+            if (pstCurNode->stat == 0) {
+                // 1) 水平向右
+                nextDot.x = pstCurNode->head.x;
+                nextDot.y = pstCurNode->head.y + 1;
+                if (!CheckValid(nextDot.x, nextDot.y, gridSize) && 
+                    grid[nextDot.x][nextDot.y] == 0 && 
+                    visited[pstCurNode->stat][nextDot.x * gridSize + nextDot.y] == 0) {
+                    g_Que[end].head.x = nextDot.x;
+                    g_Que[end].head.y = nextDot.y;
+                    g_Que[end].stat = 0;
+                    end++;
+                    visited[pstCurNode->stat][nextDot.x * gridSize + nextDot.y] = 1;    // visited
+                }
+
+                // 3) 顺时针旋转
+                nextDot.x = pstCurNode->head.x;
+                nextDot.y = pstCurNode->head.y;
+                if (!CheckValid(nextDot.x + 1, nextDot.y, gridSize) && 
+                    grid[nextDot.x + 1][nextDot.y] != 1 && 
+                    grid[nextDot.x + 1][nextDot.y - 1] != 1 && 
+                    visited[pstCurNode->stat][(nextDot.x + 1) * gridSize + nextDot.y] == 0) {
+                    // 水平整体向下
+                    g_Que[end].head.x = nextDot.x + 1;
+                    g_Que[end].head.y = nextDot.y;
+                    g_Que[end].stat = 0;
+                    end++;
+                    visited[pstCurNode->stat][(nextDot.x + 1) * gridSize + nextDot.y] = 1;    // visited
+                }
+                if (!CheckValid(nextDot.x + 1, nextDot.y, gridSize) && 
+                    grid[nextDot.x + 1][nextDot.y] != 1 && 
+                    grid[nextDot.x + 1][nextDot.y - 1] == 0 &&
+                    visited[1][(nextDot.x + 1) * gridSize + nextDot.y - 1] == 0) {
+                    // 顺时针旋转
+                    g_Que[end].head.x = nextDot.x + 1;
+                    g_Que[end].head.y = nextDot.y - 1;
+                    g_Que[end].stat = 1;
+                    end++;
+                    visited[1][(nextDot.x + 1) * gridSize + nextDot.y - 1] = 1;    // visited
+                }
+            }
+
+            if (pstCurNode->stat == 1) {
+                 // 2) 竖直向下
+                nextDot.x = pstCurNode->head.x + 1;
+                nextDot.y = pstCurNode->head.y;
+                if (!CheckValid(nextDot.x, nextDot.y, gridSize) && 
+                    grid[nextDot.x][nextDot.y] == 0 &&
+                    visited[1][(nextDot.x) * gridSize + nextDot.y] == 0) {
+                    g_Que[end].head.x = nextDot.x;
+                    g_Que[end].head.y = nextDot.y;
+                    g_Que[end].stat = 1;
+                    end++;
+                    visited[1][(nextDot.x) * gridSize + nextDot.y] = 1;    // visited
+                }
+
+                // 4) 逆时针旋转
+                nextDot.x = pstCurNode->head.x;
+                nextDot.y = pstCurNode->head.y;
+                if (!CheckValid(nextDot.x, nextDot.y + 1, gridSize) && 
+                    grid[nextDot.x - 1][nextDot.y + 1] != 1 && 
+                    grid[nextDot.x][nextDot.y + 1] != 1 &&
+                    visited[1][(nextDot.x) * gridSize + nextDot.y + 1] == 0) {
+                    // 整体右移
+                    g_Que[end].head.x = nextDot.x;
+                    g_Que[end].head.y = nextDot.y + 1;
+                    g_Que[end].stat = 1;
+                    end++;
+                    visited[1][(nextDot.x) * gridSize + nextDot.y + 1] =-1;    // visited
+                    //printf(">>>step:%d, curnode:(%d, %d, %d)\n", step,  nextDot.x, nextDot.y + 1, 1);
+                }
+                if (!CheckValid(nextDot.x, nextDot.y + 1, gridSize) && 
+                    grid[nextDot.x - 1][nextDot.y + 1] == 0 && 
+                    grid[nextDot.x][nextDot.y + 1] != 1 &&
+                    visited[0][(nextDot.x - 1) * gridSize + nextDot.y + 1] == 0) {
+                    // 逆时针旋转
+                    g_Que[end].head.x = nextDot.x - 1;
+                    g_Que[end].head.y = nextDot.y + 1;
+                    g_Que[end].stat = 0;
+                    end++;
+                    visited[0][(nextDot.x - 1) * gridSize + nextDot.y + 1] = 1;    // visited
+                }
+            }
+        }
+
+        step++;
+    }
+
+    free(visited[0]);
+    free(visited[1]);
+    return -1;
+}
