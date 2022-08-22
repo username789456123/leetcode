@@ -1,0 +1,77 @@
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashItem; 
+
+HashItem *hashFindItem(const HashItem **obj, int key) {
+    HashItem *pEntry = NULL;
+    HASH_FIND_INT(*obj, &key, pEntry);
+    return pEntry;
+}
+
+bool hashAddItem(HashItem **obj, int key, int val) {
+    if (hashFindItem(obj, key)) {
+        return false;
+    }
+    HashItem *pEntry = (HashItem *)malloc(sizeof(HashItem));
+    pEntry->key = key;
+    pEntry->val = val;
+    HASH_ADD_INT(*obj, key, pEntry);
+    return true;
+}
+
+bool hashSetItem(HashItem **obj, int key, int val) {
+    HashItem *pEntry = hashFindItem(obj, key);
+    if (!pEntry) {
+        hashAddItem(obj, key, val);
+    } else {
+        pEntry->val = val;
+    }
+    return true;
+}
+
+int hashGetItem(const HashItem **obj, int key, int defaultVal) {
+    HashItem *pEntry = hashFindItem(obj, key);
+    if (!pEntry) {
+        return defaultVal;
+    }
+    return pEntry->val;
+}
+
+void hashFree(HashItem **obj) {
+    HashItem *curr = NULL, *tmp = NULL;
+    HASH_ITER(hh, *obj, curr, tmp) {
+        HASH_DEL(*obj, curr);  
+        free(curr);             
+    }
+}
+
+int maxEqualFreq(int* nums, int numsSize) {
+    HashItem *freq = NULL, *count = NULL;
+    int res = 0, maxFreq = 0;
+    for (int i = 0; i < numsSize; i++) {
+        int val = hashGetItem(&count, nums[i], 0);
+        if (val > 0) {
+            hashSetItem(&freq, val, hashGetItem(&freq, val, 0) - 1);
+        }
+        hashSetItem(&count, nums[i], hashGetItem(&count, nums[i], 0) + 1);
+        maxFreq = MAX(maxFreq,  hashGetItem(&count, nums[i], 0));
+        val = hashGetItem(&count, nums[i], 0);
+        hashSetItem(&freq, val, hashGetItem(&freq, val, 0) + 1);
+        int val1 = hashGetItem(&freq, maxFreq, 0);
+        int val2 = hashGetItem(&freq, maxFreq - 1, 0);
+        int val3 = hashGetItem(&freq, 1, 0);
+        bool ok = maxFreq == 1 ||
+                val1 * maxFreq + val2 * (maxFreq - 1) == i + 1 && val1 == 1 ||
+                val1 * maxFreq + 1 == i + 1 && val3 == 1;
+        if (ok) {
+            res = MAX(res, i + 1);
+        }
+    }
+    hashFree(&count);
+    hashFree(&freq);
+    return res;
+}
