@@ -1,0 +1,38 @@
+#define MAX_NODE_SIZE 5001
+
+void inorder(struct TreeNode *node, int *res, int *pos) {
+    if (node) {
+        inorder(node->left, res, pos);
+        res[(*pos)++] = node->val;
+        inorder(node->right, res, pos);
+    }
+}
+
+int* getAllElements(struct TreeNode* root1, struct TreeNode* root2, int* returnSize) {
+    int *nums1 = (int *)malloc(sizeof(int) * MAX_NODE_SIZE);
+    int *nums2 = (int *)malloc(sizeof(int) * MAX_NODE_SIZE);
+    int pos1 = 0, pos2 = 0;
+    inorder(root1, nums1, &pos1);
+    inorder(root2, nums2, &pos2);
+
+    int *merged = (int *)malloc(sizeof(int) * (pos1 + pos2));
+    int p1 = 0, p2 = 0;
+    int pos = 0;
+    while (true) {
+        if (p1 == pos1) {
+            memcpy(merged + pos, nums2 + p2, sizeof(int) * (pos2 - p2));
+            break;
+        }
+        if (p2 == pos2) {
+            memcpy(merged + pos, nums1 + p1, sizeof(int) * (pos1 - p1));
+            break;
+        }
+        if (nums1[p1] < nums2[p2]) {
+            merged[pos++] = nums1[p1++];
+        } else {
+            merged[pos++] = nums2[p2++];
+        }
+    }
+    *returnSize = pos1 + pos2;
+    return merged;
+}
