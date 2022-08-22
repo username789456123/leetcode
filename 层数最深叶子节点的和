@@ -1,0 +1,20 @@
+void dfs(struct TreeNode* node, int level, int* maxLevel, int* sum) {
+    if (node == NULL) {
+        return;
+    }
+    if (level > *maxLevel) {
+        *maxLevel = level;
+        *sum = node->val;
+    } else if (level == *maxLevel) {
+        *sum += node->val;
+    }
+    dfs(node->left, level + 1, maxLevel, sum);
+    dfs(node->right, level + 1, maxLevel, sum);
+}
+
+int deepestLeavesSum(struct TreeNode* root){
+    int maxLevel = -1;
+    int sum = 0;
+    dfs(root, 0, &maxLevel, &sum);
+    return sum;
+}
