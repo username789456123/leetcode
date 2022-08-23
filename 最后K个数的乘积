@@ -1,0 +1,46 @@
+typedef struct 
+{
+    int dat[40000];
+    int queueFront;
+    int queueRear;
+} ProductOfNumbers;
+
+
+ProductOfNumbers* productOfNumbersCreate() 
+{
+    ProductOfNumbers* newPro = (ProductOfNumbers* )malloc(sizeof(ProductOfNumbers));
+    newPro->queueFront = 0;
+    newPro->queueRear  = 0;
+    return newPro;
+}
+
+void productOfNumbersAdd(ProductOfNumbers* obj, int num) 
+{
+    obj->dat[obj->queueRear++] = num;
+}
+
+int productOfNumbersGetProduct(ProductOfNumbers* obj, int k) 
+{
+    int queueRearBak = obj->queueRear-1;
+    int product = 1;
+    int count = 0;
+    while(queueRearBak >= obj->queueFront)
+    {
+        product *= obj->dat[queueRearBak--];
+        if(product ==0)
+        {
+            return 0;
+        }
+        count++;
+        if(count >= k)
+        {
+            break;
+        }    
+    }
+    return product;
+}
+
+void productOfNumbersFree(ProductOfNumbers* obj) 
+{
+    free(obj);
+}
