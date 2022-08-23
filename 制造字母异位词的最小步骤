@@ -1,0 +1,11 @@
+int abs(int a){
+    return a<0?-a:a;
+}
+int minSteps(char*s,char*t){
+    int a[26]={0},b[26]={0},i,p=0;
+    for(i=0;s[i];++b[t[i]-'a'],++i)
+        ++a[s[i]-'a'];
+    for(i=0;i<26;++i)
+        p+=abs(b[i]-a[i]);
+    return p>>1;//右移1=除以2，那为啥要除以2呢，因为1+1=2，懂没
+}
