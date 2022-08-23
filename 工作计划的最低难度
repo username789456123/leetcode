@@ -1,0 +1,23 @@
+#define INF 0x6FFFFFFF
+#define min(x,y) ((x)<(y)?(x):(y))
+int minDifficulty(int* jobDifficulty, int jobDifficultySize, int d){
+    int dp[jobDifficultySize+1][d+1];
+    for(int i=0;i<=jobDifficultySize;i++)
+       for(int j=0;j<=d;j++)
+          dp[i][j] = INF;
+    dp[0][0] = 0;
+    for(int i = 1;i<=jobDifficultySize;i++)
+       for(int j = 1;j<=min(d,i);j++)
+       {
+           int maxn = 0;
+           for(int k = i;k>=j;k--)
+           {
+               if(jobDifficulty[k-1]>maxn)
+               maxn = jobDifficulty[k-1];
+               dp[i][j] = min(dp[i][j],dp[k-1][j-1]+maxn);
+           }
+       }
+    if(dp[jobDifficultySize][d]==INF)
+       return -1;
+    return dp[jobDifficultySize][d];
+}
