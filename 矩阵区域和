@@ -1,0 +1,41 @@
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+
+int sum(int** mat, int x, int y, int row, int col, int k)
+{
+    int sum = 0;
+    for(int i = x - k; i <= x + k; i++)
+    {
+        if(!(i >= 0 && i < row))
+            continue;
+        for(int j = y - k; j <= y + k; j++)
+        {
+            if(!(j >= 0 && j < col))
+                continue;
+            sum += mat[i][j];
+
+        }
+    }
+    return sum;
+}
+
+int** matrixBlockSum(int** mat, int row, int* matCol, int k, int* returnSize, int** returnCol)
+{
+    int col = *matCol;
+    int** ans = (int**)malloc(sizeof(int*) * row);
+    *returnSize = row;
+    *returnCol = (int*)malloc(sizeof(int) * row);
+    for(int i = 0; i < row; i++)
+    {
+        ans[i] = (int*)malloc(sizeof(int) * col);
+        (*returnCol)[i] = col;
+        for(int j = 0; j< col; j++)
+        {
+            ans[i][j] = sum(mat, i, j, row, col,k);
+        }
+    }
+    return ans;
+}
