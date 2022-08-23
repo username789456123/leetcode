@@ -1,0 +1,21 @@
+int isleap(int y){
+    return y%4==0 && y%100!=0 || y%400==0;
+}
+int tab[]={-1,31,28,31,30,31,30,31,31,30,31,30,31};
+int getdate(char *date){ 
+    int y,m,d,r=0;
+    sscanf(date, "%d-%d-%d", &y,&m,&d);
+    for(int i=1970; i<y;i++)
+        if(isleap(i)) r+= 366;
+        else r+= 365;
+    for(int i=1;i<m;i++){
+        r+=tab[i];
+        if(i==2 && isleap(y)) r+=1;
+    }
+    r+=d;
+    return r;
+}
+#define intfabs(x) ((x)<0?-(x):(x))
+int daysBetweenDates(char * date1, char * date2){
+    return intfabs(getdate(date1)-getdate(date2) );
+}
