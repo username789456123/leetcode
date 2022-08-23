@@ -1,0 +1,31 @@
+static int recode[3];
+int numberOfSubstrings(char * s){
+    if (s == NULL) {
+        return 0;
+    }
+    if (strlen(s) < 3) {
+        return 0;
+    }
+    int start = 0;
+    int end = 0;
+    int cnt = 0;
+    int len = strlen(s);
+    char val;
+    recode[0] = 0;
+    recode[1] = 0;
+    recode[2] = 0;
+
+    while (end < len) {
+        val = s[end];
+        recode[val - 'a']++;
+        while ((recode[0] > 0) && (recode[1] > 0) && (recode[2] > 0)) {
+            cnt += (len - end); // 满足条件更新结果
+
+            val =s[start];
+            recode[val - 'a']--;
+            start++;
+        }
+        end++;
+    }
+    return cnt;
+}
