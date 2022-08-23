@@ -1,0 +1,21 @@
+int numOfSubarrays(int* arr, int arrSize, int k, int threshold){
+  int val = k * threshold;
+
+  //arr的前n项和,sum[n+1]=a[0]+...+a[n], sum[0]=0
+  int*sum = (int*)malloc(sizeof(int)*(arrSize+1));
+  sum[0]=0;
+  for(int i=0;i<arrSize;i++)
+    sum[i+1]=sum[i]+arr[i];
+  
+  int left,right,tempSum,count=0;
+  for(left=0;left<=arrSize-k;left++)//a[i]+...+a[i+k-1] = sum[i+k]-sum[i]
+  {
+      right = left+k;
+      tempSum = sum[right]-sum[left];
+      if(tempSum>=val)
+        count++;
+  }
+  
+  return count;
+   
+}
