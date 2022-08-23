@@ -1,0 +1,25 @@
+int** diagonalSort(int** mat, int matSize, int* matColSize, int* returnSize, int** returnColumnSizes){
+    int row = matSize;
+    int col = matColSize[0];
+
+    for(int i = 0; i < row - 1; i++)
+    {
+        for(int j = 0; j < row - 1 - i; j++)
+        {
+            // 最内层遍历，比较mat[j][k]和mat[j + 1][k + 1]
+            for(int k = 0; k < col - 1; k++)
+            {
+                if(mat[j][k] > mat[j + 1][k + 1])
+                {
+                    int tmp = mat[j][k];
+                    mat[j][k] = mat[j + 1][k + 1];
+                    mat[j + 1][k + 1] = tmp;
+                }
+            }
+        }
+    }
+
+    *returnSize = matSize;
+    *returnColumnSizes = matColSize;
+    return mat;
+}
