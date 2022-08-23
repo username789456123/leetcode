@@ -1,0 +1,16 @@
+char * breakPalindrome(char * palindrome){
+    int palindrome_len = (int)strlen(palindrome);
+    if (palindrome_len == 1) return "";
+    char *result = calloc(palindrome_len+1,sizeof(char));
+    for (int l = 0; l < palindrome_len; l++) {
+        result[l] = palindrome[l];
+    }
+    for (int i = 0; i < (int)palindrome_len/2; i++) {
+        if(palindrome[i] != 'a'){
+            result[i] = 'a';
+            return result;
+        }
+    }
+    result[palindrome_len-1] = 'b';
+    return result;
+}
