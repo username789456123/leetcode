@@ -1,0 +1,37 @@
+int g_dis[26][26] = {0};
+int g_init = 0;
+
+int minimumDistance(char * word){
+    if (!g_init) {
+        for (int i = 0; i < 26; i++) {
+            for (int j = i + 1; j < 26; j++) {
+                g_dis[i][j] = g_dis[j][i] = abs(i / 6 - j / 6) + abs(i % 6 - j % 6);
+            }
+        }
+        g_init = 1;
+    }
+
+    int len = strlen(word);
+    int dp1[26] = {0};
+    int dp2[26];
+    int p = word[0] - 'A';
+    int *pre = dp1, *cur = dp2;
+    for (int i = 1; i < len; i++) {
+        int c = word[i] - 'A';
+        for (int j = 0; j < 26; j++) {
+            cur[j] = pre[j] + g_dis[c][p];
+        }
+        for (int j = 0; j < 26; j++) {
+            cur[p] = fmin(cur[p], pre[j] + g_dis[j][c]);
+        }
+        p = c;
+        int *t = pre;
+        pre = cur, cur = t;
+    }
+
+    int ret = len * 10;
+    for (int j = 0; j < 26; j++) {
+        ret = fmin(ret, pre[j]);
+    }
+    return ret;
+}
