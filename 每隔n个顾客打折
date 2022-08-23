@@ -1,0 +1,47 @@
+#define CNT 201
+typedef struct {
+    int n;
+    int discount;
+    int productsmap[CNT];
+    int prices[CNT];
+    int productsSize;
+    int pricesSize;
+} Cashier;
+
+int k=0;
+
+Cashier* cashierCreate(int n, int discount, int* products, int productsSize, int* prices, int pricesSize) {
+    Cashier* obj =  (Cashier *)malloc(sizeof(Cashier));
+    obj->n = n;
+    obj->discount = discount;
+    obj->productsSize = productsSize;
+    obj->pricesSize = pricesSize;
+    for(int i=0;i<productsSize;i++){
+        obj->productsmap[products[i]] = i;
+        obj->prices[i] = prices[i];
+    }
+    k=0;
+    return obj;
+}
+
+double cashierGetBill(Cashier* obj, int* product, int productSize, int* amount, int amountSize) {
+    double sum =0;
+    double ans;
+    k++;
+    
+    for(int i=0;i<productSize;i++){
+        sum += obj->prices[obj->productsmap[product[i]]] * amount[i];
+    }
+    if(k == obj->n){
+        k=0;
+        ans = (double)sum - (double)(obj->discount * sum)/100;
+    }else{
+        ans = (double)sum;
+    }
+    return ans;
+}
+
+void cashierFree(Cashier* obj) {
+    free(obj);
+    obj = NULL;
+}
