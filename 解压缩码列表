@@ -1,0 +1,16 @@
+int* decompressRLElist(int* nums, int numsSize, int* returnSize){
+	int arrSize = 0;
+	for(int i = 0;i<numsSize;i+=2){
+		arrSize += nums[i];
+	}
+    *returnSize = arrSize;
+	int* arr = (int *)malloc(sizeof(int ) * arrSize);
+	int j = 0;
+	for(int i = 0;i<numsSize;i+=2){
+		for(int k = 0;k<nums[i];k++){
+			arr[j] = nums[i+1];
+			j++;
+		}
+	}
+	return arr; 
+}
