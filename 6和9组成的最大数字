@@ -1,0 +1,24 @@
+int maximum69Number (int num){
+    int n=num,re=0;
+    int m=0;
+    while(n){
+        m++;
+        n=n/10;
+    }
+    n=num;
+    int s[m];
+    // int* s=malloc(sizeof(int)*m);
+    for(int i=m-1;i>=0;i--){
+        s[i]=n%10;
+        n=n/10;
+    }
+    int j=0;
+    while(s[j]==9 && j<m-1){
+        j++; 
+    }
+    s[j]=9;
+    for(int k=0;k<m;k++){
+        re=re*10+s[k];
+    }
+    return re;
+}
