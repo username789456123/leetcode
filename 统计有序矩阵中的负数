@@ -1,0 +1,17 @@
+int countNegatives(int** grid, int row, int* gridColSize)
+{
+    int col = *gridColSize;
+    int ans = 0;
+    int i = 0, j = col - 1;
+    while(i < row && j >= 0)
+    {
+        if(grid[i][j] < 0)
+        {
+            ans += row - i;
+            j--; 
+        }
+        else
+            i++;
+    }
+    return ans;
+}
