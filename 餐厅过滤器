@@ -1,0 +1,47 @@
+typedef struct {
+    int id;
+    int rating;
+    int veganFriendly;
+    int price;
+    int distance;
+}Restaurant;
+int cmp(void *a, void *b)
+{
+    Restaurant *tmp1 = (Restaurant *)a;
+    Restaurant *tmp2 = (Restaurant *)b;
+    if (tmp1->rating != tmp2->rating) {
+        return tmp2->rating - tmp1->rating;
+    }
+    return tmp2->id - tmp1->id;
+}
+int* filterRestaurants(int** restaurants, int restaurantsSize, int* restaurantsColSize, int veganFriendly, int maxPrice, int maxDistance, int* returnSize){
+    Restaurant *restaurantInfo = (Restaurant *)malloc(sizeof(Restaurant) * restaurantsSize);
+    memset(restaurantInfo, 0, sizeof(Restaurant) * restaurantsSize);
+    int cnt = 0;
+    for (int i = 0; i < restaurantsSize; i++) {
+        if (veganFriendly && restaurants[i][2] != veganFriendly) {
+            continue;
+        }
+        if (maxPrice < restaurants[i][3]) {
+            continue;
+        }
+        if (maxDistance < restaurants[i][4]) {
+            continue;
+        }
+        restaurantInfo[cnt].id = restaurants[i][0];
+        restaurantInfo[cnt].rating = restaurants[i][1];
+        restaurantInfo[cnt].veganFriendly = restaurants[i][2];
+        restaurantInfo[cnt].price = restaurants[i][3];
+        restaurantInfo[cnt].distance = restaurants[i][4];
+        cnt++;
+    }
+
+    qsort(restaurantInfo, cnt, sizeof(Restaurant), cmp);
+
+    int *res = (int *)malloc(sizeof(int) * cnt);
+    for (int i = 0; i < cnt; i++) {
+        res[i] = restaurantInfo[i].id;
+    }
+    *returnSize = cnt;
+    return res;
+}
