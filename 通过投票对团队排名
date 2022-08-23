@@ -1,0 +1,38 @@
+
+//比较器
+bool compare(int hash_table[][26], int len, int a, int b) {
+    for (int i = 0; i < len; ++i) {
+        if (hash_table[a][i] > hash_table[b][i]) return true;
+        if (hash_table[a][i] < hash_table[b][i]) return false;
+    }
+    return a < b;
+}
+
+char * rankTeams(char ** votes, int votesSize){
+    
+    int num = strlen(votes[0]); //队伍的数量
+    int hash_table[26][26] = {{0}};//队伍的名次
+
+    if (votesSize < 2)
+        return votes[0];
+
+    //遍历所有的投票，并记录每个队伍的名次
+    for (int i =0; i < votesSize; i++){
+        for (int j =0; j < num; j++){
+            hash_table[votes[i][j] - 'A'][j]++;
+        }
+    }
+    //选择排序
+    char *result = votes[0];
+    char temp = 0;
+    for (int i = 0; i < num - 1; ++i) {
+        for (int j = i + 1; j < num; ++j) {
+            if (!compare(hash_table, num, result[i]- 'A', result[j]- 'A')){
+                temp = result[i];
+                result[i] = result[j];
+                result[j] = temp;
+            }
+        }
+    }   
+    return result;
+}
