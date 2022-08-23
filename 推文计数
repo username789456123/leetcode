@@ -1,0 +1,77 @@
+typedef struct {
+    char name[50];
+    int time[10000];
+    int size;
+    UT_hash_handle hh;
+} TweetCounts;
+
+TweetCounts *g_hash = NULL;
+
+int getInterVal(char *freq) {
+    if (strcmp("minute", freq) == 0) {
+        return 60;
+    } else if (strcmp("hour", freq) == 0) {
+        return 3600;
+    } else {
+        return 86400;
+    }
+}
+
+int min(int timeA, int timeB) {
+    return timeA < timeB ? timeA : timeB;
+}
+
+int getInterValCount(char *freq, int startTime, int endTime) {
+    int interVal = getInterVal(freq);
+    int interValCount =  (endTime - startTime) / interVal;
+    return interValCount + 1;
+}
+
+TweetCounts* tweetCountsCreate() {
+    return g_hash;
+}
+
+void tweetCountsRecordTweet(TweetCounts* obj, char * tweetName, int time) {
+    TweetCounts *s = NULL;
+    HASH_FIND_STR(g_hash, tweetName, s);
+    if (s == NULL) {
+        s = (TweetCounts *)malloc(sizeof(TweetCounts));
+        strcpy(s->name, tweetName);
+        s->size = 0;
+        s->time[(s->size)++] = time;
+        HASH_ADD_STR(g_hash, name, s);
+    } else {
+        HASH_DEL(g_hash, s);
+        s->time[(s->size)++] = time;
+        HASH_ADD_STR(g_hash, name, s);
+    }
+}
+
+int* tweetCountsGetTweetCountsPerFrequency(TweetCounts* obj, char * freq, char * tweetName, int startTime, int endTime, int* retSize) {
+    int *result = (int *)malloc(sizeof(int) * 10000);
+    int interVal = getInterVal(freq);
+    TweetCounts *s = NULL;
+    *retSize = 0;
+    int interValCount = getInterValCount(freq, startTime, endTime);
+    HASH_FIND_STR(g_hash, tweetName, s);
+    if (s != NULL) {
+        for (int k = 0; k < interValCount; k++) {
+            int count = 0;
+            for (int i = 0; i <= s->size; i++) {
+                if (s->time[i] >= (startTime + k * interVal) && s->time[i] < min(startTime + (k + 1) * interVal, endTime + 1)) {
+                    count++;
+                }
+            }
+            result[(*retSize)++] = count;
+        }
+    }
+    return result;
+}
+
+void tweetCountsFree(TweetCounts* obj) {
+    TweetCounts *current, *tmp;
+    HASH_ITER(hh, g_hash, current, tmp) {
+        HASH_DEL(g_hash, current);
+        free(current);
+    }
+}
