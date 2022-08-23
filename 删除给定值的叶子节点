@@ -1,0 +1,52 @@
+struct TreeNode *PostOrder(struct TreeNode *root, struct TreeNode **Stack, int *Stack_p, int target)
+{
+    struct TreeNode *p = root, *pre = NULL;     //pre指向刚访问过的结点
+    while (p != NULL || *Stack_p != -1)
+    {
+        if (p != NULL)  //循环至根节点左子树最左节点
+        {
+            Stack[++(*Stack_p)] = p;
+            p = p->left;
+        }
+        else
+        {
+            p = Stack[(*Stack_p)];  //访问栈顶，此时不出栈是因为还不确定右子树是否访问过（后序遍历特性）
+            if (p->left == NULL && p->right == NULL)
+            {
+                if (p->val == target)
+                {
+                    if ((*Stack_p) - 1 != -1)  //栈至少还剩2个结点时
+                    {
+                        struct TreeNode *temp = Stack[--(*Stack_p)];
+                        if (temp->right == p)
+                            temp->right = NULL;
+                        else
+                            temp->left = NULL;
+                        pre = temp;
+                        p = NULL;
+                        continue; 
+                    }
+                    else
+                        return NULL;    //若栈只剩一个结点并满足target则直接返回NULL
+                }
+            }   //若为叶结点则进行判断并处理
+            if (p->right != NULL && pre != p->right)    //若右节点存在并且未被访问过则转向右节点遍历
+                p = p->right;
+            else
+            {
+                (*Stack_p)--;   //否则出栈
+                pre = p;        //指向刚访问过的节点
+                p = NULL;       //结点后序遍历完成处理下一结点（满足出栈条件）
+            }
+        }
+    }
+    return root;
+}
+
+struct TreeNode *removeLeafNodes(struct TreeNode *root, int target)
+{
+    struct TreeNode **Stack = (struct TreeNode **)malloc(sizeof(struct TreeNode *) * 28);
+    int *Stack_p = (int *)malloc(sizeof(int));
+    *Stack_p = -1;
+    return PostOrder(root, Stack, Stack_p, target);
+}
