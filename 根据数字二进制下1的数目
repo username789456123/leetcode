@@ -1,0 +1,27 @@
+int* bit;
+
+int get(int x) {
+    int res = 0;
+    while (x) {
+        res += (x % 2);
+        x /= 2;
+    }
+    return res;
+}
+
+int cmp(void* _x, void* _y) {
+    int x = *(int*)_x, y = *(int*)_y;
+    return bit[x] == bit[y] ? x - y : bit[x] - bit[y];
+}
+
+int* sortByBits(int* arr, int arrSize, int* returnSize) {
+    bit = malloc(sizeof(int) * 10001);
+    memset(bit, 0, sizeof(int) * 10001);
+    for (int i = 0; i < arrSize; ++i) {
+        bit[arr[i]] = get(arr[i]);
+    }
+    qsort(arr, arrSize, sizeof(int), cmp);
+    free(bit);
+    *returnSize = arrSize;
+    return arr;
+}
