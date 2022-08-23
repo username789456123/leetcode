@@ -1,0 +1,40 @@
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashItem;
+
+static inline int cmp(const void *pa, const void *pb) {
+    return *(int *)pa - *(int *)pb;
+}
+
+int* arrayRankTransform(int* arr, int arrSize, int* returnSize) {
+    int *sortedArr = (int *)malloc(sizeof(int) * arrSize);
+    int *ans = (int *)malloc(sizeof(int) * arrSize);
+    memcpy(sortedArr, arr, sizeof(int) * arrSize);
+    qsort(sortedArr, arrSize, sizeof(int), cmp);
+    HashItem *ranks = NULL;
+    for (int i = 0; i < arrSize; i++) {
+        HashItem *pEntry = NULL;
+        HASH_FIND_INT(ranks, &sortedArr[i], pEntry);
+        if (pEntry == NULL) {
+            pEntry = (HashItem *)malloc(sizeof(HashItem));
+            pEntry->key = sortedArr[i];
+            pEntry->val = HASH_COUNT(ranks) + 1;
+            HASH_ADD_INT(ranks, key, pEntry);
+        }
+    }
+    for (int i = 0; i < arrSize; i++) {
+        HashItem *pEntry = NULL;
+        HASH_FIND_INT(ranks, &arr[i], pEntry);
+        ans[i] = pEntry->val;
+    }
+    *returnSize = arrSize;
+    HashItem *cur, *tmp;
+    HASH_ITER(hh, ranks, cur, tmp) {
+        HASH_DEL(ranks, cur);  
+        free(cur);             
+    }
+    free(sortedArr);
+    return ans;
+}
