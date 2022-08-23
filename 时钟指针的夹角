@@ -1,0 +1,6 @@
+double angleClock(int hour, int minutes){
+    double re=0,myhour=(double)hour,myminutes=(double)minutes,tmp=360;
+    re=fmod(fabs(myhour*30-myminutes*5.5),tmp);
+    return re<=tmp/2?re:tmp-re;
+
+}
