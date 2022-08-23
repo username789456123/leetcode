@@ -1,0 +1,47 @@
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define STEP(a) ((a) & (-a))
+
+void UpdateBp(int* bp, int left, int right)
+{
+    while(left <= right) {
+        bp[left] = MAX(bp[left], right);
+        left += STEP(left);
+    }
+}
+
+void Update(int* bp, int* ranges, int n)
+{
+    for (int i = 0; i <= n; ++i) {
+        int j = i + 1;
+        int left = MAX(1, j - ranges[i]);
+        int right = MIN(n + 1, j + ranges[i]);
+        UpdateBp(bp, left, right);
+    }
+}
+
+int getMax(int* bp, int left, int right)
+{
+    int ans = bp[left];
+    while(right >= left) {
+        ans = MAX(ans, bp[right]);
+        right -= STEP(right);
+    } 
+    return ans;
+}
+
+int minTaps(int n, int* ranges, int rangesSize){
+    int* bp = (int*)malloc(sizeof(int) * (n + 2));
+    memset(bp, 0 , sizeof(int) * (n + 2));
+    Update(bp, ranges, n);
+    int now = bp[1];
+    int ans = 1;
+    while (now < n + 1) {
+        if (now >= getMax(bp, 1, now)) {
+            return -1;
+        }
+        now = getMax(bp, 1, now);
+        ++ans;
+    }
+    return ans;
+}
