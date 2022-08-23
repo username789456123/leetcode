@@ -1,0 +1,54 @@
+char * largestMultipleOfThree(int* digits, int digitsSize){
+    char *ret = (char*)calloc(digitsSize + 1, sizeof(char));
+    int sum = 0;
+    int num[10] = {0};
+
+    for (int i = 0; i < digitsSize; i++) /* 解析各数字个数 */
+    {
+        sum += digits[i];
+        num[digits[i]]++;
+    }
+
+    int remainder = sum % 3;
+    if (remainder)  /* 如果不能被三整除（即余数不为零），则进行特殊处理 */
+    {
+        for (int i = 0; i < 10; i++)    /* 只需要去掉一个数的情况 */
+        {
+            if (i % 3 == remainder && num[i] != 0)
+            {
+                num[i]--;
+                goto prt_ret;
+            }
+        }
+
+        for (int i = 0; i < 10; )   /* 能走到这里说明去掉一个数不行，需要去掉两个数 */
+        {
+            int flag = 0;
+            if (i % 3 == (remainder == 2 ? 1 : 2) && num[i] != 0)
+            {
+                num[i]--;
+                flag++;
+                if (flag == 2)
+                   goto prt_ret;
+            }
+            else
+                i++;
+        }
+    }
+
+    int start = 0;
+prt_ret:
+    for (int i = 9; i >=0; i--) /* 将结果从大到小写入ret */
+    {
+        if (num[i])
+        {
+            memset(ret + start, '0' + i, num[i]);
+            start+=num[i];
+        }
+    }
+
+    if (ret[0] == '0' && ret[1] == '0') /* 去掉前导零 */
+        ret[1] = '\0';
+
+    return ret;
+}
