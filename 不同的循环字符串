@@ -1,0 +1,65 @@
+typedef struct {
+    char *skey;
+    UT_hash_handle hh;
+} MyNode;
+MyNode *g_hashTable = NULL;
+MyNode *HashFind(char *key)
+{
+    MyNode *node = NULL;
+    HASH_FIND_STR(g_hashTable, key, node);
+    return node;
+}
+void HashAdd(char *key, int len)
+{
+    MyNode *node = HashFind(key);
+    if (node == NULL) {
+        node = (MyNode *)malloc(sizeof(MyNode));
+        char *str = (char *)malloc(sizeof(char) * (len + 1));
+        strcpy(str, key);
+        node->skey = str;
+        HASH_ADD_KEYPTR(hh, g_hashTable, node->skey, len, node);
+    }
+}
+void HashDel()
+{
+    MyNode *node, *tmp;
+    HASH_ITER(hh, g_hashTable, node, tmp) {
+        HASH_DEL(g_hashTable, node);
+        free(node->skey);
+        free(node);
+    }
+}
+void GetCount(char *s, int len, int subLen)
+{
+    int one = 0;
+    int two = 0;
+    for (int i = 0; i <= len - subLen; i++) {
+        one = i;
+        two = i + subLen / 2;
+        int j;
+        for (j = 0; j < subLen / 2; j++) {
+            if (s[one] != s[two]) {
+                break;
+            }
+            one++;
+            two++;
+        }
+        if (j == subLen / 2) {
+            char c = s[i + subLen / 2];
+            s[i + subLen / 2] = 0;
+            HashAdd(s + i, subLen / 2);
+            s[i + subLen / 2] = c;
+        }
+    }
+}
+int distinctEchoSubstrings(char * text){
+    int len = strlen(text);
+    int res = 0;
+    for (int i = 2; i <= len; i += 2) {
+        GetCount(text, len, i);
+    }
+    res = HASH_COUNT(g_hashTable);
+    HashDel();
+
+    return res;
+}
