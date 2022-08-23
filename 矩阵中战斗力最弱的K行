@@ -1,0 +1,46 @@
+typedef struct data
+{
+    int val;
+    int index;
+}data;
+
+int Binary_search(int* arr, int sz)
+{
+    int left = 0;
+    int right = sz - 1;
+    while(left <= right)
+    {
+        int mid = (left + right) >> 1;
+        if(arr[mid] == 1)
+            left = mid + 1;
+        else 
+            right = mid - 1;
+    }
+    return left;
+}
+
+int cmp(void*a, void*b)
+{
+    data*aa = (data*)a;
+    data*bb = (data*)b;
+    return aa->val > bb->val || (aa->val == bb->val && aa->index > bb->index);
+}
+
+int* kWeakestRows(int** mat, int row, int* matColSize, int k, int* returnSize)
+{
+    int col = *matColSize;
+    *returnSize = k;
+    int*ans = (int*)malloc(sizeof(int) * k);
+    data* a = (data*)malloc(sizeof(data) * row);
+    for(int i = 0; i < row; i++)
+    {
+        a[i].val = Binary_search(mat[i], col);
+        a[i].index = i;
+    }
+    qsort(a, row, sizeof(data), cmp);
+    for(int i = 0; i < k ; i++)
+    {
+        ans[i] = a[i].index;
+    }
+    return ans;
+}
