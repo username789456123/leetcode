@@ -1,0 +1,96 @@
+#define MAXN    (100050)
+
+
+typedef struct {
+    void *array[MAXN];
+    int size;
+    int (*cmp)(const void *o1, const void *o2);
+} Heap;
+
+
+static void *pop(Heap *heap)
+{
+    void *ans = heap->array[1], *val = heap->array[heap->size];
+    heap->size--;
+    int i = 1, j = 2;
+    for (; j <= heap->size; i = j, j <<= 1) {
+        if (j + 1 <= heap->size && heap->cmp(&(heap->array[j]), &(heap->array[j + 1])) > 0) {
+            j++;
+        }
+
+        if (heap->cmp(&(heap->array[j]), &val) >= 0) {
+            break;
+        }
+        heap->array[i] = heap->array[j];
+    }
+    heap->array[i] = val;
+    return ans;
+}
+
+
+static void push(Heap *heap, void *val)
+{
+    heap->size++;
+    int i = heap->size, j = heap->size >> 1;
+    for (; j > 0; i = j, j >>= 1) {
+        if (heap->cmp(&(heap->array[j]), &val) <= 0) {
+            break;
+        }
+        heap->array[i] = heap->array[j];
+    }
+    heap->array[i] = val;
+}
+
+
+static void *top(Heap *heap)
+{
+    return heap->array[1];
+}
+
+
+static int cmp(const void *o1, const void *o2)
+{
+    int *v1 = *((int**)o1), *v2 = *((int**)o2);
+    return *v2 - *v1;
+}
+
+
+bool isPossible(int* target, int targetSize){
+    Heap heap = {
+        .size = 0,
+        .cmp = cmp
+    };
+
+    long sum = 0;
+    for (int i = 0; i < targetSize; i++) {
+        push(&heap, target + i);
+        sum += target[i];
+    }
+
+    int ans = 0;
+    while (1) {
+        int *a = pop(&heap);
+        if (*a == 1) {
+            ans = 1;
+            break;
+        }
+
+        sum -= *a;
+
+        if (*a - sum < 1 || !sum) {
+            ans = 0;
+            break;
+        }
+
+        int tmp = *a % sum;
+        if (!tmp) {
+            tmp = sum;
+        }
+
+        sum += tmp;
+        *a = tmp;
+        push(&heap, a);
+    }
+
+    return ans;
+}
